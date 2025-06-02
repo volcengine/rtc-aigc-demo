@@ -8,6 +8,9 @@ const bodyParser = require('koa-bodyparser');
 const cors = require('koa2-cors');
 const { Signer } = require('@volcengine/openapi');
 const fetch = require('node-fetch');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const app = new Koa();
 
@@ -22,11 +25,11 @@ const ACCOUNT_INFO = {
   /**
    * @notes 必填, 在 https://console.volcengine.com/iam/keymanage/ 获取
    */
-  accessKeyId: 'Your AK',
+  accessKeyId: process.env.DOUBAO_AK,
   /**
    * @notes 必填, 在 https://console.volcengine.com/iam/keymanage/ 获取
    */
-  secretKey: 'Your SK',
+  secretKey: process.env.DOUBAO_SK,
 }
 
 app.use(bodyParser());

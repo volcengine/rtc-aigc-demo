@@ -4,9 +4,9 @@
   "license": "BSD-3-Clause",
   "private": true,
   "dependencies": {
+    "@arco-design/web-react": "^2.65.0",
     "@reduxjs/toolkit": "^1.8.3",
     "@volcengine/rtc": "~4.66.14",
-    "@arco-design/web-react": "^2.65.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.2",
@@ -67,5 +67,6 @@
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard": "^26.0.0",
     "typescript": "^4.7.4"
-  }
+  },
+  "packageManager": "yarn@1.22.19+sha512.ff4579ab459bb25aa7c0ff75b62acebe576f6084b36aa842971cf250a5d8c6cd3bc9420b22ce63c7f93a0857bc6ef29291db39c3e7a23aab5adfd5a4dd6c5d71"
 }

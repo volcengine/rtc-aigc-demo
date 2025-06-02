@@ -32,7 +32,7 @@ export class ConfigFactory {
     /**
      * @note 必填, RTC AppId 可于 https://console.volcengine.com/rtc/listRTC?s=g 中获取。
      */
-    AppId: 'Your RTC AppId',
+    AppId: process.env.DOUBAO_RTC_APP_ID!,
     /**
      * @brief 非必填, 按需填充。
      */
@@ -41,11 +41,11 @@ export class ConfigFactory {
      * @brief 必填, 房间 ID, 自定义即可，例如 "Room123"。
      * @note 建议使用有特定规则、不重复的房间号名称。
      */
-    RoomId: 'Room123',
+    RoomId: process.env.DOUBAO_RTC_ROOM_ID!,
     /**
      * @brief 必填, 当前和 AI 对话的用户的 ID, 自定义即可，例如 "User123"。
      */
-    UserId: 'User123',
+    UserId: process.env.DOUBAO_RTC_USER_ID!,
     /**
      * @brief 必填, RTC Token, 由 AppId、RoomId、UserId、时间戳等等信息计算得出。
      *        测试跑通时，可于 https://console.volcengine.com/rtc/listRTC?s=g 列表中，
@@ -54,12 +54,12 @@ export class ConfigFactory {
      *        建议先使用临时 Token 尝试跑通。
      * @note 生成临时 Token 时, 页面上的 RoomId / UserId 填的与此处的 RoomId / UserId 保持一致。
      */
-    Token: 'Your RTC Token',
+    Token: process.env.DOUBAO_RTC_TOKEN!,
     /**
      * @brief 必填, TTS(语音合成) AppId, 可于 https://console.volcengine.com/speech/app?s=g 中获取, 若无可先创建应用。
      * @note 创建应用时, 需要选择 "语音合成" 服务, 并选择对应的 App 进行绑定。
      */
-    TTSAppId: 'Your TTS AppId',
+    TTSAppId: process.env.DOUBAO_TTS_APP_ID!,
     /**
      * @brief 已开通需要的语音合成服务的token。
      *        使用火山引擎双向流式语音合成服务时 必填。
@@ -67,19 +67,19 @@ export class ConfigFactory {
      * @note  注意! 如您使用的是双向流式语音合成服务, 务必修改 `src/config/common.ts` 中的 VOICE_TYPE enum，将默认的 通用女声、通用男声 替换为您已开通的大模型音色。
      *        否则可能出现无法使用的情况。
      */
-    TTSToken: undefined,
+    TTSToken: process.env.DOUBAO_TTS_APP_ACCESS_TOKEN!,
     /**
      * @brief 必填, ASR(语音识别) AppId, 可于 https://console.volcengine.com/speech/app?s=g 中获取, 若无可先创建应用。
      * @note 创建应用时, 需要按需根据语言选择 "流式语音识别" 服务, 并选择对应的 App 进行绑定。
      */
-    ASRAppId: 'Your ASR AppId',
+    ASRAppId: process.env.DOUBAO_ASR_APP_ID!,
     /**
      * @brief 已开通流式语音识别大模型服务 AppId 对应的 Access Token。
      * @note 使用流式语音识别 **大模型** 服务时必填, 可于 https://console.volcengine.com/speech/service/10011?AppID=6482372612&s=g 中查看。
      * 注意, 如果填写了 ASRToken, Demo 会默认使用大模型模式，请留意相关资源是否已经开通。
      * 默认为使用小模型，无需配置 ASRToken。
      */
-    ASRToken: undefined,
+    ASRToken: process.env.DOUBAO_ASR_APP_ACCESS_TOKEN!,
   };
 
   Model: AI_MODEL = Model[SCENE.INTELLIGENT_ASSISTANT];
