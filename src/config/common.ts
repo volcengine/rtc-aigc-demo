@@ -116,11 +116,11 @@ export const AI_MODE_MAP: Partial<Record<AI_MODEL, AI_MODEL_MODE>> = {
  *       模型 ID 即接入点 ID, 在上述链接中表格内 "接入点名称" 列中, 类似于 "ep-2024xxxxxx-xxx" 格式即是模型 ID。
  */
 export const ARK_V3_MODEL_ID: Partial<Record<AI_MODEL, string>> = {
-  [AI_MODEL.DOUBAO_LITE_4K]: '************** 此处填充方舟上的模型 ID *************',
-  [AI_MODEL.DOUBAO_PRO_4K]: '************** 此处填充方舟上的模型 ID *************',
-  [AI_MODEL.DOUBAO_PRO_32K]: '************** 此处填充方舟上的模型 ID *************',
-  [AI_MODEL.DOUBAO_PRO_128K]: '************** 此处填充方舟上的模型 ID *************',
-  [AI_MODEL.VISION]: '************** 此处填充方舟上的模型 ID *************',
+  [AI_MODEL.DOUBAO_LITE_4K]: 'ep-20250602150324-wxxsm',
+  [AI_MODEL.DOUBAO_PRO_4K]: 'Doubao-1.5-pro-4k',
+  [AI_MODEL.DOUBAO_PRO_32K]: 'Doubao-1.5-pro-32k',
+  [AI_MODEL.DOUBAO_PRO_128K]: 'Doubao-1.5-pro-128k',
+  [AI_MODEL.VISION]: 'Doubao-1.5-vision-lite',
   // ... 可根据所开通的模型进行扩充
 };
 
@@ -130,7 +130,7 @@ export const ARK_V3_MODEL_ID: Partial<Record<AI_MODEL, string>> = {
  *       Bot ID 即页面上的应用 ID, 类似于 "bot-2025xxxxxx-xxx" 格式即是应用 ID。
  */
 export const LLM_BOT_ID: Partial<Record<AI_MODEL, string>> = {
-  [AI_MODEL.ARK_BOT]: '************** 此处填充方舟上的 Bot ID *************',
+  [AI_MODEL.ARK_BOT]: 'bot-20250602150446-n4459',
   // ... 可根据所开通的模型进行扩充
 };
 

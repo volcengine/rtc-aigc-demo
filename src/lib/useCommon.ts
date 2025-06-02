@@ -16,6 +16,7 @@ import {
   localLeaveRoom,
   updateAIGCState,
   updateLocalUser,
+  setHistoryMsg,
 } from '@/store/slices/room';
 
 import useRtcListeners from '@/lib/listenerHooks';
@@ -178,6 +179,16 @@ export const useJoin = (): [
       await RtcClient.startAudioBot();
     }
     dispatch(updateAIGCState({ isAIGCEnable: true }));
+
+    // 添加欢迎词到消息历史，让AI显示为已准备状态
+    dispatch(
+      setHistoryMsg({
+        text: aigcConfig.WelcomeSpeech,
+        user: aigcConfig.BotName,
+        definite: true,
+        paragraph: true,
+      })
+    );
   };
 
   async function disPatchJoin(formValues: FormProps): Promise<boolean | undefined> {

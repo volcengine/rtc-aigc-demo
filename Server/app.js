@@ -31,7 +31,7 @@ const ACCOUNT_INFO = {
    */
   secretKey: process.env.DOUBAO_SK,
 }
-
+console.log("ACCOUNT_INFO: ", ACCOUNT_INFO)
 app.use(bodyParser());
 
 
