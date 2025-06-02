@@ -118,7 +118,7 @@ export const AI_MODE_MAP: Partial<Record<AI_MODEL, AI_MODEL_MODE>> = {
 export const ARK_V3_MODEL_ID: Partial<Record<AI_MODEL, string>> = {
   [AI_MODEL.DOUBAO_LITE_4K]: 'ep-20250602150324-wxxsm',
   [AI_MODEL.DOUBAO_PRO_4K]: 'Doubao-1.5-pro-4k',
-  [AI_MODEL.DOUBAO_PRO_32K]: 'Doubao-1.5-pro-32k',
+  [AI_MODEL.DOUBAO_PRO_32K]: 'ep-20250602151409-vg5w4',
   [AI_MODEL.DOUBAO_PRO_128K]: 'Doubao-1.5-pro-128k',
   [AI_MODEL.VISION]: 'Doubao-1.5-vision-lite',
   // ... 可根据所开通的模型进行扩充
