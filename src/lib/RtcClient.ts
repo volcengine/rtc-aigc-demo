@@ -260,7 +260,14 @@ export class RTCClient {
   };
 
   startAudioCapture = async (mic?: string) => {
-    await this.engine.startAudioCapture(mic || this._audioCaptureDevice);
+    console.log('🎤 [DEBUG] startAudioCapture 开始, mic:', mic);
+    try {
+      await this.engine.startAudioCapture(mic || this._audioCaptureDevice);
+      console.log('🎤 [DEBUG] startAudioCapture 成功');
+    } catch (error) {
+      console.error('🎤 [ERROR] startAudioCapture 失败:', error);
+      throw error;
+    }
   };
 
   stopAudioCapture = async () => {
@@ -350,9 +357,11 @@ export class RTCClient {
    * @brief 启用 AIGC
    */
   startAudioBot = async () => {
+    console.log('🤖 [DEBUG] startAudioBot 开始');
     const roomId = this.basicInfo.room_id;
     const userId = this.basicInfo.user_id;
     if (this.audioBotEnabled) {
+      console.log('🤖 [DEBUG] 音频机器人已启用，先停止');
       await this.stopAudioBot();
     }
     const agentConfig = aigcConfig.aigcConfig.AgentConfig;
@@ -368,10 +377,18 @@ export class RTCClient {
       },
       Config: aigcConfig.aigcConfig.Config,
     };
-    await openAPIs.StartVoiceChat(options);
-    this.audioBotEnabled = true;
-    this.audioBotStartTime = Date.now();
-    Utils.setSessionInfo({ audioBotEnabled: 'enable' });
+    console.log('🤖 [DEBUG] 发送StartVoiceChat请求:', options);
+    try {
+      const result = await openAPIs.StartVoiceChat(options);
+      console.log('🤖 [DEBUG] StartVoiceChat响应:', result);
+      this.audioBotEnabled = true;
+      this.audioBotStartTime = Date.now();
+      Utils.setSessionInfo({ audioBotEnabled: 'enable' });
+      console.log('🤖 [DEBUG] startAudioBot 完成');
+    } catch (error) {
+      console.error('🤖 [ERROR] StartVoiceChat失败:', error);
+      throw error;
+    }
   };
 
   /**

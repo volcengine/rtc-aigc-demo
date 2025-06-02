@@ -171,24 +171,29 @@ export const useJoin = (): [
   const listeners = useRtcListeners();
 
   const handleAIGCModeStart = async () => {
+    console.log(' [DEBUG] handleAIGCModeStart 开始');
     if (room.isAIGCEnable) {
+      console.log(' [DEBUG] AI已启用，停止并重启');
       await RtcClient.stopAudioBot();
       dispatch(clearCurrentMsg());
       await RtcClient.startAudioBot();
     } else {
+      console.log(' [DEBUG] AI未启用，首次启动');
       await RtcClient.startAudioBot();
     }
     dispatch(updateAIGCState({ isAIGCEnable: true }));
 
     // 添加欢迎词到消息历史，让AI显示为已准备状态
+    console.log(' [DEBUG] 添加欢迎词到消息历史');
     dispatch(
       setHistoryMsg({
         text: aigcConfig.WelcomeSpeech,
-        user: aigcConfig.BotName,
+        user: aigcConfig.BotName, 
         definite: true,
         paragraph: true,
       })
     );
+    console.log(' [DEBUG] handleAIGCModeStart 完成');
   };
 
   async function disPatchJoin(formValues: FormProps): Promise<boolean | undefined> {

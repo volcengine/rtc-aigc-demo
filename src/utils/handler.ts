@@ -110,16 +110,20 @@ export const useMessageHandler = () => {
      * @note https://www.volcengine.com/docs/6348/1337284?s=g
      */
     [MESSAGE_TYPE.SUBTITLE]: (parsed: AnyRecord) => {
+      console.log('💬 [DEBUG] 处理字幕消息:', parsed);
       const data = parsed.data?.[0] || {};
       /** debounce 记录用户输入文字 */
       if (data) {
         const { text: msg, definite, userId: user, paragraph } = data;
+        console.log('💬 [DEBUG] 字幕数据:', { msg, user, paragraph, definite });
         logger.debug('handleRoomBinaryMessageReceived', data);
         if ((window as any)._debug_mode) {
           dispatch(setHistoryMsg({ msg, user, paragraph, definite }));
         } else {
           const isAudioEnable = RtcClient.getAudioBotEnabled();
+          console.log('💬 [DEBUG] 音频机器人状态:', isAudioEnable);
           if (isAudioEnable) {
+            console.log('💬 [DEBUG] 添加消息到历史:', { text: msg, user, paragraph, definite });
             dispatch(setHistoryMsg({ text: msg, user, paragraph, definite }));
           }
         }
