@@ -40,6 +40,7 @@ import Config, {
   isVisionMode,
 } from '@/config';
 import TitleCard from '../TitleCard';
+import VoiceSelector from '@/components/VoiceSelector';
 import CheckBoxSelector from '@/components/CheckBoxSelector';
 import RtcClient from '@/lib/RtcClient';
 import { clearHistoryMsg, updateAIConfig, updateModelMode, updateScene } from '@/store/slices/room';
@@ -482,48 +483,22 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         />
         
         <div
-          className="mt-4"
+          className="my-4"
           style={{
             flexWrap: utils.isMobile() ? 'wrap' : 'nowrap',
           }}
         >
           <TitleCard title="音色">
-            <div className="mt-2">
-              {/* 音色类别选择 */}
-              <div className="mb-4">
-                <div className="text-sm text-gray-600 mb-2">音色类别</div>
-                <Radio.Group
-                  value={selectedVoiceCategory}
-                  onChange={handleVoiceCategoryChanged}
-                  type="button"
-                  size="small"
-                  className="flex flex-wrap gap-2"
-                >
-                  {VOICE_CATEGORIES.map((category) => (
-                    <Radio key={category} value={category}>
-                      {category}
-                    </Radio>
-                  ))}
-                </Radio.Group>
-              </div>
-              
-              {/* 基于类别的音色选择 */}
-              <CheckBoxSelector
-                label={`${selectedVoiceCategory} - 音色选择`}
-                data={getVoicesByCategory(selectedVoiceCategory).map((voice) => ({
-                  key: voice.value,
-                  label: voice.name,
-                  icon: undefined, // 修复类型错误
-                  description: `${voice.language} - ${voice.name}`,
-                }))}
+              <VoiceSelector
+                label="音色选择"
                 onChange={handleVoiceTypeChanged}
                 value={data.voice}
                 moreIcon={VoiceTypeChangeSVG}
                 moreText="更换音色"
-                placeHolder={`请选择${selectedVoiceCategory}音色`}
+                placeHolder="请选择你需要的音色"
               />
-            </div>
           </TitleCard>
+
           <div className="mt-4">
             {modelMode === MODEL_MODE.ORIGINAL && (
               <TitleCard title="官方模型">
@@ -531,12 +506,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   label="模型选择"
                   data={Object.keys(AI_MODEL).map((type) => ({
                     key: AI_MODEL[type as keyof typeof AI_MODEL],
-                    label: type.replaceAll('_', ' '),
-                    icon: DoubaoModelSVG,
+                    label: type,
+                    icon: '',
                   }))}
                   moreIcon={ModelChangeSVG}
                   moreText="更换模型"
-                  placeHolder="请选择你需要的模型"
+                  placeHolder="请选择模型"
                   onChange={(key) => {
                     setData((prev) => ({
                       ...prev,
@@ -547,6 +522,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 />
               </TitleCard>
             )}
+
             {modelMode === MODEL_MODE.VENDOR && (
               <>
                 <TitleCard required title="第三方模型地址">
@@ -625,6 +601,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             )}
           </div>
         </div>
+
         <TitleCard title="系统 Prompt">
           <Input.TextArea
             autoSize
