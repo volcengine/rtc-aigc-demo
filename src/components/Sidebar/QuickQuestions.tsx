@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import RtcClient from '@/lib/RtcClient';
-import { Questions } from '@/config';
+import { getQuestionsByScene } from '@/config/personas';
 import { COMMAND, INTERRUPT_PRIORITY } from '@/utils/handler';
 import { setHistoryMsg, setInterruptMsg } from '@/store/slices/room';
 import styles from './QuickQuestions.module.less';
@@ -51,7 +51,7 @@ function QuickQuestions() {
     <div className={styles.questions}>
       <div className={styles.title}>点击下述问题进行提问:</div>
       <div className={styles.questionList}>
-        {Questions[scene].map((questionText) => (
+        {getQuestionsByScene(scene).map((questionText: string) => (
           <div
             onClick={() => handleQuestion(questionText)}
             className={styles.questionItem}

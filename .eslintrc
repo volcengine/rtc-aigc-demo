@@ -32,7 +32,6 @@
     "beforeEach": false
   },
   "rules": {
-    "prettier/prettier": ["warn", { "trailingComma": "es5", "printWidth": 100 }],
     "linebreak-style": "off",
     "no-console": ["warn", { "allow": ["warn", "error", "log"] }],
     "no-case-declarations": 0,
@@ -126,6 +125,7 @@
     "react/jsx-boolean-value": "off",
     "no-unsafe-optional-chaining": "off",
     "import/order": "warn",
-    "no-sparse-arrays": 0
+    "no-sparse-arrays": 0,
+    "prettier/prettier": 0
   }
 }

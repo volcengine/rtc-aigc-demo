@@ -8,6 +8,11 @@
     "prompt": "./prompts/intelligent_assistant.md",
     "welcome": "你好！我是你的智能助手，有什么可以帮助你的吗？",
     "description": "智能助手，专业的AI问答助手，能够回答各种问题并提供帮助",
+    "questions": [
+      "最近有什么好看的电影推荐吗？",
+      "上海有什么好玩的地方吗？",
+      "能给我讲一个故事吗？"
+    ],
     "isPreset": true,
     "originalScene": "INTELLIGENT_ASSISTANT",
     "details": {
@@ -26,6 +31,11 @@
     "prompt": "./prompts/screen_reader.md",
     "welcome": "你好！我是读屏助手，我可以帮助你了解屏幕上的内容。",
     "description": "读屏助手，帮助视障用户获取屏幕内容信息",
+    "questions": [
+      "屏幕里这是什么?",
+      "这道题你会做吗?",
+      "帮我翻译解说下屏幕里的内容?"
+    ],
     "isPreset": true,
     "originalScene": "SCREEN_READER",
     "details": {
@@ -44,6 +54,11 @@
     "prompt": "./prompts/virtual_girl_friend.md",
     "welcome": "亲爱的，你好呀～今天过得怎么样？",
     "description": "虚拟女友，温柔可爱的聊天伙伴",
+    "questions": [
+      "我今天有点累。",
+      "我们等会儿去看电影吧！",
+      "明天我生日，你准备送给我什么礼物呢？"
+    ],
     "isPreset": true,
     "originalScene": "VIRTUAL_GIRL_FRIEND",
     "details": {
@@ -62,6 +77,11 @@
     "prompt": "./prompts/translate.md",
     "welcome": "你好！我是翻译助手，请告诉我需要翻译的内容和目标语言。",
     "description": "翻译助手，专业的多语言翻译服务",
+    "questions": [
+      "道可道，非常道；名可名，非常名。",
+      "Stay hungry, stay foolish.",
+      "天生我材必有用，千金散尽还复来。"
+    ],
     "isPreset": true,
     "originalScene": "TRANSLATE",
     "details": {
@@ -80,6 +100,11 @@
     "prompt": "./prompts/children_encyclopedia.md",
     "welcome": "小朋友你好！我是百科小老师，有什么想知道的吗？",
     "description": "儿童百科，专为儿童设计的知识问答助手",
+    "questions": [
+      "天上有多少颗星星？",
+      "太阳为什么总是从东边升起？",
+      "苹果的英语怎么说？"
+    ],
     "isPreset": true,
     "originalScene": "CHILDREN_ENCYCLOPEDIA",
     "details": {
@@ -98,6 +123,11 @@
     "prompt": "./prompts/customer_service.md",
     "welcome": "您好！我是客服助手，很高兴为您服务，请问有什么可以帮助您的？",
     "description": "客服助手，专业的客户服务支持",
+    "questions": [
+      "我上次来你们店里吃饭，等了三十分钟菜才上来。",
+      "你们店里卫生间有点脏。",
+      "你们空调开得太冷了。"
+    ],
     "isPreset": true,
     "originalScene": "CUSTOMER_SERVICE",
     "details": {
@@ -116,6 +146,11 @@
     "prompt": "./prompts/teaching_assistant.md",
     "welcome": "同学你好！我是教学助手，有什么学习问题可以帮助你解答。",
     "description": "教学助手，专业的教育辅导助手",
+    "questions": [
+      "这个单词是什么意思？",
+      "这道题该怎么做？",
+      "我的表情是什么样的？"
+    ],
     "isPreset": true,
     "originalScene": "TEACHING_ASSISTANT",
     "details": {

@@ -5,7 +5,7 @@
 
 import { IPersona } from '@/types/persona';
 import { SCENE, AI_MODEL, VoiceName } from './common';
-import allPersonasData from './all-personas-latest.json';
+import allPersonasData from './preset-personas.json';
 
 /**
  * 从JSON文件加载预设人设数据
@@ -21,7 +21,10 @@ const loadPresetPersonas = (): IPersona[] => {
     welcome: personaData.welcome,
     description: personaData.description,
     isPreset: personaData.isPreset,
-    originalScene: personaData.originalScene ? SCENE[personaData.originalScene as keyof typeof SCENE] : undefined,
+    originalScene: personaData.originalScene
+      ? SCENE[personaData.originalScene as keyof typeof SCENE]
+      : undefined,
+    questions: personaData.questions,
     createdAt: Date.now(),
     updatedAt: Date.now(),
   }));
@@ -40,10 +43,21 @@ export const getPresetPersonaByScene = (scene: SCENE): IPersona | undefined => {
 };
 
 /**
+ * 根据场景获取 questions
+ */
+export const getQuestionsByScene = (scene: SCENE): string[] => {
+  const persona = getPresetPersonaByScene(scene);
+  return persona?.questions || [];
+};
+
+/**
  * 获取默认人设（智能助手）
  */
 export const getDefaultPersona = (): IPersona => {
-  return PRESET_PERSONAS.find((persona) => persona.originalScene === SCENE.INTELLIGENT_ASSISTANT) || PRESET_PERSONAS[0];
+  return (
+    PRESET_PERSONAS.find((persona) => persona.originalScene === SCENE.INTELLIGENT_ASSISTANT) ||
+    PRESET_PERSONAS[0]
+  );
 };
 
 /**

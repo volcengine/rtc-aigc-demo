@@ -661,9 +661,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           <Button
             loading={loading}
             className="bg-blue-600 hover:bg-blue-700"
-            onClick={
-              // todo
-            }
+            onClick={() => {
+              // todo: implement handler
+            }}
           >
             确定
           </Button>

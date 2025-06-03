@@ -18,6 +18,7 @@ export interface IPersona {
   updatedAt: number;
   description?: string;
   originalScene?: SCENE;
+  questions?: string[];
 }
 
 export interface IPersonaManager {
