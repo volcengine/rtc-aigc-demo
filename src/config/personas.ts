@@ -14,7 +14,7 @@ const loadPresetPersonas = (): IPersona[] => {
   return allPersonasData.map((personaData) => ({
     id: personaData.id,
     name: personaData.name,
-    avatar: personaData.avatar,
+    avatar: personaData.avatar, 
     voice: personaData.voice as VoiceName,
     model: personaData.model as AI_MODEL,
     prompt: personaData.prompt,
@@ -33,13 +33,22 @@ const loadPresetPersonas = (): IPersona[] => {
 /**
  * 预设人设数据
  */
-export const PRESET_PERSONAS: IPersona[] = loadPresetPersonas();
+export const PRESET_PERSONAS = loadPresetPersonas();
+
+/**
+ * 获取默认的人设管理器配置
+ */
+export const getDefaultPersonaManager = () => ({
+  activePersonaId: PRESET_PERSONAS[0]?.id || 'preset_intelligent_assistant',
+  customPersonas: [],
+  presetPersonas: PRESET_PERSONAS,
+});
 
 /**
  * 根据场景获取预设人设
  */
-export const getPresetPersonaByScene = (scene: SCENE): IPersona | undefined => {
-  return PRESET_PERSONAS.find((persona) => persona.originalScene === scene);
+export const getPresetPersonaByScene = (scene: SCENE): IPersona | null => {
+  return PRESET_PERSONAS.find((persona) => persona.originalScene === scene) || null;
 };
 
 /**
@@ -79,4 +88,53 @@ export const clonePersona = (sourcePersona: IPersona, newName?: string): Omit<IP
  */
 export const generatePersonaId = (): string => {
   return `persona_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+};
+
+/**
+ * 获取需要屏幕共享的场景列表
+ */
+export const getScreenShareScenes = (): SCENE[] => {
+  return PRESET_PERSONAS
+    .filter(persona => persona.originalScene === 'SCREEN_READER')
+    .map(persona => persona.originalScene as SCENE);
+};
+
+/**
+ * 根据场景获取图标
+ */
+export const getIconByScene = (scene: SCENE): string => {
+  const persona = getPresetPersonaByScene(scene);
+  return persona?.avatar || '🤖';
+};
+
+/**
+ * 根据场景获取欢迎词
+ */
+export const getWelcomeByScene = (scene: SCENE): string => {
+  const persona = getPresetPersonaByScene(scene);
+  return persona?.welcome || '';
+};
+
+/**
+ * 根据场景获取默认模型
+ */
+export const getModelByScene = (scene: SCENE): AI_MODEL => {
+  const persona = getPresetPersonaByScene(scene);
+  return persona?.model as AI_MODEL || AI_MODEL.DOUBAO_PRO_32K;
+};
+
+/**
+ * 根据场景获取默认音色
+ */
+export const getVoiceByScene = (scene: SCENE): VoiceName => {
+  const persona = getPresetPersonaByScene(scene);
+  return persona?.voice as VoiceName || 'BV001_streaming';
+};
+
+/**
+ * 根据场景获取 Prompt（这个暂时保留，因为需要异步加载）
+ */
+export const getPromptByScene = (scene: SCENE): string => {
+  // 这个函数暂时返回空，实际的 prompt 加载逻辑在 common.ts 中
+  return '';
 };

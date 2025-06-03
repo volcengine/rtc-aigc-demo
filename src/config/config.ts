@@ -4,7 +4,8 @@
  */
 
 import { StreamIndex } from '@volcengine/rtc';
-import { TTS_CLUSTER, ARK_V3_MODEL_ID, MODEL_MODE, SCENE, Prompt, Welcome, Model, Persona2VoiceType, AI_MODEL, AI_MODEL_MODE, LLM_BOT_ID, VoiceName, isVisionMode, AI_MODE_MAP } from './common';
+import { TTS_CLUSTER, ARK_V3_MODEL_ID, MODEL_MODE, SCENE, Prompt, AI_MODEL, AI_MODEL_MODE, LLM_BOT_ID, VoiceName, isVisionMode, AI_MODE_MAP } from './common';
+import { getWelcomeByScene, getModelByScene, getVoiceByScene } from './personas';
 
 export const CONVERSATION_SIGNATURE = 'conversation';
 
@@ -60,14 +61,14 @@ export class ConfigFactory {
      */ ASRToken: process.env.REACT_APP_DOUBAO_ASR_APP_ACCESS_TOKEN!,
   };
 
-  Model: AI_MODEL = Model[SCENE.INTELLIGENT_ASSISTANT];
+  Model: AI_MODEL = getModelByScene(SCENE.INTELLIGENT_ASSISTANT);
 
   /**
    * @note 必填, 音色 ID, 可具体看定义。
    *       音色 ID 获取方式可查看 VOICE_TYPE 定义
    *       此处已有默认值, 不影响跑通, 可按需修改。
    */
-  VoiceType: VoiceName = Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT];
+  VoiceType: VoiceName = getVoiceByScene(SCENE.INTELLIGENT_ASSISTANT);
 
   /**
    * @note 大模型 System 角色预设指令, 可用于控制模型输出, 类似 Prompt 的概念。
@@ -77,7 +78,7 @@ export class ConfigFactory {
   /**
    * @note 智能体启动后的欢迎词。
    */
-  WelcomeSpeech = Welcome[SCENE.INTELLIGENT_ASSISTANT];
+  WelcomeSpeech = getWelcomeByScene(SCENE.INTELLIGENT_ASSISTANT);
 
   /**
    * @note 当前使用的模型来源, 具体可参考 MODEL_MODE 定义。

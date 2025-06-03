@@ -9,7 +9,7 @@ import { Drawer } from '@arco-design/web-react';
 import { useDeviceState, useLeave } from '@/lib/useCommon';
 import { RootState } from '@/store';
 import { isVisionMode } from '@/config/common';
-import { ScreenShareScene } from '@/config';
+import { getScreenShareScenes } from '@/config/personas';
 import utils from '@/utils/utils';
 import Menu from '../../Menu';
 
@@ -28,7 +28,7 @@ function ToolBar(props: React.HTMLAttributes<HTMLDivElement>) {
   const room = useSelector((state: RootState) => state.room);
   const [open, setOpen] = useState(false);
   const model = room.aiConfig.Config.LLMConfig?.ModelName;
-  const isScreenMode = ScreenShareScene.includes(room.scene);
+  const isScreenMode = getScreenShareScenes().includes(room.scene);
   const leaveRoom = useLeave();
   const {
     isAudioPublished,

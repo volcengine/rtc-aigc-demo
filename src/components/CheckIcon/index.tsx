@@ -25,10 +25,19 @@ function CheckIcon(props: IProps) {
     ? 'border border-dashed border-purple-200 opacity-80'
     : 'bg-white border border-gray-200';
 
+  // 判断icon是否为图片URL还是emoji字符
+  const isImageUrl = icon && (icon.startsWith('http') || icon.startsWith('/') || icon.startsWith('./'));
+
   return (
     <div className={`${baseClasses} ${bgClasses} ${className}`} onClick={onClick}>
       <div className="w-full h-full flex flex-col justify-center items-center z-[1] gap-0.5 overflow-hidden">
-        {icon ? <img className="rounded-full w-[55%] h-auto" src={icon} alt="icon" /> : null}
+        {icon ? (
+          isImageUrl ? (
+            <img className="rounded-full w-[55%] h-auto" src={icon} alt="icon" />
+          ) : (
+            <div className="text-2xl">{icon}</div>
+          )
+        ) : null}
 
         <div
           className={`text-center leading-tight ${

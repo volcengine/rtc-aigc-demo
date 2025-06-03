@@ -5,8 +5,8 @@
 
 import { atom, useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { SCENE, MODEL_MODE, VoiceName, AI_MODEL, Persona2VoiceType, Model, DEFAULT_VOICE_CATEGORY } from '@/config/common';
-import { PRESET_PERSONAS, getDefaultPersona, generatePersonaId } from '@/config/personas';
+import { SCENE, MODEL_MODE, VoiceName, AI_MODEL, DEFAULT_VOICE_CATEGORY } from '@/config/common';
+import { PRESET_PERSONAS, getDefaultPersona, generatePersonaId, getVoiceByScene, getModelByScene, getDefaultPersonaManager } from '@/config/personas';
 import { IPersona, IPersonaManager } from '@/types/persona';
 
 // AI设置的状态管理
@@ -44,8 +44,8 @@ export const aiSettingsAtom = atomWithStorage<AISettingsState>('ai-settings', {
   modelMode: MODEL_MODE.ORIGINAL,
   prompt: '',
   welcome: '',
-  voice: Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT],
-  model: Model[SCENE.INTELLIGENT_ASSISTANT],
+  voice: getVoiceByScene(SCENE.INTELLIGENT_ASSISTANT),
+  model: getModelByScene(SCENE.INTELLIGENT_ASSISTANT),
   Url: '',
   APIKey: '',
   customModelName: '',
@@ -75,8 +75,8 @@ export const sceneAtom = atom(
     set(aiSettingsAtom, {
       ...currentSettings,
       scene: newScene,
-      voice: Persona2VoiceType[newScene],
-      model: Model[newScene],
+      voice: getVoiceByScene(newScene),
+      model: getModelByScene(newScene),
     });
   }
 );
@@ -115,11 +115,10 @@ export const avatarConfigAtom = atom((get) => {
 });
 
 // 人设管理状态
-export const personaManagerAtom = atomWithStorage<IPersonaManager>('persona-manager', {
-  activePersonaId: PRESET_PERSONAS[0].id, // 默认选择智能助手
-  customPersonas: [],
-  presetPersonas: PRESET_PERSONAS,
-});
+export const personaManagerAtom = atomWithStorage<IPersonaManager>(
+  'persona-manager-v4', // 更新版本强制刷新缓存
+  getDefaultPersonaManager()
+);
 
 // 当前激活的人设（衍生 atom）
 export const activePersonaAtom = atom((get) => {
@@ -155,8 +154,8 @@ export const usePersonaActions = () => {
     },
 
     createPersona: (personaData: Partial<IPersona>) => {
-      const defaultVoice = Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT] as VoiceName;
-      const defaultModel = Model[SCENE.INTELLIGENT_ASSISTANT] as AI_MODEL;
+      const defaultVoice = getVoiceByScene(SCENE.INTELLIGENT_ASSISTANT) as VoiceName;
+      const defaultModel = getModelByScene(SCENE.INTELLIGENT_ASSISTANT) as AI_MODEL;
       
       const newPersona: IPersona = {
         id: generatePersonaId(),

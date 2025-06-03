@@ -2,7 +2,7 @@
   {
     "id": "preset_intelligent_assistant",
     "name": "智能助手",
-    "avatar": "🤖",
+    "avatar": "/personas/INTELLIGENT_ASSISTANT.png",
     "voice": "BV700_streaming",
     "model": "doubao-pro-32k",
     "prompt": "./prompts/intelligent_assistant.md",
@@ -25,7 +25,7 @@
   {
     "id": "preset_screen_reader",
     "name": "读屏助手",
-    "avatar": "👁️",
+    "avatar": "/personas/SCREEN_READER.png",
     "voice": "BV700_streaming",
     "model": "doubao-pro-32k",
     "prompt": "./prompts/screen_reader.md",
@@ -48,7 +48,7 @@
   {
     "id": "preset_virtual_girl_friend",
     "name": "虚拟女友",
-    "avatar": "👩‍❤️‍👨",
+    "avatar": "/personas/VIRTUAL_GIRL_FRIEND.png",
     "voice": "zh_female_shuangkuaisisi_moon_bigtts",
     "model": "doubao-pro-4k",
     "prompt": "./prompts/virtual_girl_friend.md",
@@ -71,7 +71,7 @@
   {
     "id": "preset_translate",
     "name": "翻译助手",
-    "avatar": "🌐",
+    "avatar": "/personas/TRANSLATE.png",
     "voice": "BV700_streaming",
     "model": "doubao-pro-32k",
     "prompt": "./prompts/translate.md",
@@ -94,7 +94,7 @@
   {
     "id": "preset_children_encyclopedia",
     "name": "儿童百科",
-    "avatar": "🎓",
+    "avatar": "/personas/CHILDREN_ENCYCLOPEDIA.png",
     "voice": "zh_female_tianmeixiaoyuan_moon_bigtts",
     "model": "doubao-pro-4k",
     "prompt": "./prompts/children_encyclopedia.md",
@@ -117,7 +117,7 @@
   {
     "id": "preset_customer_service",
     "name": "客服助手",
-    "avatar": "👨‍💼",
+    "avatar": "/personas/CUSTOMER_SERVICE.png",
     "voice": "BV700_streaming",
     "model": "doubao-pro-32k",
     "prompt": "./prompts/customer_service.md",
@@ -140,7 +140,7 @@
   {
     "id": "preset_teaching_assistant",
     "name": "教学助手",
-    "avatar": "👨‍🏫",
+    "avatar": "/personas/TEACHING_ASSISTANT.png",
     "voice": "BV700_streaming",
     "model": "doubao-pro-32k",
     "prompt": "./prompts/teaching_assistant.md",

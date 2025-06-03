@@ -28,7 +28,8 @@ import {
   setDevicePermissions,
 } from '@/store/slices/device';
 import logger from '@/utils/logger';
-import { ScreenShareScene, isVisionMode } from '@/config';
+import { isVisionMode } from '@/config';
+import { getScreenShareScenes } from '@/config/personas';
 import aigcConfig from '@/config/the-config';
 
 export interface FormProps {
@@ -41,7 +42,7 @@ export const useVisionMode = () => {
   const room = useSelector((state: RootState) => state.room);
   return {
     isVisionMode: isVisionMode(room.aiConfig?.Config?.LLMConfig.ModelName),
-    isScreenMode: ScreenShareScene.includes(room.scene),
+    isScreenMode: getScreenShareScenes().includes(room.scene),
   };
 };
 
@@ -214,7 +215,7 @@ export const useJoin = (): [
     setJoining(true);
     const { username, roomId } = formValues;
     const isVision = isVisionMode(aigcConfig.Model);
-    const shouldGetVideoPermission = isVision && !ScreenShareScene.includes(room.scene);
+    const shouldGetVideoPermission = isVision && !getScreenShareScenes().includes(room.scene);
 
     const token = aigcConfig.BaseConfig.Token;
 

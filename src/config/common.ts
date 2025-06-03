@@ -3,15 +3,6 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import 通用女声 from '@/assets/img/tongyongnvsheng.jpeg';
-import 通用男声 from '@/assets/img/tongyongnansheng.jpeg';
-import INTELLIGENT_ASSISTANT from '@/assets/img/INTELLIGENT_ASSISTANT.png';
-import VIRTUAL_GIRL_FRIEND from '@/assets/img/VIRTUAL_GIRL_FRIEND.png';
-import TRANSLATE from '@/assets/img/TRANSLATE.png';
-import CHILDREN_ENCYCLOPEDIA from '@/assets/img/CHILDREN_ENCYCLOPEDIA.png';
-import TEACHING_ASSISTANT from '@/assets/img/TEACHING_ASSISTANT.png';
-import CUSTOMER_SERVICE from '@/assets/img/CUSTOMER_SERVICE.png';
-import SCREEN_READER from '@/assets/img/SCREEN_READER.png';
 import presetVoices from './preset-voices.json';
 
 const VOICE_TYPE_GENERAL_FEMALE = 'BV001_streaming' ;
@@ -110,7 +101,6 @@ export const VOICE_BY_SCENARIO = allVoicesData.reduce((acc, voice) => {
 
 // 获取所有音色类别
 export const VOICE_CATEGORIES = Object.keys(VOICE_BY_SCENARIO);
-console.log({VOICE_BY_SCENARIO, VOICE_CATEGORIES});
 
 // 默认音色类别
 export const DEFAULT_VOICE_CATEGORY = '通用场景';
@@ -119,7 +109,6 @@ export const DEFAULT_VOICE_CATEGORY = '通用场景';
 export const getVoicesByCategory = (category: string) => {
   return VOICE_BY_SCENARIO[category] || [];
 };
-
 
 /**
  * @brief TTS 的 Cluster
@@ -198,54 +187,7 @@ export enum SCENE {
   CUSTOM = 'CUSTOM',
 }
 
-export const ScreenShareScene = [SCENE.SCREEN_READER];
-
-export const Icon = {
-  [SCENE.INTELLIGENT_ASSISTANT]: INTELLIGENT_ASSISTANT,
-  [SCENE.VIRTUAL_GIRL_FRIEND]: VIRTUAL_GIRL_FRIEND,
-  [SCENE.TRANSLATE]: TRANSLATE,
-  [SCENE.CHILDREN_ENCYCLOPEDIA]: CHILDREN_ENCYCLOPEDIA,
-  [SCENE.CUSTOMER_SERVICE]: CUSTOMER_SERVICE,
-  [SCENE.TEACHING_ASSISTANT]: TEACHING_ASSISTANT,
-  [SCENE.SCREEN_READER]: SCREEN_READER,
-  [SCENE.CUSTOM]: INTELLIGENT_ASSISTANT,
-};
-
-/**
- * @brief 智能体启动后的欢迎词。
- */
-export const Welcome = {
-  [SCENE.INTELLIGENT_ASSISTANT]: '你好，我是你的AI小助手，有什么可以帮你的吗？',
-  [SCENE.VIRTUAL_GIRL_FRIEND]: '你来啦，我好想你呀～今天有没有想我呢？',
-  [SCENE.TRANSLATE]: '你好，我是你的私人翻译官。',
-  [SCENE.CHILDREN_ENCYCLOPEDIA]: '你好小朋友，你的小脑袋里又有什么问题啦？',
-  [SCENE.CUSTOMER_SERVICE]: '感谢您在我们餐厅用餐，请问您有什么问题需要反馈吗？',
-  [SCENE.TEACHING_ASSISTANT]: '你碰到什么问题啦？让我来帮帮你。',
-  [SCENE.SCREEN_READER]: '欢迎使用读屏助手, 请开启屏幕采集，我会为你解说屏幕内容。',
-  [SCENE.CUSTOM]: '',
-};
-
-export const Model = {
-  [SCENE.INTELLIGENT_ASSISTANT]: AI_MODEL.DOUBAO_PRO_32K,
-  [SCENE.VIRTUAL_GIRL_FRIEND]: AI_MODEL.DOUBAO_PRO_128K,
-  [SCENE.TRANSLATE]: AI_MODEL.DOUBAO_PRO_4K,
-  [SCENE.CHILDREN_ENCYCLOPEDIA]: AI_MODEL.DOUBAO_PRO_32K,
-  [SCENE.CUSTOMER_SERVICE]: AI_MODEL.DOUBAO_PRO_32K,
-  [SCENE.TEACHING_ASSISTANT]: AI_MODEL.VISION,
-  [SCENE.SCREEN_READER]: AI_MODEL.VISION,
-  [SCENE.CUSTOM]: AI_MODEL.DOUBAO_PRO_32K,
-};
-
-export const Persona2VoiceType = {
-  [SCENE.INTELLIGENT_ASSISTANT]: VOICE_TYPE_GENERAL_FEMALE,
-  [SCENE.VIRTUAL_GIRL_FRIEND]: VOICE_TYPE_GENERAL_FEMALE,
-  [SCENE.TRANSLATE]: VOICE_TYPE_GENERAL_FEMALE,
-  [SCENE.CHILDREN_ENCYCLOPEDIA]: VOICE_TYPE_GENERAL_FEMALE,
-  [SCENE.CUSTOMER_SERVICE]: VOICE_TYPE_GENERAL_FEMALE,
-  [SCENE.TEACHING_ASSISTANT]: VOICE_TYPE_GENERAL_FEMALE,
-  [SCENE.SCREEN_READER]: VOICE_TYPE_GENERAL_MALE,
-  [SCENE.CUSTOM]: VOICE_TYPE_GENERAL_FEMALE,
-};
+export const isVisionMode = (model?: AI_MODEL) => model?.startsWith('Vision');
 
 /**
  * Prompt 缓存
@@ -315,5 +257,3 @@ export const Prompt = {
   [SCENE.SCREEN_READER]: getPromptFromCache('screen_reader.md'),
   [SCENE.CUSTOM]: getPromptFromCache('custom.md'),
 };
-
-export const isVisionMode = (model?: AI_MODEL) => model?.startsWith('Vision');
