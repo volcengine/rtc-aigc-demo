@@ -12,28 +12,42 @@ interface IProps {
   title?: string;
   onClick?: () => void;
   icon?: string;
-  tag?: string;
 }
 
 function CheckIcon(props: IProps) {
-  const { tag, blur, className = '', icon, title, checked, onClick } = props;
+  const { blur, className = '', icon, title, checked, onClick } = props;
 
-  const baseClasses = 'relative w-[128px] h-[128px] rounded-lg flex justify-center items-center cursor-pointer transition-all duration-200 hover:shadow-lg overflow-hidden box-border';
-  const bgClasses = checked ? 'bg-gradient-to-br from-blue-500 to-purple-600' : blur ? 'border border-dashed border-purple-200 opacity-80' : 'bg-white';
+  const baseClasses =
+    'relative w-20 h-20 rounded-lg flex justify-center items-center cursor-pointer transition-all duration-200 hover:shadow-lg box-border';
+  const bgClasses = checked
+    ? 'bg-gradient-to-br from-blue-500 to-purple-600'
+    : blur
+    ? 'border border-dashed border-purple-200 opacity-80'
+    : 'bg-white border border-gray-200';
 
   return (
     <div className={`${baseClasses} ${bgClasses} ${className}`} onClick={onClick}>
-      {/* {tag ? <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg z-10">{tag}</div> : null} */}
-
       <div className="w-full h-full flex flex-col justify-center items-center z-[1] gap-0.5 overflow-hidden">
         {icon ? <img className="rounded-full w-[55%] h-auto" src={icon} alt="icon" /> : null}
 
-        <div className={`text-center leading-tight ${checked ? 'text-xs font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent' : 'text-xs text-gray-700'}`}>
+        <div
+          className={`text-center leading-tight ${
+            checked
+              ? 'text-xs font-medium bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-white'
+              : 'text-xs text-gray-700'
+          }`}
+        >
           {title}
         </div>
       </div>
 
-      {checked ? <img className="absolute bottom-[-2px] right-[-2px] z-[2] w-4 h-4" src={CheckedSVG} alt="checked" /> : null}
+      {checked ? (
+        <img
+          className="absolute bottom-[-2px] right-[-2px] z-[2] w-4 h-4"
+          src={CheckedSVG}
+          alt="checked"
+        />
+      ) : null}
     </div>
   );
 }

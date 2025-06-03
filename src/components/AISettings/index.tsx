@@ -260,17 +260,11 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         我们已为您配置好对应人设的基本参数，您也可以根据自己的需求进行自定义设置
       </div>
 
-      <div className={utils.isMobile() 
-        ? 'w-full flex flex-row flex-wrap justify-center items-center gap-3.5 mt-8 overflow-x-auto pb-2' 
-        : 'w-full flex flex-row flex-wrap justify-start items-start gap-2 mt-4'
-      }>
+      <div className={'grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3'}>
         {[...SCENES, null].map((key) =>
           key ? (
             <CheckIcon
               key={key}
-              tag={
-                [SCENE.TEACHING_ASSISTANT, SCENE.SCREEN_READER].includes(key) ? '视觉理解模型' : ''
-              }
               icon={Icon[key as keyof typeof Icon]}
               title={Name[key as keyof typeof Name]}
               checked={key === scene}
