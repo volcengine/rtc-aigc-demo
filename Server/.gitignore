@@ -1,0 +1,30 @@
+# 环境变量文件 - 包含敏感信息，不应提交到代码仓库
+.env
+
+# 依赖文件
+node_modules/
+
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 运行时文件
+*.pid
+*.seed
+*.pid.lock
+
+# 临时文件
+.tmp/
+temp/
+
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
