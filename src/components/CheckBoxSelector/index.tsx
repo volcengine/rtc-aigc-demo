@@ -90,7 +90,7 @@ function CheckBoxSelector(props: IProps) {
     }
   };
 
-  // console.log({allData, value, selectedOne, moreText});
+  console.log({allData, value, selectedOne, moreText});
 
   return (
     <>
@@ -186,4 +186,4 @@ function CheckBoxSelector(props: IProps) {
   );
 }
 
-export default memo(CheckBoxSelector);
+export default CheckBoxSelector

@@ -26,7 +26,7 @@ const allVoicesData = [
       "language": "中文",
       "recommended_scenario": "通用场景",
       "tone_number": "zh_female_wanqudashu_moon_bigtts",
-      "voice_type": "zh_female_wanqudashu_moon_bigtts"
+      "voice_type": VOICE_TYPE_GENERAL_FEMALE
     },
     "group_name": "",
     "alias": "",
@@ -50,7 +50,7 @@ const allVoicesData = [
       "language": "中文",
       "recommended_scenario": "通用场景",
       "tone_number": "zh_male_wanqudashu_moon_bigtts",
-      "voice_type": "zh_male_wanqudashu_moon_bigtts"
+      "voice_type": VOICE_TYPE_GENERAL_MALE
     },
     "group_name": "",
     "alias": "",
@@ -124,12 +124,12 @@ export enum TTS_CLUSTER {
  * @default SKYLARK_LITE_PUBLIC
  */
 export enum AI_MODEL {
-  DOUBAO_LITE_4K = 'Doubao-lite-4k',
-  DOUBAO_PRO_4K = 'Doubao-pro-4k',
-  DOUBAO_PRO_32K = 'Doubao-pro-32k',
-  DOUBAO_PRO_128K = 'Doubao-pro-128k',
-  VISION = 'Vision',
-  ARK_BOT = 'ArkBot',
+  DOUBAO_LITE_4K = 'doubao-lite-4k',
+  DOUBAO_PRO_4K = 'doubao-pro-4k',
+  DOUBAO_PRO_32K = 'doubao-pro-32k',
+  DOUBAO_PRO_128K = 'doubao-pro-128k',
+  VISION = 'vision',
+  ARK_BOT = 'ark-bot',
 }
 
 /**

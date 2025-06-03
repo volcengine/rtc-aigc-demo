@@ -11,16 +11,43 @@ import { IPersona, IPersonaManager } from '@/types/persona';
 
 // 人设管理状态
 export const personaManagerAtom = atomWithStorage<IPersonaManager>(
-  'persona-manager-v5', // 更新版本强制刷新缓存
+  'persona-manager-v8', // 更新版本强制刷新缓存
   getDefaultPersonaManager()
 );
 
-// 当前激活的人设（衍生 atom）
-export const activePersonaAtom = atom((get) => {
-  const manager = get(personaManagerAtom);
-  const allPersonas = [...manager.presetPersonas, ...manager.customPersonas];
-  return allPersonas.find((p) => p.id === manager.activePersonaId) || getDefaultPersona();
-});
+// 当前激活的人设（可读写 atom）
+export const activePersonaAtom = atom(
+  (get) => {
+    const manager = get(personaManagerAtom);
+    const allPersonas = [...manager.presetPersonas, ...manager.customPersonas];
+    return allPersonas.find((p) => p.id === manager.activePersonaId) || getDefaultPersona();
+  },
+  (get, set, newPersona: IPersona) => {
+    // 更新人设管理器中的对应人设
+    const manager = get(personaManagerAtom);
+    const isPreset = newPersona.isPreset;
+    
+    if (isPreset) {
+      // 更新预设人设
+      const updatedPresetPersonas = manager.presetPersonas.map((p) =>
+        p.id === newPersona.id ? newPersona : p
+      );
+      set(personaManagerAtom, {
+        ...manager,
+        presetPersonas: updatedPresetPersonas,
+      });
+    } else {
+      // 更新自定义人设
+      const updatedCustomPersonas = manager.customPersonas.map((p) =>
+        p.id === newPersona.id ? newPersona : p
+      );
+      set(personaManagerAtom, {
+        ...manager,
+        customPersonas: updatedCustomPersonas,
+      });
+    }
+  }
+);
 
 // 自定义人设列表（衍生 atom）
 export const customPersonasAtom = atom((get) => {
@@ -131,20 +158,29 @@ export const loadingAtom = atom(
 export const voiceAtom = atom(
   (get) => get(activePersonaAtom).voice,
   (get, set, newVoice: VoiceName) => {
-    set(activePersonaAtom, { ...get(activePersonaAtom), voice: newVoice });
+    const currentPersona = get(activePersonaAtom);
+    set(activePersonaAtom, { ...currentPersona, voice: newVoice });
   }
 );
 
 export const modelAtom = atom(
   (get) => get(activePersonaAtom).model,
   (get, set, newModel: AI_MODEL) => {
-    set(activePersonaAtom, { ...get(activePersonaAtom), model: newModel });
+    const currentPersona = get(activePersonaAtom);
+    set(activePersonaAtom, { ...currentPersona, model: newModel });
   }
 );
 
 export const modelModeAtom = atom(
-  (get) => get(activePersonaAtom).modelMode,
+  (get) => get(activePersonaAtom).extra?.modelMode || MODEL_MODE.ORIGINAL,
   (get, set, newModelMode: MODEL_MODE) => {
-    set(activePersonaAtom, { ...get(activePersonaAtom), modelMode: newModelMode });
+    const currentPersona = get(activePersonaAtom);
+    set(activePersonaAtom, { 
+      ...currentPersona, 
+      extra: { 
+        ...currentPersona.extra, 
+        modelMode: newModelMode 
+      } 
+    });
   }
 );
