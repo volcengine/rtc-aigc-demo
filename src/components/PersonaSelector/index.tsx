@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Input, Message, Select } from '@arco-design/web-react';
-import { IconPlus, IconEdit, IconDelete, IconCopy } from '@arco-design/web-react/icon';
+import { IconEdit, IconDelete, IconCopy } from '@arco-design/web-react/icon';
 import { useAtom, useAtomValue } from 'jotai';
 import CheckIcon from '../CheckIcon';
 import { IPersona } from '@/types/persona';
@@ -26,9 +26,6 @@ interface IPersonaEditModalProps {
 }
 
 const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, isClone = false, onOk, onCancel }) => {
-  // 添加调试信息
-  console.log("PersonaEditModal props:", { visible, persona: persona?.name, isClone });
-
   const getAllVoiceOptions = () => {
     const allVoices: Array<{ label: string; value: string; category: string }> = [];
     Object.entries(VOICE_BY_SCENARIO).forEach(([category, voices]) => {
@@ -51,24 +48,18 @@ const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, 
   };
 
   const [formData, setFormData] = useState<Partial<IPersona>>(() => {
-    console.log("初始化 formData，参数:", { persona: persona?.name, isClone });
-    
     if (persona) {
       if (isClone) {
-        console.log("进入克隆分支，源数据:", persona);
         // 克隆模式：创建完整的克隆数据，包含所有字段
         const cloned = clonePersona(persona);
-        console.log("克隆后的数据:", cloned);
         return { 
           ...cloned, 
           id: generatePersonaId(),
         };
       }
-      console.log("进入编辑分支");
       // 编辑模式：使用现有人设的完整数据
       return { ...persona };
     }
-    console.log("进入新建分支");
     // 新建模式：使用默认空值
     return {
       name: '',
@@ -83,23 +74,17 @@ const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, 
 
   // 监听 persona 和 isClone 的变化，重新初始化 formData
   useEffect(() => {
-    console.log("useEffect 触发，参数:", { persona: persona?.name, isClone });
-    
     if (persona) {
       if (isClone) {
-        console.log("useEffect 克隆分支，源数据:", persona);
         const cloned = clonePersona(persona);
-        console.log("useEffect 克隆后的数据:", cloned);
         setFormData({ 
           ...cloned, 
           id: generatePersonaId(),
         });
       } else {
-        console.log("useEffect 编辑分支");
         setFormData({ ...persona });
       }
     } else {
-      console.log("useEffect 新建分支");
       setFormData({
         name: '',
         description: '',
@@ -138,9 +123,6 @@ const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, 
 
   const voiceOptions = getAllVoiceOptions();
   const modelOptions = getModelOptions();
-
-  console.log("formData: ", formData);
-  
 
   return (
     <Modal 
@@ -376,30 +358,20 @@ function PersonaSelector({ className }: PersonaSelectorProps) {
       {/* 预设人设 */}
       {presetPersonas.length > 0 && (
         <div className="mt-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">预设人设</h3>
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2">{presetPersonas.map(renderPersonaCard)}</div>
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2">
+            
+          <div className="relative group cursor-pointer" onClick={handleCreatePersona}>
+            <div className="w-20 h-20 rounded-2xl border-2 border-dashed border-gray-300 hover:border-blue-400 bg-gray-50 hover:bg-blue-50 transition-all duration-200 flex items-center justify-center">
+              <div className="text-3xl text-gray-400 group-hover:text-blue-400 transition-colors">+</div>
+            </div>
+          </div>
+
+            {presetPersonas.map(renderPersonaCard)}
+            
+            {customPersonas.map(renderPersonaCard)}
+            </div>
         </div>
       )}
-
-      {/* 自定义人设 */}
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-gray-700">自定义人设</h3>
-          <Button type="primary" size="mini" icon={<IconPlus />} onClick={handleCreatePersona}>
-            创建人设
-          </Button>
-        </div>
-
-        {customPersonas.length > 0 ? (
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2">{customPersonas.map(renderPersonaCard)}</div>
-        ) : (
-          <div className="text-center py-8 text-gray-400">
-            <div className="text-4xl mb-2">👤</div>
-            <div className="text-sm">还没有自定义人设</div>
-            <div className="text-xs mt-1">点击"创建人设"开始自定义你的AI助手</div>
-          </div>
-        )}
-      </div>
 
       {/* 编辑模态框 */}
       <PersonaEditModal visible={editModalVisible} persona={editingPersona} isClone={isCloneMode} onOk={handleModalOk} onCancel={handleModalCancel} />
