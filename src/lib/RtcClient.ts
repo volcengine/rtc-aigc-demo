@@ -366,6 +366,13 @@ export class RTCClient {
     }
     const agentConfig = aigcConfig.aigcConfig.AgentConfig;
 
+    // 🔍 添加调试日志，查看当前的配置
+    console.log('🔍 [DEBUG] 当前 aigcConfig:', aigcConfig);
+    
+    // 特别检查 TTS 配置
+    const ttsConfig = aigcConfig.aigcConfig.Config.TTSConfig;
+    console.log('🔍 [DEBUG] 当前 TTSConfig:', ttsConfig);
+
     const options = {
       AppId: aigcConfig.BaseConfig.AppId,
       BusinessId: aigcConfig.BaseConfig.BusinessId,
