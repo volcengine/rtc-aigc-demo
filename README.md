@@ -5,6 +5,69 @@
 - 用户只需调用基于标准的 OpenAPI 接口即可配置所需的 ASR、LLM、TTS 类型和参数。火山引擎云端计算服务负责边缘用户接入、云端资源调度、音视频流压缩、文本与语音转换处理以及数据订阅传输等环节。简化开发流程，让开发者更专注在对大模型核心能力的训练及调试，从而快速推进AIGC产品应用创新。     
 - 同时火山引擎 RTC拥有成熟的音频 3A 处理、视频处理等技术以及大规模音视频聊天能力，可支持 AIGC 产品更便捷的支持多模态交互、多人互动等场景能力，保持交互的自然性和高效性。 
 
+## 🚀 快速配置指南
+
+### 第一步：环境变量配置
+
+#### 📋 配置清单
+在开始之前，请确保您已经准备好以下配置信息：
+
+| 配置项 | 获取地址 | 说明 |
+|--------|----------|------|
+| **火山引擎 AK/SK** | [访问控制-密钥管理](https://console.volcengine.com/iam/keymanage/) | 用于API身份验证 |
+| **RTC应用配置** | [RTC-AIGC控制台](https://console.volcengine.com/rtc/aigc/listRTC) | RTC应用ID、密钥、Token等 |
+| **语音服务配置** | [语音技术-应用管理](https://console.volcengine.com/speech/app) | TTS/ASR应用ID和访问令牌 |
+| **大模型接入点** | [火山方舟-在线推理](https://console.volcengine.com/ark/region:ark+cn-beijing/endpoint) | 豆包模型接入点ID |
+
+#### 🔧 配置步骤
+
+**1. 复制环境变量模板**
+```bash
+# 前端配置
+cp .env.example .env
+
+# 后端配置  
+cp Server/.env.example Server/.env
+```
+
+**2. 填写前端环境变量 (`.env`)**
+```bash
+# 🎥 RTC配置 (必填)
+REACT_APP_DOUBAO_RTC_APP_ID=您的RTC应用ID
+REACT_APP_DOUBAO_RTC_APP_KEY=您的RTC应用密钥  
+REACT_APP_DOUBAO_RTC_TOKEN=您的RTC访问令牌
+REACT_APP_DOUBAO_RTC_ROOM_ID=Room123  # 可自定义
+REACT_APP_DOUBAO_RTC_USER_ID=User123  # 可自定义
+REACT_APP_DOUBAO_RTC_TASK_ID=ChatTask01  # 可自定义
+
+# 🔊 语音服务配置 (必填)
+REACT_APP_DOUBAO_TTS_APP_ID=您的TTS应用ID
+REACT_APP_DOUBAO_TTS_APP_ACCESS_TOKEN=您的TTS访问令牌
+REACT_APP_DOUBAO_ASR_APP_ID=您的ASR应用ID  
+REACT_APP_DOUBAO_ASR_APP_ACCESS_TOKEN=您的ASR访问令牌
+```
+
+**3. 填写后端环境变量 (`Server/.env`)**
+```bash
+# 火山引擎密钥 (必填)
+DOUBAO_AK=您的Access_Key_ID
+DOUBAO_SK=您的Secret_Access_Key
+```
+
+**4. 大模型配置**
+如果使用官方模型，需要在 `src/config/common.ts` 中配置：
+```typescript
+// 填写您的大模型接入点ID
+export const ARK_V3_MODEL_ID = 'ep-20250602151409-vg5w4';
+```
+
+### 第二步：服务开通确认
+
+请确保已开通以下服务：
+- ✅ **实时音视频 RTC** - [开通指南](https://www.volcengine.com/docs/6348/1315561)
+- ✅ **语音技术 ASR/TTS** - [开通指南](https://www.volcengine.com/docs/6561) 
+- ✅ **豆包大模型** - [开通指南](https://www.volcengine.com/docs/82379)
+
 ## 【必看】环境准备
 - **Node 版本: 16.0+**
 1. 需要准备两个 Terminal，分别启动服务端、前端页面。
@@ -17,30 +80,55 @@ RoomId、UserId 以及申请的 AppID、BusinessID(如有)、Token、ASR AppID�
 
 ## 快速开始
 请注意，服务端和 Web 端都需要启动, 启动步骤如下:
-### 服务端
+
+### 🔥 一键启动脚本 (推荐)
+```bash
+# 在项目根目录执行
+npm run start:all
+```
+
+### 手动启动
+#### 服务端
 进到项目根目录
-#### 安装依赖
+**安装依赖**
 ```shell
 cd Server
 yarn
 ```
-#### 运行项目
+**运行项目**
 ```shell
 node app.js
 ```
 
-### 前端页面
+#### 前端页面
 进到项目根目录
-#### 安装依赖
+**安装依赖**
 ```shell
 yarn
 ```
-#### 运行项目
+**运行项目**
 ```shell
 yarn dev
 ```
 
-### 常见问题
+## 🔍 配置验证
+
+启动成功后，请检查：
+
+1. **后端服务状态**
+   - 控制台输出 `Server is running on port 3001`
+   - 访问 `http://localhost:3001/health` 返回正常
+
+2. **前端页面状态**  
+   - 访问 `http://localhost:3000` 页面正常加载
+   - 浏览器控制台无报错信息
+
+3. **功能测试**
+   - 麦克风权限正常获取
+   - 点击开始对话，AI状态变为"准备就绪"
+   - 语音对话功能正常
+
+## 常见问题
 | 问题 | 解决方案 |
 | :-- | :-- |
 | 如何使用第三方模型、Coze Bot | 点击页面上的 "修改 AI 设定" 进入配置页，可切换 官方模型/Coze/第三方模型，填写对应参数即可，相关代码对应 `src/components/AISettings/index.tsx` 文件。 |
