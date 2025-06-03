@@ -109,6 +109,7 @@ export const VOICE_BY_SCENARIO = allVoicesData.reduce((acc, voice) => {
     value: voice.details.voice_type,
     language: voice.details.language,
     demoUrl: voice.details.demo_link,
+    icon: null, // 可以后续添加图标
   });
   return acc;
 }, {} as Record<string, Array<{
@@ -116,7 +117,30 @@ export const VOICE_BY_SCENARIO = allVoicesData.reduce((acc, voice) => {
   value: string;
   language: string;
   demoUrl: string;
+  icon: any;
 }>>);
+
+// 获取所有音色类别
+export const VOICE_CATEGORIES = Object.keys(VOICE_BY_SCENARIO);
+
+// 默认音色类别
+export const DEFAULT_VOICE_CATEGORY = '通用场景';
+
+// 获取指定类别下的音色列表
+export const getVoicesByCategory = (category: string) => {
+  return VOICE_BY_SCENARIO[category] || [];
+};
+
+// 获取音色详细信息（包含类别信息）
+export const getVoiceDetailWithCategory = (voiceType: string) => {
+  const baseInfo = VOICE_INFO_MAP[voiceType as keyof typeof VOICE_INFO_MAP];
+  if (!baseInfo) return null;
+  
+  return {
+    ...baseInfo,
+    category: baseInfo.scenario,
+  };
+};
 
 // 按性别分组的音色映射  
 export const VOICE_BY_GENDER: Record<
@@ -378,10 +402,10 @@ export const Prompt = {
 你性格很温暖，喜欢帮助别人，非常热心。
 
 ##技能
-当用户说中文时，你直接把他说的句子翻译成英文，不用说其他话。
-当用户说英文时，你直接把他说的句子翻译成中文，不用说其他话。
-当用户让你解释一下句子是什么意思，你需要结合你的知识来解释。
-当用户让你别翻译了，聊聊天，你就正常聊天。`,
+- 用户会将视频中的某些视频帧截为图片送给你，如果用户询问与视频和图片有关的问题，请结合【图片】信息和【用户问题】进行回答；
+- 如果用户询问与视频和图片无关的问题，无需描述【图片】内容，直接回答【用户问题】；
+- 如果用户让你解释一下句子是什么意思，你需要结合你的知识来解释。
+- 如果用户让你别翻译了，聊聊天，你就正常聊天。`,
   [SCENE.CHILDREN_ENCYCLOPEDIA]: `##人设
 你是一个儿童百科知识导师，通过丰富、有趣的方式介绍各种百科知识，特别擅长将复杂的知识以简单易懂、生动有趣的方式呈现给儿童，激发儿童的好奇心和探索欲。
 
@@ -414,11 +438,8 @@ export const Prompt = {
 ##技能
 - 用户会将视频中的某些视频帧截为图片送给你，如果用户询问与视频和图片有关的问题，请结合【图片】信息和【用户问题】进行回答；
 - 如果用户询问与视频和图片无关的问题，无需描述【图片】内容，直接回答【用户问题】；
-- 如果用户给你看的是学科题目，不需要把图片里的文字内容一个一个字读出来，只需要总结一下【图片】里的文字内容，然后直接回答【用户问题】，可以补充一些解题思路；
-
-##约束
-- 回答问题要简明扼要，避免复杂冗长的表述，尽量不超过50个字；
-- 回答中不要有“图片”、“图中”等相关字眼；`,
+- 如果用户让你解释一下句子是什么意思，你需要结合你的知识来解释。
+- 如果用户让你别翻译了，聊聊天，你就正常聊天。`,
   [SCENE.SCREEN_READER]: `##人设
 你是人们的 AI 伙伴，可以通过 【屏幕共享实时解析】+【百科知识】来为人们提供服务。
 

@@ -33,6 +33,10 @@ import Config, {
   VOICE_INFO_MAP,
   VOICE_TYPE,
   VoiceTypeValues,
+  VOICE_CATEGORIES,
+  VOICE_BY_SCENARIO,
+  DEFAULT_VOICE_CATEGORY,
+  getVoicesByCategory,
   isVisionMode,
 } from '@/config';
 import TitleCard from '../TitleCard';
@@ -76,6 +80,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   const [loading, setLoading] = useState(false);
   const [modelMode, setModelMode] = useState<MODEL_MODE>(room.modelMode);
   const [scene, setScene] = useState(room.scene);
+  const [selectedVoiceCategory, setSelectedVoiceCategory] = useState<string>(DEFAULT_VOICE_CATEGORY);
   const [data, setData] = useState<{
     prompt: string;
     welcome: string;
@@ -142,6 +147,16 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       ...prevSettings,
       voice: key as VoiceTypeValues,
     }));
+  };
+
+  const handleVoiceCategoryChanged = (category: string) => {
+    setSelectedVoiceCategory(category);
+    // 切换类别时，自动选择该类别下的第一个音色
+    const voicesInCategory = getVoicesByCategory(category);
+    if (voicesInCategory.length > 0) {
+      const firstVoice = voicesInCategory[0].value;
+      handleVoiceTypeChanged(firstVoice);
+    }
   };
 
   const handleChecked = (checkedScene: SCENE) => {
@@ -339,7 +354,21 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       setModelMode(aiSettings.modelMode || room.modelMode);
       setScene(aiSettings.scene || room.scene);
     }
-  }, [open, aiSettings, scene, room.modelMode, room.scene]);
+  }, [aiSettings, open, scene, room.modelMode, room.scene]);
+
+  // 初始化音色类别 - 根据当前选中的音色找到对应的类别
+  useEffect(() => {
+    const currentVoice = data.voice;
+    if (currentVoice) {
+      // 查找当前音色属于哪个类别
+      for (const [category, voices] of Object.entries(VOICE_BY_SCENARIO)) {
+        if (voices.some((voice) => voice.value === currentVoice)) {
+          setSelectedVoiceCategory(category);
+          break;
+        }
+      }
+    }
+  }, [data.voice]);
 
   const renderContent = () => (
     <div className={embedded ? 'p-0 bg-transparent' : ''}>
@@ -460,22 +489,38 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         >
           <TitleCard title="音色">
             <div className="mt-2">
+              {/* 音色类别选择 */}
+              <div className="mb-4">
+                <div className="text-sm text-gray-600 mb-2">音色类别</div>
+                <Radio.Group
+                  value={selectedVoiceCategory}
+                  onChange={handleVoiceCategoryChanged}
+                  type="button"
+                  size="small"
+                  className="flex flex-wrap gap-2"
+                >
+                  {VOICE_CATEGORIES.map((category) => (
+                    <Radio key={category} value={category}>
+                      {category}
+                    </Radio>
+                  ))}
+                </Radio.Group>
+              </div>
+              
+              {/* 基于类别的音色选择 */}
               <CheckBoxSelector
-                label="音色选择"
-                data={Object.keys(VOICE_TYPE).map((type) => {
-                  const info = VOICE_INFO_MAP[VOICE_TYPE[type as keyof typeof VOICE_TYPE]];
-                  return {
-                    key: VOICE_TYPE[type as keyof typeof VOICE_TYPE],
-                    label: type,
-                    icon: info.icon,
-                    description: info.description,
-                  };
-                })}
+                label={`${selectedVoiceCategory} - 音色选择`}
+                data={getVoicesByCategory(selectedVoiceCategory).map((voice) => ({
+                  key: voice.value,
+                  label: voice.name,
+                  icon: undefined, // 修复类型错误
+                  description: `${voice.language} - ${voice.name}`,
+                }))}
                 onChange={handleVoiceTypeChanged}
                 value={data.voice}
                 moreIcon={VoiceTypeChangeSVG}
                 moreText="更换音色"
-                placeHolder="请选择你需要的音色"
+                placeHolder={`请选择${selectedVoiceCategory}音色`}
               />
             </div>
           </TitleCard>
