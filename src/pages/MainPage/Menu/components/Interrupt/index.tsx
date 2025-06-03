@@ -7,10 +7,10 @@ import { Popover, Switch } from '@arco-design/web-react';
 import { IconQuestionCircle } from '@arco-design/web-react/icon';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import Config from '@/config';
 import styles from './index.module.less';
 import RtcClient from '@/lib/RtcClient';
 import { clearHistoryMsg } from '@/store/slices/room';
+import Config from '@/config/the-config';
 
 function Interrupt() {
   const dispatch = useDispatch();

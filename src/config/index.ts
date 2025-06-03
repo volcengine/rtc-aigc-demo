@@ -3,11 +3,4 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { ConfigFactory } from './config';
-
 export * from './common';
-
-export const AIGC_PROXY_HOST = 'http://localhost:3001/proxyAIGCFetch';
-
-export const Config = ConfigFactory;
-export default new ConfigFactory();

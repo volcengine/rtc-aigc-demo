@@ -28,7 +28,8 @@ import {
   setDevicePermissions,
 } from '@/store/slices/device';
 import logger from '@/utils/logger';
-import aigcConfig, { ScreenShareScene, isVisionMode } from '@/config';
+import { ScreenShareScene, isVisionMode } from '@/config';
+import aigcConfig from '@/config/the-config';
 
 export interface FormProps {
   username: string;

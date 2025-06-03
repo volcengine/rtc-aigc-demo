@@ -27,9 +27,9 @@ import VERTC, {
 import RTCAIAnsExtension from '@volcengine/rtc/extension-ainr';
 import { Message } from '@arco-design/web-react';
 import openAPIs from '@/app/api';
-import aigcConfig from '@/config';
 import Utils from '@/utils/utils';
 import { COMMAND, INTERRUPT_PRIORITY } from '@/utils/handler';
+import aigcConfig from '@/config/the-config';
 
 export interface IEventListener {
   handleError: (e: { errorCode: any }) => void;

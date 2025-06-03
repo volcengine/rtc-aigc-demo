@@ -10,7 +10,8 @@ import {
   NetworkQuality,
   RemoteAudioStats,
 } from '@volcengine/rtc';
-import config, { MODEL_MODE, SCENE } from '@/config';
+import { MODEL_MODE, SCENE } from '@/config';
+import theConfig from '@/config/the-config';
 
 export interface IUser {
   username?: string;
@@ -119,7 +120,7 @@ const initialState: RoomState = {
   isUserTalking: false,
   networkQuality: NetworkQuality.UNKNOWN,
 
-  aiConfig: config.aigcConfig,
+  aiConfig: theConfig.aigcConfig,
   modelMode: MODEL_MODE.ORIGINAL,
 
   msgHistory: [],
@@ -240,7 +241,7 @@ export const roomSlice = createSlice({
       const { paragraph, definite } = payload;
       const lastMsg = state.msgHistory.at(-1)! || {};
       /** 是否需要再创建新句子 */
-      const fromBot = payload.user === config.BotName;
+      const fromBot = payload.user === theConfig.BotName;
       /**
        * Bot 的语句以 definite 判断是否需要追加新内容
        * User 的语句以 paragraph 判断是否需要追加新内容

@@ -4,22 +4,7 @@
  */
 
 import { StreamIndex } from '@volcengine/rtc';
-import {
-  TTS_CLUSTER,
-  ARK_V3_MODEL_ID,
-  MODEL_MODE,
-  SCENE,
-  Prompt,
-  Welcome,
-  Model,
-  Persona2VoiceType,
-  AI_MODEL,
-  AI_MODEL_MODE,
-  LLM_BOT_ID,
-  VoiceNames,
-  isVisionMode,
-  AI_MODE_MAP,
-} from '.';
+import { TTS_CLUSTER, ARK_V3_MODEL_ID, MODEL_MODE, SCENE, Prompt, Welcome, Model, Persona2VoiceType, AI_MODEL, AI_MODEL_MODE, LLM_BOT_ID, VoiceName, isVisionMode, AI_MODE_MAP } from './common';
 
 export const CONVERSATION_SIGNATURE = 'conversation';
 
@@ -36,17 +21,14 @@ export class ConfigFactory {
     AppId: process.env.REACT_APP_DOUBAO_RTC_APP_ID!,
     /**
      * @brief 非必填, 按需填充。
-     */
-    BusinessId: undefined,
+     */ BusinessId: undefined,
     /**
      * @brief 必填, 房间 ID, 自定义即可，例如 "Room123"。
      * @note 建议使用有特定规则、不重复的房间号名称。
-     */
-    RoomId: process.env.REACT_APP_DOUBAO_RTC_ROOM_ID!,
+     */ RoomId: process.env.REACT_APP_DOUBAO_RTC_ROOM_ID!,
     /**
      * @brief 必填, 当前和 AI 对话的用户的 ID, 自定义即可，例如 "User123"。
-     */
-    UserId: process.env.REACT_APP_DOUBAO_RTC_USER_ID!,
+     */ UserId: process.env.REACT_APP_DOUBAO_RTC_USER_ID!,
     /**
      * @brief 必填, RTC Token, 由 AppId、RoomId、UserId、时间戳等等信息计算得出。
      *        测试跑通时，可于 https://console.volcengine.com/rtc/listRTC?s=g 列表中，
@@ -54,33 +36,28 @@ export class ConfigFactory {
      *        正式使用时可参考 https://www.volcengine.com/docs/6348/70121?s=g 通过代码生成 Token。
      *        建议先使用临时 Token 尝试跑通。
      * @note 生成临时 Token 时, 页面上的 RoomId / UserId 填的与此处的 RoomId / UserId 保持一致。
-     */
-    Token: process.env.REACT_APP_DOUBAO_RTC_TOKEN!,
+     */ Token: process.env.REACT_APP_DOUBAO_RTC_TOKEN!,
     /**
      * @brief 必填, TTS(语音合成) AppId, 可于 https://console.volcengine.com/speech/app?s=g 中获取, 若无可先创建应用。
      * @note 创建应用时, 需要选择 "语音合成" 服务, 并选择对应的 App 进行绑定。
-     */
-    TTSAppId: process.env.REACT_APP_DOUBAO_TTS_APP_ID!,
+     */ TTSAppId: process.env.REACT_APP_DOUBAO_TTS_APP_ID!,
     /**
      * @brief 已开通需要的语音合成服务的token。
      *        使用火山引擎双向流式语音合成服务时 必填。
-     * 
+     *
      * @note  注意! 如您使用的是双向流式语音合成服务, 务必修改 `src/config/common.ts` 中的 VOICE_TYPE enum，将默认的 通用女声、通用男声 替换为您已开通的大模型音色。
      *        否则可能出现无法使用的情况。
-     */
-    TTSToken: process.env.REACT_APP_DOUBAO_TTS_APP_ACCESS_TOKEN!,
+     */ TTSToken: process.env.REACT_APP_DOUBAO_TTS_APP_ACCESS_TOKEN!,
     /**
      * @brief 必填, ASR(语音识别) AppId, 可于 https://console.volcengine.com/speech/app?s=g 中获取, 若无可先创建应用。
      * @note 创建应用时, 需要按需根据语言选择 "流式语音识别" 服务, 并选择对应的 App 进行绑定。
-     */
-    ASRAppId: process.env.REACT_APP_DOUBAO_ASR_APP_ID!,
+     */ ASRAppId: process.env.REACT_APP_DOUBAO_ASR_APP_ID!,
     /**
      * @brief 已开通流式语音识别大模型服务 AppId 对应的 Access Token。
      * @note 使用流式语音识别 **大模型** 服务时必填, 可于 https://console.volcengine.com/speech/service/10011?AppID=6482372612&s=g 中查看。
      * 注意, 如果填写了 ASRToken, Demo 会默认使用大模型模式，请留意相关资源是否已经开通。
      * 默认为使用小模型，无需配置 ASRToken。
-     */
-    ASRToken: process.env.REACT_APP_DOUBAO_ASR_APP_ACCESS_TOKEN!,
+     */ ASRToken: process.env.REACT_APP_DOUBAO_ASR_APP_ACCESS_TOKEN!,
   };
 
   Model: AI_MODEL = Model[SCENE.INTELLIGENT_ASSISTANT];
@@ -90,7 +67,7 @@ export class ConfigFactory {
    *       音色 ID 获取方式可查看 VOICE_TYPE 定义
    *       此处已有默认值, 不影响跑通, 可按需修改。
    */
-  VoiceType: VoiceNames = Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT];
+  VoiceType: VoiceName = Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT];
 
   /**
    * @note 大模型 System 角色预设指令, 可用于控制模型输出, 类似 Prompt 的概念。
@@ -275,7 +252,7 @@ export class ConfigFactory {
 
     // 添加高级配置参数
     const extraParam: Record<string, any> = {};
-    
+
     if (this.VoiceSynthesisConfig.withTimestamp) {
       extraParam.with_timestamp = this.VoiceSynthesisConfig.withTimestamp;
     }
@@ -320,13 +297,11 @@ export class ConfigFactory {
         /**
          * @note 具体流式语音识别服务对应的 Cluster ID，可在流式语音服务控制台开通对应服务后查询。
          *       具体链接为: https://console.volcengine.com/speech/service/16?s=g
-         */
-        Cluster: 'volcengine_streaming_common',
+         */ Cluster: 'volcengine_streaming_common',
       },
       /**
        * @note 小模型情况下, 建议使用 VAD 及音量采集设置, 以优化识别效果。
-       */
-      VADConfig: {
+       */ VADConfig: {
         SilenceTime: 600,
         SilenceThreshold: 200,
       },

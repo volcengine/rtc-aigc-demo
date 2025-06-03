@@ -3,37 +3,25 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { Button, Drawer, Input, Message, Radio, Tooltip, Select, Slider, Switch } from '@arco-design/web-react';
+import { Button, Drawer, Input, Radio, Tooltip, Select, Slider, Switch } from '@arco-design/web-react';
 
 import { useEffect, useRef } from 'react';
-
-import { useDispatch, useSelector } from 'react-redux';
 
 import { useAtom, useAtomValue } from 'jotai';
 
 import { IconExclamationCircle } from '@arco-design/web-react/icon';
 
-import { StreamIndex } from '@volcengine/rtc';
-
 import PersonaSelector from '../PersonaSelector';
 
-import Config, { SCENE, AI_MODEL, MODEL_MODE, VoiceNames, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY, isVisionMode } from '@/config';
+import { AI_MODEL, MODEL_MODE, VoiceName, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY } from '@/config';
 
 import TitleCard from '../TitleCard';
 
 import CheckBoxSelector from '@/components/CheckBoxSelector';
 
-import RtcClient from '@/lib/RtcClient';
-
-import { clearHistoryMsg, updateAIConfig, updateModelMode, updateScene } from '@/store/slices/room';
-
-import { RootState } from '@/store';
-
 import utils from '@/utils/utils';
 
-import { useDeviceState } from '@/lib/useCommon';
-
-import { aiSettingsAtom, activePersonaAtom, sceneAtom, modelModeAtom, voiceAtom, modelAtom, selectedVoiceCategoryAtom, loadingAtom } from '@/store/atoms';
+import { aiSettingsAtom, activePersonaAtom, modelModeAtom, voiceAtom, modelAtom, loadingAtom } from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
 
@@ -52,120 +40,19 @@ const RadioGroup = Radio.Group;
  * AI 设置面板
  */
 function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
-  const dispatch = useDispatch();
-  const { isVideoPublished, isScreenPublished, switchScreenCapture, switchCamera } = useDeviceState();
-  const room = useSelector((state: RootState) => state.room);
-
-  // 使用 Jotai atoms 替代本地状态
   const [aiSettings, setAiSettings] = useAtom(aiSettingsAtom);
-  const [scene, setScene] = useAtom(sceneAtom);
   const [modelMode, setModelMode] = useAtom(modelModeAtom);
   const [voice, setVoice] = useAtom(voiceAtom);
   const [model, setModel] = useAtom(modelAtom);
-  const [selectedVoiceCategory, setSelectedVoiceCategory] = useAtom(selectedVoiceCategoryAtom);
   const [loading, setLoading] = useAtom(loadingAtom);
   const activePersona = useAtomValue(activePersonaAtom);
 
   const handleVoiceTypeChanged = (key: string) => {
-    setVoice(key as VoiceNames);
+    setVoice(key as VoiceName);
   };
 
   const handleUseThirdPart = (key: string) => {
     setModelMode(key as MODEL_MODE);
-  };
-
-  const handleUpdateConfig = async () => {
-    dispatch(updateScene({ scene }));
-    Config.ModeSourceType = modelMode;
-    switch (modelMode) {
-      case MODEL_MODE.ORIGINAL:
-        Config.Url = undefined;
-        Config.APIKey = undefined;
-        break;
-      case MODEL_MODE.COZE:
-        if (!aiSettings.APIKey) {
-          Message.error('访问令牌必填');
-          return;
-        }
-        if (!aiSettings.BotID) {
-          Message.error('智能体 ID 必填');
-          return;
-        }
-        Config.APIKey = aiSettings.APIKey;
-        Config.BotID = aiSettings.BotID;
-        break;
-      case MODEL_MODE.VENDOR:
-        if (!aiSettings.Url) {
-          Message.error('请输入正确的第三方模型地址');
-          return;
-        }
-        if (!aiSettings.Url.startsWith('http://') && !aiSettings.Url.startsWith('https://')) {
-          Message.error('第三方模型请求地址格式不正确, 请以 http:// 或 https:// 为开头');
-          return;
-        }
-        Config.Url = aiSettings.Url;
-        Config.APIKey = aiSettings.APIKey;
-        break;
-      default:
-        break;
-    }
-
-    // 保存基本配置
-    Config.Prompt = aiSettings.prompt;
-    Config.WelcomeSpeech = aiSettings.welcome;
-    Config.VoiceType = voice;
-    Config.Model = model;
-
-    // 保存语音合成配置
-    Config.VoiceSynthesisConfig = {
-      encoding: aiSettings.encoding,
-      speedRatio: aiSettings.speedRatio,
-      rate: aiSettings.rate,
-      bitrate: aiSettings.bitrate,
-      loudnessRatio: aiSettings.loudnessRatio,
-      emotion: aiSettings.emotion,
-      enableEmotion: aiSettings.enableEmotion,
-      emotionScale: aiSettings.emotionScale,
-      explicitLanguage: aiSettings.explicitLanguage,
-      contextLanguage: aiSettings.contextLanguage,
-      withTimestamp: aiSettings.withTimestamp,
-      disableMarkdownFilter: aiSettings.disableMarkdownFilter,
-      enableLatexTn: aiSettings.enableLatexTn,
-      silenceDuration: aiSettings.silenceDuration,
-      enableCache: aiSettings.enableCache,
-    };
-
-    setLoading(true);
-    dispatch(updateModelMode(modelMode));
-    dispatch(updateAIConfig(Config.aigcConfig));
-
-    if (isVisionMode(model)) {
-      switch (scene) {
-        case SCENE.SCREEN_READER:
-          /** 关摄像头，打开屏幕采集 */
-          room.isJoined && isVideoPublished && switchCamera();
-          Config.VisionSourceType = StreamIndex.STREAM_INDEX_SCREEN;
-          break;
-        default:
-          /** 关屏幕采集，打开摄像头 */
-          room.isJoined && !isVideoPublished && switchCamera();
-          room.isJoined && isScreenPublished && switchScreenCapture();
-          Config.VisionSourceType = StreamIndex.STREAM_INDEX_MAIN;
-          break;
-      }
-    } else {
-      /** 全关 */
-      room.isJoined && isVideoPublished && switchCamera();
-      room.isJoined && isScreenPublished && switchScreenCapture();
-    }
-
-    if (RtcClient.getAudioBotEnabled()) {
-      dispatch(clearHistoryMsg());
-      await RtcClient.updateAudioBot();
-    }
-
-    setLoading(false);
-    onOk?.();
   };
 
   useEffect(() => {
@@ -771,7 +658,13 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           <Button loading={loading} className="bg-gray-200 hover:bg-gray-300" onClick={onCancel}>
             取消
           </Button>
-          <Button loading={loading} className="bg-blue-600 hover:bg-blue-700" onClick={handleUpdateConfig}>
+          <Button
+            loading={loading}
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={
+              // todo
+            }
+          >
             确定
           </Button>
         </div>

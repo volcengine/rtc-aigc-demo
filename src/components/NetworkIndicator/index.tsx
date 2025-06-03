@@ -10,7 +10,8 @@ import { IconArrowDown, IconArrowUp } from '@arco-design/web-react/icon';
 import { NetworkQuality } from '@volcengine/rtc';
 import { RootState } from '@/store';
 import style from './index.module.less';
-import Config from '@/config';
+
+import Config from '@/config/the-config';
 
 enum INDICATOR_COLORS {
   GREAT = 'rgba(35, 195, 67, 1)',

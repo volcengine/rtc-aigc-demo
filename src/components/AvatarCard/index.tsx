@@ -3,58 +3,21 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { useAtomValue } from 'jotai';
-import { useSelector } from 'react-redux';
+import { useAtom } from 'jotai';
 import DouBaoAvatar from '@/assets/img/DoubaoAvatarGIF.webp';
-import { MODEL_MODE, Persona2Name } from '@/config';
-import { RootState } from '@/store';
-import { avatarConfigAtom, sceneAtom } from '@/store/atoms';
+import { activePersonaAtom } from '@/store/atoms';
 import style from './index.module.less';
-import { log } from 'console';
 
 interface IAvatarCardProps extends React.HTMLAttributes<HTMLDivElement> {
   avatar?: string;
 }
 
-const SourceName = {
-  [MODEL_MODE.VENDOR]: '第三方模型',
-  [MODEL_MODE.COZE]: 'Coze',
-};
-
 function AvatarCard(props: IAvatarCardProps) {
-  const room = useSelector((state: RootState) => state.room);
-  const avatarConfig = useAtomValue(avatarConfigAtom);
-
-  const modelMode = avatarConfig.modelMode || room.modelMode;
-  const voice = avatarConfig.voice || room.aiConfig.Config?.TTSConfig?.ProviderParams?.audio?.voice_type;
-  const model = avatarConfig.model;
-  const customModelName = avatarConfig.customModelName;
+  const [persona] = useAtom(activePersonaAtom);
 
   const { avatar: avatarProp, className, ...rest } = props;
 
-  // 显示的模型名称
-  const displayModelName = () => {
-    if (modelMode === MODEL_MODE.ORIGINAL) {
-      return `模型 ${model || room.aiConfig.Config?.LLMConfig?.ModelName || ''}`;
-    }
-    if (modelMode === MODEL_MODE.VENDOR && customModelName) {
-      return `模型 ${customModelName}`;
-    }
-    return `模型来源 ${SourceName[modelMode] || ''}`;
-  };
-
-  const scene = useAtomValue(sceneAtom);
-
-  // 获取场景的中文显示名称
-  const getSceneName = () => {
-    return Persona2Name[scene] || '未知场景';
-  };
-
-  const modelName = displayModelName();
-
-  const sceneName = getSceneName()
-  console.log({voice, sceneName, modelName});
-  
+  console.log('Avatar Card: ', { persona });
 
   return (
     <div className={`${style.card} ${className}`} {...rest}>
@@ -65,9 +28,9 @@ function AvatarCard(props: IAvatarCardProps) {
       <div className={style.body} />
       <div className={style['text-wrapper']}>
         <div className={style['user-info']}>
-          <div className={style.title}>{sceneName}</div>
-          <div className={style.description}>声源来自 {voice}</div>
-          <div className={style.description}>{modelName}</div>
+          <div className={style.title}>{persona.name}</div>
+          <div className={style.description}>声源： {persona.voice}</div>
+          <div className={style.description}>模型：{persona.model}</div>
         </div>
       </div>
     </div>

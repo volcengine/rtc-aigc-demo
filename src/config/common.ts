@@ -83,10 +83,8 @@ export enum MODEL_MODE {
  */
 
 
-export const voiceTypes = allVoicesData.map((voice) => voice.resource_id);
-export type VoiceTypes = (typeof voiceTypes)[number];
 export const voiceNames = allVoicesData.map((voice) => voice.resource_display);
-export type VoiceNames = (typeof voiceNames)[number];
+export type VoiceName = (typeof voiceNames)[number];
 
 // 按场景分组的音色映射
 export const VOICE_BY_SCENARIO = allVoicesData.reduce((acc, voice) => {
@@ -211,17 +209,6 @@ export const Icon = {
   [SCENE.TEACHING_ASSISTANT]: TEACHING_ASSISTANT,
   [SCENE.SCREEN_READER]: SCREEN_READER,
   [SCENE.CUSTOM]: INTELLIGENT_ASSISTANT,
-};
-
-export const Persona2Name = {
-  [SCENE.INTELLIGENT_ASSISTANT]: '智能助手',
-  [SCENE.VIRTUAL_GIRL_FRIEND]: '虚拟女友',
-  [SCENE.TRANSLATE]: '同声传译',
-  [SCENE.CHILDREN_ENCYCLOPEDIA]: '儿童百科',
-  [SCENE.CUSTOMER_SERVICE]: '售后客服',
-  [SCENE.TEACHING_ASSISTANT]: '课后助教',
-  [SCENE.SCREEN_READER]: '读屏助手',
-  [SCENE.CUSTOM]: '自定义',
 };
 
 /**

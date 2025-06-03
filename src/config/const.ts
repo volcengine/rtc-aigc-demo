@@ -1,0 +1,1 @@
+export const AIGC_PROXY_HOST = 'http://localhost:3001/proxyAIGCFetch';
