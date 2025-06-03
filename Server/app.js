@@ -214,6 +214,20 @@ app.use(async (ctx) => {
         message: error.message,
       };
     }
+  } else if (ctx.url === '/' && ctx.method.toLowerCase() === 'get') {
+    // Hello World 路由
+    logger.info('Hello World endpoint accessed', {
+      ip: ctx.ip,
+      userAgent: ctx.get('User-Agent'),
+    });
+    
+    ctx.status = 200;
+    ctx.body = {
+      message: 'Hello World!',
+      timestamp: new Date().toISOString(),
+      server: 'AIGC Demo Server',
+      version: '1.0.0',
+    };
   } else {
     logger.warn('404 - Route not found', {
       method: ctx.method,
@@ -224,10 +238,11 @@ app.use(async (ctx) => {
   }
 });
 
-app.listen(50602, () => {
+app.listen(50602, '0.0.0.0', () => {
   logger.info('AIGC Server started successfully', {
     port: 50602,
-    url: 'http://localhost:50602',
+    host: '0.0.0.0',
+    url: 'http://0.0.0.0:50602',
     nodeEnv: process.env.NODE_ENV || 'development',
   });
 });
