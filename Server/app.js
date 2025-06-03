@@ -224,10 +224,10 @@ app.use(async (ctx) => {
   }
 });
 
-app.listen(3001, () => {
+app.listen(50602, () => {
   logger.info('AIGC Server started successfully', {
-    port: 3001,
-    url: 'http://localhost:3001',
+    port: 50602,
+    url: 'http://localhost:50602',
     nodeEnv: process.env.NODE_ENV || 'development',
   });
 });

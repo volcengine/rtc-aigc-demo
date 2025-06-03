@@ -54,7 +54,7 @@ npm start
 |--------|------|------|--------|
 | `DOUBAO_AK` | ✅ | 火山引擎Access Key ID | - |
 | `DOUBAO_SK` | ✅ | 火山引擎Secret Access Key | - |
-| `PORT` | ❌ | 服务端口 | 3001 |
+| `PORT` | ❌ | 服务端口 | 50602 |
 | `DOUBAO_VOICE_MODEL` | ❌ | 语音合成模型 | zh_female_tianmei_moon_bigtts |
 | `DOUBAO_CHAT_MODEL` | ❌ | 对话模型ID | - |
 | `LOG_LEVEL` | ❌ | 日志级别 | info |

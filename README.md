@@ -116,8 +116,8 @@ yarn dev
 启动成功后，请检查：
 
 1. **后端服务状态**
-   - 控制台输出 `Server is running on port 3001`
-   - 访问 `http://localhost:3001/health` 返回正常
+   - 控制台输出 `Server is running on port 50602`
+   - 访问 `http://localhost:50602/health` 返回正常
 
 2. **前端页面状态**  
    - 访问 `http://localhost:3000` 页面正常加载
