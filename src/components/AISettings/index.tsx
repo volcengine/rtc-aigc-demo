@@ -14,13 +14,19 @@ import {
   Slider,
   Switch,
 } from '@arco-design/web-react';
-import { useEffect, useState } from 'react';
+
+import { useEffect } from 'react';
+
 import { useDispatch, useSelector } from 'react-redux';
+
 import { useAtom, useAtomValue } from 'jotai';
+
 import { IconExclamationCircle } from '@arco-design/web-react/icon';
+
 import { StreamIndex } from '@volcengine/rtc';
-import CheckIcon from '../CheckIcon';
+
 import PersonaSelector from '../PersonaSelector';
+
 import Config, {
   Icon,
   Name,
@@ -40,17 +46,36 @@ import Config, {
   getVoicesByCategory,
   isVisionMode,
 } from '@/config';
+
 import TitleCard from '../TitleCard';
+
 import CheckBoxSelector from '@/components/CheckBoxSelector';
+
 import RtcClient from '@/lib/RtcClient';
+
 import { clearHistoryMsg, updateAIConfig, updateModelMode, updateScene } from '@/store/slices/room';
+
 import { RootState } from '@/store';
+
 import utils from '@/utils/utils';
+
 import { useDeviceState } from '@/lib/useCommon';
-import { aiSettingsAtom, activePersonaAtom } from '@/store/atoms';
+
+import {
+  aiSettingsAtom,
+  activePersonaAtom,
+  sceneAtom,
+  modelModeAtom,
+  voiceAtom,
+  modelAtom,
+  selectedVoiceCategoryAtom,
+  loadingAtom,
+} from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
+
 import DoubaoModelSVG from '@/assets/img/DoubaoModel.svg';
+
 import ModelChangeSVG from '@/assets/img/ModelChange.svg';
 
 export interface IAISettingsProps {
@@ -62,123 +87,33 @@ export interface IAISettingsProps {
 
 const RadioGroup = Radio.Group;
 
-const SCENES = [
-  SCENE.INTELLIGENT_ASSISTANT,
-  SCENE.SCREEN_READER,
-  SCENE.VIRTUAL_GIRL_FRIEND,
-  SCENE.TRANSLATE,
-  SCENE.CHILDREN_ENCYCLOPEDIA,
-  SCENE.CUSTOMER_SERVICE,
-  SCENE.TEACHING_ASSISTANT,
-  SCENE.CUSTOM,
-];
 
 function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   const dispatch = useDispatch();
   const { isVideoPublished, isScreenPublished, switchScreenCapture, switchCamera } =
     useDeviceState();
   const room = useSelector((state: RootState) => state.room);
-  const [loading, setLoading] = useState(false);
-  const [modelMode, setModelMode] = useState<MODEL_MODE>(room.modelMode);
-  const [scene, setScene] = useState(room.scene);
-  const [selectedVoiceCategory, setSelectedVoiceCategory] = useState<string>(DEFAULT_VOICE_CATEGORY);
-  const [data, setData] = useState<{
-    prompt: string;
-    welcome: string;
-    voice: VoiceTypeValues;
-    model: AI_MODEL;
-    Url: string;
-    APIKey: string;
-    customModelName: string;
-    BotID: string;
-    encoding: string;
-    speedRatio: number;
-    rate: number;
-    bitrate: number;
-    loudnessRatio: number;
-    emotion: string;
-    enableEmotion: boolean;
-    emotionScale: number;
-    explicitLanguage: string;
-    contextLanguage: string;
-    withTimestamp: boolean;
-    disableMarkdownFilter: boolean;
-    enableLatexTn: boolean;
-    silenceDuration: number;
-    enableCache: boolean;
-  }>({
-    prompt: Config.Prompt || Prompt[scene],
-    welcome: Config.WelcomeSpeech || Welcome[scene],
-    voice: Config.VoiceType || Voice[scene],
-    model: Config.Model || Model[scene],
 
-    Url: Config.Url || '',
-    APIKey: Config.APIKey || '',
-    customModelName: (Config.Model || '') as string,
-
-    BotID: Config.BotID || '',
-
-    encoding: 'mp3',
-    speedRatio: 1.0,
-    rate: 24000,
-    bitrate: 160,
-    loudnessRatio: 1.0,
-    emotion: '',
-    enableEmotion: false,
-    emotionScale: 4,
-    explicitLanguage: '',
-    contextLanguage: '',
-    withTimestamp: false,
-    disableMarkdownFilter: false,
-    enableLatexTn: false,
-    silenceDuration: 0,
-    enableCache: false,
-  });
-
+  // 使用 Jotai atoms 替代本地状态
   const [aiSettings, setAiSettings] = useAtom(aiSettingsAtom);
+  const [scene, setScene] = useAtom(sceneAtom);
+  const [modelMode, setModelMode] = useAtom(modelModeAtom);
+  const [voice, setVoice] = useAtom(voiceAtom);
+  const [model, setModel] = useAtom(modelAtom);
+  const [selectedVoiceCategory, setSelectedVoiceCategory] = useAtom(selectedVoiceCategoryAtom);
+  const [loading, setLoading] = useAtom(loadingAtom);
   const activePersona = useAtomValue(activePersonaAtom);
 
   const handleVoiceTypeChanged = (key: string) => {
-    setData((prev) => ({
-      ...prev,
-      voice: key as VoiceTypeValues,
-    }));
-
-    // 同步更新 jotai 状态
-    setAiSettings((prevSettings) => ({
-      ...prevSettings,
-      voice: key as VoiceTypeValues,
-    }));
+    setVoice(key as VoiceTypeValues);
   };
 
-  const handleVoiceCategoryChanged = (category: string) => {
-    setSelectedVoiceCategory(category);
-    // 切换类别时，自动选择该类别下的第一个音色
-    const voicesInCategory = getVoicesByCategory(category);
-    if (voicesInCategory.length > 0) {
-      const firstVoice = voicesInCategory[0].value;
-      handleVoiceTypeChanged(firstVoice);
-    }
+  const handleChecked = (value: SCENE) => {
+    setScene(value);
   };
 
-  const handleChecked = (checkedScene: SCENE) => {
-    setScene(checkedScene);
-    setData((prev) => ({
-      ...prev,
-      prompt: Prompt[checkedScene],
-      welcome: Welcome[checkedScene],
-    }));
-  };
-
-  const handleUseThirdPart = (val: MODEL_MODE) => {
-    setModelMode(val);
-    Config.ModeSourceType = val;
-
-    // 同步更新 jotai 状态
-    setAiSettings((prevSettings) => ({
-      ...prevSettings,
-      modelMode: val,
-    }));
+  const handleUseThirdPart = (key: string) => {
+    setModelMode(key as MODEL_MODE);
   };
 
   const handleUpdateConfig = async () => {
@@ -190,63 +125,63 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         Config.APIKey = undefined;
         break;
       case MODEL_MODE.COZE:
-        if (!data.APIKey) {
+        if (!aiSettings.APIKey) {
           Message.error('访问令牌必填');
           return;
         }
-        if (!data.BotID) {
+        if (!aiSettings.BotID) {
           Message.error('智能体 ID 必填');
           return;
         }
-        Config.APIKey = data.APIKey;
-        Config.BotID = data.BotID;
+        Config.APIKey = aiSettings.APIKey;
+        Config.BotID = aiSettings.BotID;
         break;
       case MODEL_MODE.VENDOR:
-        if (!data.Url) {
+        if (!aiSettings.Url) {
           Message.error('请输入正确的第三方模型地址');
           return;
         }
-        if (!data.Url.startsWith('http://') && !data.Url.startsWith('https://')) {
+        if (!aiSettings.Url.startsWith('http://') && !aiSettings.Url.startsWith('https://')) {
           Message.error('第三方模型请求地址格式不正确, 请以 http:// 或 https:// 为开头');
           return;
         }
-        Config.Url = data.Url;
-        Config.APIKey = data.APIKey;
+        Config.Url = aiSettings.Url;
+        Config.APIKey = aiSettings.APIKey;
         break;
       default:
         break;
     }
 
     // 保存基本配置
-    Config.Prompt = data.prompt;
-    Config.WelcomeSpeech = data.welcome;
-    Config.VoiceType = data.voice;
-    Config.Model = data.model;
+    Config.Prompt = aiSettings.prompt;
+    Config.WelcomeSpeech = aiSettings.welcome;
+    Config.VoiceType = aiSettings.voice;
+    Config.Model = aiSettings.model;
 
     // 保存语音合成配置
     Config.VoiceSynthesisConfig = {
-      encoding: data.encoding,
-      speedRatio: data.speedRatio,
-      rate: data.rate,
-      bitrate: data.bitrate,
-      loudnessRatio: data.loudnessRatio,
-      emotion: data.emotion,
-      enableEmotion: data.enableEmotion,
-      emotionScale: data.emotionScale,
-      explicitLanguage: data.explicitLanguage,
-      contextLanguage: data.contextLanguage,
-      withTimestamp: data.withTimestamp,
-      disableMarkdownFilter: data.disableMarkdownFilter,
-      enableLatexTn: data.enableLatexTn,
-      silenceDuration: data.silenceDuration,
-      enableCache: data.enableCache,
+      encoding: aiSettings.encoding,
+      speedRatio: aiSettings.speedRatio,
+      rate: aiSettings.rate,
+      bitrate: aiSettings.bitrate,
+      loudnessRatio: aiSettings.loudnessRatio,
+      emotion: aiSettings.emotion,
+      enableEmotion: aiSettings.enableEmotion,
+      emotionScale: aiSettings.emotionScale,
+      explicitLanguage: aiSettings.explicitLanguage,
+      contextLanguage: aiSettings.contextLanguage,
+      withTimestamp: aiSettings.withTimestamp,
+      disableMarkdownFilter: aiSettings.disableMarkdownFilter,
+      enableLatexTn: aiSettings.enableLatexTn,
+      silenceDuration: aiSettings.silenceDuration,
+      enableCache: aiSettings.enableCache,
     };
 
     setLoading(true);
     dispatch(updateModelMode(modelMode));
     dispatch(updateAIConfig(Config.aigcConfig));
 
-    if (isVisionMode(data.model)) {
+    if (isVisionMode(aiSettings.model)) {
       switch (scene) {
         case SCENE.SCREEN_READER:
           /** 关摄像头，打开屏幕采集 */
@@ -271,118 +206,47 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       await RtcClient.updateAudioBot();
     }
 
-    // 同步完整的配置到 jotai 状态
-    setAiSettings({
-      scene,
-      modelMode,
-      prompt: data.prompt,
-      welcome: data.welcome,
-      voice: data.voice,
-      model: data.model,
-      Url: data.Url,
-      APIKey: data.APIKey,
-      customModelName: data.customModelName,
-      BotID: data.BotID,
-      encoding: data.encoding,
-      speedRatio: data.speedRatio,
-      rate: data.rate,
-      bitrate: data.bitrate,
-      loudnessRatio: data.loudnessRatio,
-      emotion: data.emotion,
-      enableEmotion: data.enableEmotion,
-      emotionScale: data.emotionScale,
-      explicitLanguage: data.explicitLanguage,
-      contextLanguage: data.contextLanguage,
-      withTimestamp: data.withTimestamp,
-      disableMarkdownFilter: data.disableMarkdownFilter,
-      enableLatexTn: data.enableLatexTn,
-      silenceDuration: data.silenceDuration,
-      enableCache: data.enableCache,
-    });
-
     setLoading(false);
     onOk?.();
   };
 
   useEffect(() => {
     if (open) {
-      setScene(room.scene);
+      setLoading(false);
     }
-  }, [open, room.scene]);
+  }, [open, setLoading]);
 
-  // 初始化时从 jotai 状态同步数据
+  // 监听人设切换时同步场景
   useEffect(() => {
-    if (open) {
-      // 从 jotai 状态或配置中读取数据
-      const initialData = {
-        prompt: aiSettings.prompt || Config.Prompt || Prompt[scene],
-        welcome: aiSettings.welcome || Config.WelcomeSpeech || Welcome[scene],
-        voice: aiSettings.voice || Config.VoiceType || Voice[scene],
-        model: aiSettings.model || Config.Model || Model[scene],
-        Url: aiSettings.Url || Config.Url || '',
-        APIKey: aiSettings.APIKey || Config.APIKey || '',
-        customModelName: aiSettings.customModelName || ((Config.Model || '') as string),
-        BotID: aiSettings.BotID || Config.BotID || '',
-        encoding: aiSettings.encoding,
-        speedRatio: aiSettings.speedRatio,
-        rate: aiSettings.rate,
-        bitrate: aiSettings.bitrate,
-        loudnessRatio: aiSettings.loudnessRatio,
-        emotion: aiSettings.emotion,
-        enableEmotion: aiSettings.enableEmotion,
-        emotionScale: aiSettings.emotionScale,
-        explicitLanguage: aiSettings.explicitLanguage,
-        contextLanguage: aiSettings.contextLanguage,
-        withTimestamp: aiSettings.withTimestamp,
-        disableMarkdownFilter: aiSettings.disableMarkdownFilter,
-        enableLatexTn: aiSettings.enableLatexTn,
-        silenceDuration: aiSettings.silenceDuration,
-        enableCache: aiSettings.enableCache,
-      };
-
-      setData(initialData);
-      setModelMode(aiSettings.modelMode || room.modelMode);
-      setScene(aiSettings.scene || room.scene);
+    if (scene !== room.scene) {
+      dispatch(updateScene(scene));
     }
-  }, [aiSettings, open, scene, room.modelMode, room.scene]);
+  }, [scene, dispatch, room.scene]);
 
-  // 初始化音色类别 - 根据当前选中的音色找到对应的类别
+  // 监听音色分类初始化
   useEffect(() => {
-    const currentVoice = data.voice;
+    const currentVoice = aiSettings.voice;
     if (currentVoice) {
       // 查找当前音色属于哪个类别
       for (const [category, voices] of Object.entries(VOICE_BY_SCENARIO)) {
-        if (voices.some((voice) => voice.value === currentVoice)) {
+        if (voices.some((v) => v.value === currentVoice)) {
           setSelectedVoiceCategory(category);
           break;
         }
       }
     }
-  }, [data.voice]);
-
-  useEffect(() => {
-    if (data.voice && data.voice !== aiSettings.voice) {
-      setAiSettings((prev) => ({ ...prev, voice: data.voice }));
-    }
-  }, [data.voice, aiSettings.voice, setAiSettings]);
+  }, [aiSettings.voice, setSelectedVoiceCategory]);
 
   // 监听激活的人设变化，同步相关配置
   useEffect(() => {
     if (activePersona) {
-      setData((prev) => ({
+      setAiSettings((prev) => ({
         ...prev,
         prompt: activePersona.prompt || prev.prompt,
         welcome: activePersona.welcome || prev.welcome,
-        voice: activePersona.voice || prev.voice,
-        model: activePersona.model || prev.model,
       }));
-
-      // 同步场景（为了兼容性）
-      if (activePersona.originalScene) {
-        setScene(activePersona.originalScene);
-      }
     }
-  }, [activePersona]);
+  }, [activePersona, setAiSettings]);
 
   const getVoiceCategoryData = () => {
     const categoryData: Record<string, any[]> = {};
@@ -483,7 +347,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           className="mt-4"
           onChange={handleUseThirdPart}
         />
-        
+
         <div
           className="my-4"
           style={{
@@ -497,7 +361,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               categories={VOICE_CATEGORIES}
               defaultCategory={DEFAULT_VOICE_CATEGORY}
               onChange={handleVoiceTypeChanged}
-              value={data.voice}
+              value={aiSettings.voice}
               moreIcon={VoiceTypeChangeSVG}
               moreText="更换音色"
               placeHolder="请选择你需要的音色"
@@ -518,12 +382,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   moreText="更换模型"
                   placeHolder="请选择模型"
                   onChange={(key) => {
-                    setData((prev) => ({
+                    setAiSettings((prev) => ({
                       ...prev,
                       model: key as AI_MODEL,
                     }));
                   }}
-                  value={data.model}
+                  value={aiSettings.model}
                 />
               </TitleCard>
             )}
@@ -533,9 +397,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard required title="第三方模型地址">
                   <Input.TextArea
                     autoSize
-                    value={data.Url}
+                    value={aiSettings.Url}
                     onChange={(val) => {
-                      setData((prev) => ({
+                      setAiSettings((prev) => ({
                         ...prev,
                         Url: val,
                       }));
@@ -546,9 +410,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard title="请求密钥">
                   <Input.TextArea
                     autoSize
-                    value={data.APIKey}
+                    value={aiSettings.APIKey}
                     onChange={(val) => {
-                      setData((prev) => ({
+                      setAiSettings((prev) => ({
                         ...prev,
                         APIKey: val,
                       }));
@@ -559,9 +423,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard title="模型名称">
                   <Input.TextArea
                     autoSize
-                    value={data.customModelName}
+                    value={aiSettings.customModelName}
                     onChange={(val) => {
-                      setData((prev) => ({
+                      setAiSettings((prev) => ({
                         ...prev,
                         customModelName: val,
                       }));
@@ -579,9 +443,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard required title="访问令牌">
                   <Input.TextArea
                     autoSize
-                    value={data.APIKey}
+                    value={aiSettings.APIKey}
                     onChange={(val) => {
-                      setData((prev) => ({
+                      setAiSettings((prev) => ({
                         ...prev,
                         APIKey: val,
                       }));
@@ -592,9 +456,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard required title="智能体 ID">
                   <Input.TextArea
                     autoSize
-                    value={data.BotID}
+                    value={aiSettings.BotID}
                     onChange={(val) => {
-                      setData((prev) => ({
+                      setAiSettings((prev) => ({
                         ...prev,
                         BotID: val,
                       }));
@@ -610,9 +474,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         <TitleCard title="系统 Prompt">
           <Input.TextArea
             autoSize
-            value={data.prompt}
+            value={aiSettings.prompt}
             onChange={(val) => {
-              setData((prev) => ({
+              setAiSettings((prev) => ({
                 ...prev,
                 prompt: val,
               }));
@@ -623,9 +487,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         <TitleCard title="欢迎语">
           <Input.TextArea
             autoSize
-            value={data.welcome}
+            value={aiSettings.welcome}
             onChange={(val) => {
-              setData((prev) => ({
+              setAiSettings((prev) => ({
                 ...prev,
                 welcome: val,
               }));
@@ -633,19 +497,22 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             placeholder="请输入欢迎语"
           />
         </TitleCard>
-        
+
         {/* 新增语音合成配置区域 */}
         <div className="mt-4">
-          <div className="text-lg font-semibold leading-7 text-gray-900" style={{ marginTop: '24px', marginBottom: '16px' }}>
+          <div
+            className="text-lg font-semibold leading-7 text-gray-900"
+            style={{ marginTop: '24px', marginBottom: '16px' }}
+          >
             语音合成参数配置
           </div>
-          
+
           <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="音频编码格式">
               <Select
-                value={data.encoding}
+                value={aiSettings.encoding}
                 onChange={(val) => {
-                  setData((prev) => ({
+                  setAiSettings((prev) => ({
                     ...prev,
                     encoding: val,
                   }));
@@ -660,12 +527,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 style={{ width: '100%' }}
               />
             </TitleCard>
-            
+
             <TitleCard title="音频采样率">
               <Select
-                value={data.rate}
+                value={aiSettings.rate}
                 onChange={(val) => {
-                  setData((prev) => ({
+                  setAiSettings((prev) => ({
                     ...prev,
                     rate: val,
                   }));
@@ -680,16 +547,16 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               />
             </TitleCard>
           </div>
-          
+
           <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="比特率 (kb/s)">
               <Input
                 type="number"
-                value={data.bitrate.toString()}
+                value={aiSettings.bitrate.toString()}
                 min={64}
                 max={320}
                 onChange={(val) => {
-                  setData((prev) => ({
+                  setAiSettings((prev) => ({
                     ...prev,
                     bitrate: parseInt(val) || 160,
                   }));
@@ -697,16 +564,16 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 placeholder="比特率"
               />
             </TitleCard>
-            
+
             <TitleCard title="语速调节">
               <div>
                 <Slider
-                  value={data.speedRatio}
+                  value={aiSettings.speedRatio}
                   min={0.8}
                   max={2.0}
                   step={0.1}
                   onChange={(val) => {
-                    setData((prev) => ({
+                    setAiSettings((prev) => ({
                       ...prev,
                       speedRatio: Array.isArray(val) ? val[0] : val,
                     }));
@@ -720,22 +587,22 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   }}
                 />
                 <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                  当前: {data.speedRatio}x
+                  当前: {aiSettings.speedRatio}x
                 </div>
               </div>
             </TitleCard>
           </div>
-          
+
           <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="音量调节">
               <div>
                 <Slider
-                  value={data.loudnessRatio}
+                  value={aiSettings.loudnessRatio}
                   min={0.5}
                   max={2.0}
                   step={0.1}
                   onChange={(val) => {
-                    setData((prev) => ({
+                    setAiSettings((prev) => ({
                       ...prev,
                       loudnessRatio: Array.isArray(val) ? val[0] : val,
                     }));
@@ -748,19 +615,19 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   }}
                 />
                 <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                  当前: {data.loudnessRatio}x
+                  当前: {aiSettings.loudnessRatio}x
                 </div>
               </div>
             </TitleCard>
-            
+
             <TitleCard title="句尾静音 (ms)">
               <Input
                 type="number"
-                value={data.silenceDuration.toString()}
+                value={aiSettings.silenceDuration.toString()}
                 min={0}
                 max={30000}
                 onChange={(val) => {
-                  setData((prev) => ({
+                  setAiSettings((prev) => ({
                     ...prev,
                     silenceDuration: parseInt(val) || 0,
                   }));
@@ -769,13 +636,13 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               />
             </TitleCard>
           </div>
-          
+
           <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="语种设置">
               <Select
-                value={data.explicitLanguage}
+                value={aiSettings.explicitLanguage}
                 onChange={(val) => {
-                  setData((prev) => ({
+                  setAiSettings((prev) => ({
                     ...prev,
                     explicitLanguage: val,
                   }));
@@ -794,12 +661,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 style={{ width: '100%' }}
               />
             </TitleCard>
-            
+
             <TitleCard title="参考语种">
               <Select
-                value={data.contextLanguage}
+                value={aiSettings.contextLanguage}
                 onChange={(val) => {
-                  setData((prev) => ({
+                  setAiSettings((prev) => ({
                     ...prev,
                     contextLanguage: val,
                   }));
@@ -815,14 +682,14 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               />
             </TitleCard>
           </div>
-          
+
           <TitleCard title="情感设置">
             <div className="mt-2">
               <div className="flex items-center">
                 <Switch
-                  checked={data.enableEmotion}
+                  checked={aiSettings.enableEmotion}
                   onChange={(checked) => {
-                    setData((prev) => ({
+                    setAiSettings((prev) => ({
                       ...prev,
                       enableEmotion: checked,
                     }));
@@ -830,14 +697,14 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 />
                 <span style={{ marginLeft: '8px' }}>启用音色情感</span>
               </div>
-              
-              {data.enableEmotion && (
+
+              {aiSettings.enableEmotion && (
                 <>
                   <div style={{ marginTop: '12px' }}>
                     <Input
-                      value={data.emotion}
+                      value={aiSettings.emotion}
                       onChange={(val) => {
-                        setData((prev) => ({
+                        setAiSettings((prev) => ({
                           ...prev,
                           emotion: val,
                         }));
@@ -845,16 +712,18 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                       placeholder="输入情感类型，如: happy, sad, angry, excited"
                     />
                   </div>
-                  
+
                   <div style={{ marginTop: '16px' }}>
-                    <div style={{ marginBottom: '8px' }}>情绪强度 (1-5): {data.emotionScale}</div>
+                    <div style={{ marginBottom: '8px' }}>
+                      情绪强度 (1-5): {aiSettings.emotionScale}
+                    </div>
                     <Slider
-                      value={data.emotionScale}
+                      value={aiSettings.emotionScale}
                       min={1}
                       max={5}
                       step={1}
                       onChange={(val) => {
-                        setData((prev) => ({
+                        setAiSettings((prev) => ({
                           ...prev,
                           emotionScale: Array.isArray(val) ? val[0] : val,
                         }));
@@ -872,14 +741,14 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               )}
             </div>
           </TitleCard>
-          
+
           <TitleCard title="高级选项">
             <div className="mt-2">
               <div className="flex items-center">
                 <Switch
-                  checked={data.withTimestamp}
+                  checked={aiSettings.withTimestamp}
                   onChange={(checked) => {
-                    setData((prev) => ({
+                    setAiSettings((prev) => ({
                       ...prev,
                       withTimestamp: checked,
                     }));
@@ -887,12 +756,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 />
                 <span style={{ marginLeft: '8px' }}>启用时间戳</span>
               </div>
-              
+
               <div className="flex items-center">
                 <Switch
-                  checked={data.disableMarkdownFilter}
+                  checked={aiSettings.disableMarkdownFilter}
                   onChange={(checked) => {
-                    setData((prev) => ({
+                    setAiSettings((prev) => ({
                       ...prev,
                       disableMarkdownFilter: checked,
                     }));
@@ -900,12 +769,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 />
                 <span style={{ marginLeft: '8px' }}>启用 Markdown 解析过滤</span>
               </div>
-              
+
               <div className="flex items-center">
                 <Switch
-                  checked={data.enableLatexTn}
+                  checked={aiSettings.enableLatexTn}
                   onChange={(checked) => {
-                    setData((prev) => ({
+                    setAiSettings((prev) => ({
                       ...prev,
                       enableLatexTn: checked,
                     }));
@@ -913,12 +782,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 />
                 <span style={{ marginLeft: '8px' }}>启用 LaTeX 公式播报</span>
               </div>
-              
+
               <div className="flex items-center">
                 <Switch
-                  checked={data.enableCache}
+                  checked={aiSettings.enableCache}
                   onChange={(checked) => {
-                    setData((prev) => ({
+                    setAiSettings((prev) => ({
                       ...prev,
                       enableCache: checked,
                     }));
@@ -949,11 +818,17 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       }}
       footer={
         <div className="flex flex-row justify-end items-center gap-2">
-          <div className="text-xs font-normal leading-5 text-gray-500">AI 配置修改后，退出房间将不再保存该配置方案</div>
+          <div className="text-xs font-normal leading-5 text-gray-500">
+            AI 配置修改后，退出房间将不再保存该配置方案
+          </div>
           <Button loading={loading} className="bg-gray-200 hover:bg-gray-300" onClick={onCancel}>
             取消
           </Button>
-          <Button loading={loading} className="bg-blue-600 hover:bg-blue-700" onClick={handleUpdateConfig}>
+          <Button
+            loading={loading}
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={handleUpdateConfig}
+          >
             确定
           </Button>
         </div>

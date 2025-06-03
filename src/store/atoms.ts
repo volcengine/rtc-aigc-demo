@@ -5,7 +5,7 @@
 
 import { atom, useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { SCENE, MODEL_MODE, VoiceTypeValues, AI_MODEL, Voice, Model } from '@/config/common';
+import { SCENE, MODEL_MODE, VoiceTypeValues, AI_MODEL, Voice, Model, DEFAULT_VOICE_CATEGORY } from '@/config/common';
 import { PRESET_PERSONAS, getDefaultPersona, generatePersonaId } from '@/config/personas';
 import { IPersona, IPersonaManager } from '@/types/persona';
 
@@ -213,3 +213,23 @@ export const usePersonaActions = () => {
     },
   };
 };
+
+// AI 设置 UI 状态 atom（用于管理 UI 特定的状态）
+export const aiSettingsUIAtom = atom({
+  selectedVoiceCategory: DEFAULT_VOICE_CATEGORY,
+  loading: false,
+});
+
+export const selectedVoiceCategoryAtom = atom(
+  (get) => get(aiSettingsUIAtom).selectedVoiceCategory,
+  (get, set, newCategory: string) => {
+    set(aiSettingsUIAtom, { ...get(aiSettingsUIAtom), selectedVoiceCategory: newCategory });
+  }
+);
+
+export const loadingAtom = atom(
+  (get) => get(aiSettingsUIAtom).loading,
+  (get, set, newLoading: boolean) => {
+    set(aiSettingsUIAtom, { ...get(aiSettingsUIAtom), loading: newLoading });
+  }
+);
