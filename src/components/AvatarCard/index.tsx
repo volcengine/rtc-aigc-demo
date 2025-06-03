@@ -11,7 +11,13 @@ import AISettings from '../AISettings';
 import style from './index.module.less';
 import DouBaoAvatar from '@/assets/img/DoubaoAvatarGIF.webp';
 import { RootState } from '@/store';
-import { MODEL_MODE, Name, VOICE_TYPE } from '@/config';
+import {
+  MODEL_MODE,
+  Name,
+  VOICE_TYPE,
+  getVoiceDetailWithCategory,
+  DEFAULT_VOICE_CATEGORY,
+} from '@/config';
 import { avatarConfigAtom } from '@/store/atoms';
 
 interface IAvatarCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -60,6 +66,9 @@ function AvatarCard(props: IAvatarCardProps) {
     return `模型来源 ${SourceName[modelMode] || ''}`;
   };
 
+  const voiceDetail = getVoiceDetailWithCategory(voice || DEFAULT_VOICE_CATEGORY);
+  const voiceCategory = voiceDetail ? voiceDetail.category : '';
+
   return (
     <div className={`${style.card} ${className}`} {...rest}>
       <div className={style.corner} />
@@ -74,7 +83,7 @@ function AvatarCard(props: IAvatarCardProps) {
       <div className={style.body} />
       <div className={style['text-wrapper']}>
         <div className={style['user-info']}>
-          <div className={style.title}>{Name[scene]}</div>
+          <div className={style.title}>{voiceCategory}</div>
           <div className={style.description}>声源来自 {ReversedVoiceType[voice || '']}</div>
           <div className={style.description}>{displayModelName()}</div>
           <AISettings open={open} onOk={handleCloseDrawer} onCancel={handleCloseDrawer} />
