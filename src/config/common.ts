@@ -57,18 +57,20 @@ const allVoicesData = [
     "train_id": "",
     "state": ""
   },
-  ,...presetVoices] as typeof presetVoices
+  ...presetVoices
+].filter(voice => voice != null) as typeof presetVoices
 
-export const voiceTypes = allVoicesData.map((voice) => voice.details.voice_type);
+export const voiceTypes = allVoicesData.filter(voice => voice.details?.voice_type).map((voice) => voice.details.voice_type);
 export type VoiceType = (typeof voiceTypes)[number];
 
-export const voiceNames = allVoicesData.map((voice) => voice.resource_display);
+export const voiceNames = allVoicesData.filter(voice => voice?.resource_display).map((voice) => voice.resource_display);
 export type VoiceName = (typeof voiceNames)[number];
 
 export const getVoiceName = (voiceType: VoiceType) => {
-  const voice = allVoicesData.find((voice) => voice.details.voice_type === voiceType);
+  const voice = allVoicesData.find((voice) => voice && voice.details?.voice_type === voiceType);
   return voice?.resource_display || '';
 }
+
 
 export enum MODEL_MODE {
   ORIGINAL = 'original',
@@ -89,6 +91,11 @@ export enum MODEL_MODE {
 
 // 按场景分组的音色映射
 export const VOICE_BY_SCENARIO = allVoicesData.reduce((acc, voice) => {
+  // 跳过 null/undefined 或没有details的音色
+  if (!voice || !voice.details?.recommended_scenario) {
+    return acc;
+  }
+  
   const scenario = voice.details.recommended_scenario;
   if (!acc[scenario]) {
     acc[scenario] = [];
@@ -229,4 +236,3 @@ export const loadPromptFromFile = async (path: string): Promise<string> => {
     return '';
   }
 };
-

@@ -3,13 +3,13 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { VoiceName, AI_MODEL, SCENE, MODEL_MODE } from '@/config/common';
+import { VoiceName, AI_MODEL, SCENE, MODEL_MODE, VoiceType } from '@/config/common';
 
 export interface IPersona {
   id: string;
   name: string;
   avatar: string;
-  voice: VoiceName;
+  voice: VoiceType;
   model: AI_MODEL;
   prompt: string;
   welcome: string;

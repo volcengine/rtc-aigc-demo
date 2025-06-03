@@ -5,13 +5,13 @@
 
 import { Button, Drawer, Input, Radio, Tooltip, Select, Slider, Switch } from '@arco-design/web-react';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 
 import { IconExclamationCircle } from '@arco-design/web-react/icon';
 
 import PersonaSelector from '../PersonaSelector';
 
-import { AI_MODEL, MODEL_MODE, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY, loadPromptFromFile } from '@/config';
+import { AI_MODEL, MODEL_MODE, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY, loadPromptFromFile, VoiceName } from '@/config';
 
 import TitleCard from '../TitleCard';
 
@@ -39,12 +39,9 @@ const RadioGroup = Radio.Group;
  * AI 设置面板
  */
 function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
-  // const [aiSettings, setAiSettings] = useAtom(aiSettingsAtom);
   const [modelMode, setModelMode] = useAtom(modelModeAtom);
-  // const [voice, setVoice] = useAtom(voiceAtom);
-  // const [model, setModel] = useAtom(modelAtom);
   const [loading, setLoading] = useAtom(loadingAtom);
-  const activePersona = useAtomValue(activePersonaAtom);
+  const [activePersona, setActivePersona] = useAtom(activePersonaAtom);
   
   // 使用 useState 来处理异步 prompt 加载
   const [prompt, setPrompt] = useState(activePersona.prompt);
@@ -67,6 +64,25 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     
     loadPrompt();
   }, [activePersona.prompt]);
+
+  // 更新人设数据的通用函数
+  const updatePersona = (updates: Partial<typeof activePersona>) => {
+    setActivePersona({
+      ...activePersona,
+      ...updates,
+      updatedAt: Date.now(),
+    });
+  };
+
+  // 更新 extra 字段的通用函数
+  const updatePersonaExtra = (extraUpdates: Partial<NonNullable<typeof activePersona.extra>>) => {
+    updatePersona({
+      extra: {
+        ...activePersona.extra,
+        ...extraUpdates,
+      },
+    });
+  };
 
   const getVoiceCategoryData = () => {
     const categoryData: Record<string, any[]> = {};
@@ -150,8 +166,8 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           type="button"
           defaultValue="Beijing"
           className="mt-4"
-          onChange={() => {
-            // todo
+          onChange={(value) => {
+            setModelMode(value);
           }}
         />
 
@@ -167,8 +183,8 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               categoryData={getVoiceCategoryData()}
               categories={VOICE_CATEGORIES}
               defaultCategory={DEFAULT_VOICE_CATEGORY}
-              onChange={() => {
-                // todo
+              onChange={(voiceKey) => {
+                updatePersona({ voice: voiceKey as VoiceName });
               }}
               value={activePersona.voice}
               moreIcon={VoiceTypeChangeSVG}
@@ -190,8 +206,8 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   moreIcon={ModelChangeSVG}
                   moreText="更换模型"
                   placeHolder="请选择模型"
-                  onChange={(key) => {
-                    // todo: change model
+                  onChange={(modelKey) => {
+                    updatePersona({ model: modelKey as AI_MODEL });
                   }}
                   value={activePersona.model}
                 />
@@ -205,7 +221,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     autoSize
                     value={activePersona.extra?.url}
                     onChange={(val) => {
-                      // todo
+                      updatePersonaExtra({ url: val });
                     }}
                     placeholder="请输入第三方模型地址"
                   />
@@ -215,7 +231,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     autoSize
                     value={activePersona.extra?.apiKey}
                     onChange={(val) => {
-                      //   todo
+                      updatePersonaExtra({ apiKey: val });
                     }}
                     placeholder="请输入请求密钥"
                   />
@@ -225,7 +241,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     autoSize
                     value={activePersona.extra?.modelName}
                     onChange={(val) => {
-                      //   todo
+                      updatePersonaExtra({ modelName: val });
                     }}
                     placeholder="请输入模型名称"
                   />
@@ -242,7 +258,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     autoSize
                     value={activePersona.extra?.apiKey}
                     onChange={(val) => {
-                      //   todo
+                      updatePersonaExtra({ apiKey: val });
                     }}
                     placeholder="请输入访问令牌"
                   />
@@ -252,7 +268,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     autoSize
                     value={activePersona.extra?.botId}
                     onChange={(val) => {
-                      //   todo
+                      updatePersonaExtra({ botId: val });
                     }}
                     placeholder="请输入智能体 ID"
                   />
@@ -267,7 +283,10 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             autoSize
             value={prompt}
             onChange={(val) => {
-              // todo
+              // 更新本地状态
+              setPrompt(val);
+              // 更新人设的 prompt 字段
+              updatePersona({ prompt: val });
             }}
             placeholder="请输入你需要的 Prompt 设定"
           />
@@ -277,7 +296,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             autoSize
             value={activePersona.welcome}
             onChange={(val) => {
-              //   todo
+              updatePersona({ welcome: val });
             }}
             placeholder="请输入欢迎语"
           />
@@ -294,7 +313,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               <Select
                 value={activePersona.extra?.encoding}
                 onChange={(val) => {
-                  //   todo
+                  updatePersonaExtra({ encoding: val });
                 }}
                 options={[
                   { label: 'MP3', value: 'mp3' },
@@ -314,7 +333,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               <Select
                 value={activePersona.extra?.rate?.toString()}
                 onChange={(val) => {
-                  //   todo
+                  updatePersonaExtra({ rate: Number(val) });
                 }}
                 options={[
                   { label: '8000 Hz', value: 8000 },
@@ -338,7 +357,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 min={64}
                 max={320}
                 onChange={(val) => {
-                  //   todo
+                  updatePersonaExtra({ bitRate: Number(val) });
                 }}
                 placeholder="比特率"
               />
@@ -352,7 +371,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   max={2.0}
                   step={0.1}
                   onChange={(val) => {
-                    //   todo
+                    updatePersonaExtra({ speedRatio: Array.isArray(val) ? val[0] : val });
                   }}
                   marks={{
                     0.8: '0.8x',
@@ -376,7 +395,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   max={2.0}
                   step={0.1}
                   onChange={(val) => {
-                    //   todo
+                    updatePersonaExtra({ loudnessRatio: Array.isArray(val) ? val[0] : val });
                   }}
                   marks={{
                     0.5: '0.5x',
@@ -396,7 +415,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 min={0}
                 max={30000}
                 onChange={(val) => {
-                  //   todo
+                  updatePersonaExtra({ silenceDuration: Number(val) });
                 }}
                 placeholder="句尾静音时长"
               />
@@ -408,7 +427,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               <Select
                 value={activePersona.extra?.explicitLanguage}
                 onChange={(val) => {
-                  //   todo
+                  updatePersonaExtra({ explicitLanguage: val });
                 }}
                 options={[
                   { label: '自动识别', value: '' },
@@ -438,7 +457,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               <Select
                 value={activePersona.extra?.contextLanguage}
                 onChange={(val) => {
-                  //   todo
+                  updatePersonaExtra({ contextLanguage: val });
                 }}
                 options={[
                   { label: '默认', value: '' },
@@ -461,7 +480,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <Switch
                   checked={activePersona.extra?.enableEmotion}
                   onChange={(checked) => {
-                    //   todo
+                    updatePersonaExtra({ enableEmotion: checked });
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用音色情感</span>
@@ -473,7 +492,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     <Input
                       value={activePersona.extra.emotion}
                       onChange={(val) => {
-                        //   todo
+                        updatePersonaExtra({ emotion: val });
                       }}
                       placeholder="输入情感类型，如: happy, sad, angry, excited"
                     />
@@ -487,7 +506,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                       max={5}
                       step={1}
                       onChange={(val) => {
-                        //   todo
+                        updatePersonaExtra({ emotionScale: Array.isArray(val) ? val[0] : val });
                       }}
                       marks={{
                         1: '1',
@@ -507,9 +526,14 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             <div className="mt-2">
               <div className="flex items-center">
                 <Switch
-                  checked={activePersona?.extra?.advanced?.withTimestamp}
+                  checked={activePersona.extra?.advanced?.withTimestamp}
                   onChange={(checked) => {
-                    // todo
+                    updatePersonaExtra({ 
+                      advanced: { 
+                        ...activePersona.extra?.advanced, 
+                        withTimestamp: checked 
+                      } 
+                    });
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用时间戳</span>
@@ -517,9 +541,14 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
               <div className="flex items-center">
                 <Switch
-                  checked={activePersona?.extra?.advanced?.disableMarkdownFilter}
+                  checked={activePersona.extra?.advanced?.disableMarkdownFilter}
                   onChange={(checked) => {
-                    // todo
+                    updatePersonaExtra({ 
+                      advanced: { 
+                        ...activePersona.extra?.advanced, 
+                        disableMarkdownFilter: checked 
+                      } 
+                    });
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用 Markdown 解析过滤</span>
@@ -527,9 +556,14 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
               <div className="flex items-center">
                 <Switch
-                  checked={activePersona?.extra?.advanced?.enableLatexTn}
+                  checked={activePersona.extra?.advanced?.enableLatexTn}
                   onChange={(checked) => {
-                    // todo
+                    updatePersonaExtra({ 
+                      advanced: { 
+                        ...activePersona.extra?.advanced, 
+                        enableLatexTn: checked 
+                      } 
+                    });
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用 LaTeX 公式播报</span>
@@ -537,9 +571,14 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
               <div className="flex items-center">
                 <Switch
-                  checked={activePersona?.extra?.advanced?.enableCache}
+                  checked={activePersona.extra?.advanced?.enableCache}
                   onChange={(checked) => {
-                    // todo
+                    updatePersonaExtra({ 
+                      advanced: { 
+                        ...activePersona.extra?.advanced, 
+                        enableCache: checked 
+                      } 
+                    });
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用缓存加速</span>

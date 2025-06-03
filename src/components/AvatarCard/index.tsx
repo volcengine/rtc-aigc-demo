@@ -6,8 +6,8 @@
 import { useAtom } from 'jotai';
 import DouBaoAvatar from '@/assets/img/DoubaoAvatarGIF.webp';
 import { activePersonaAtom } from '@/store/atoms';
+import { getVoiceName } from '@/config/common';
 import style from './index.module.less';
-import { getVoiceName } from '@/config';
 
 interface IAvatarCardProps extends React.HTMLAttributes<HTMLDivElement> {
   avatar?: string;
