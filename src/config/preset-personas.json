@@ -1,11 +1,11 @@
 [
   {
-    "id": "preset_intelligent_assistant",
+    "id": "intelligent_assistant",
     "name": "智能助手",
     "avatar": "/personas/INTELLIGENT_ASSISTANT.png",
     "voice": "BV001_streaming",
     "model": "doubao-pro-32k",
-    "prompt": "./prompts/intelligent_assistant.md",
+    "prompt": "prompt://intelligent_assistant.md",
     "welcome": "你好！我是你的智能助手，有什么可以帮助你的吗？",
     "description": "智能助手，专业的AI问答助手，能够回答各种问题并提供帮助",
     "questions": [
@@ -23,12 +23,12 @@
     }
   },
   {
-    "id": "preset_screen_reader",
+    "id": "screen_reader",
     "name": "读屏助手",
     "avatar": "/personas/SCREEN_READER.png",
     "voice": "BV002_streaming",
     "model": "doubao-pro-32k",
-    "prompt": "./prompts/screen_reader.md",
+    "prompt": "prompt://screen_reader.md",
     "welcome": "你好！我是读屏助手，我可以帮助你了解屏幕上的内容。",
     "description": "读屏助手，帮助视障用户获取屏幕内容信息",
     "questions": [
@@ -46,12 +46,12 @@
     }
   },
   {
-    "id": "preset_virtual_girl_friend",
+    "id": "virtual_girl_friend",
     "name": "虚拟女友",
     "avatar": "/personas/VIRTUAL_GIRL_FRIEND.png",
     "voice": "BV001_streaming",
     "model": "doubao-pro-128k",
-    "prompt": "./prompts/virtual_girl_friend.md",
+    "prompt": "prompt://virtual_girl_friend.md",
     "welcome": "亲爱的，你好呀～今天过得怎么样？",
     "description": "虚拟女友，温柔可爱的聊天伙伴",
     "questions": [
@@ -69,12 +69,12 @@
     }
   },
   {
-    "id": "preset_translate",
+    "id": "translate",
     "name": "翻译助手",
     "avatar": "/personas/TRANSLATE.png",
     "voice": "BV002_streaming",
     "model": "doubao-pro-32k",
-    "prompt": "./prompts/translate.md",
+    "prompt": "prompt://translate.md",
     "welcome": "你好！我是翻译助手，请告诉我需要翻译的内容和目标语言。",
     "description": "翻译助手，专业的多语言翻译服务",
     "questions": [
@@ -92,12 +92,12 @@
     }
   },
   {
-    "id": "preset_children_encyclopedia",
+    "id": "children_encyclopedia",
     "name": "儿童百科",
     "avatar": "/personas/CHILDREN_ENCYCLOPEDIA.png",
     "voice": "BV001_streaming",
     "model": "doubao-pro-4k",
-    "prompt": "./prompts/children_encyclopedia.md",
+    "prompt": "prompt://children_encyclopedia.md",
     "welcome": "小朋友你好！我是百科小老师，有什么想知道的吗？",
     "description": "儿童百科，专为儿童设计的知识问答助手",
     "questions": [
@@ -115,12 +115,12 @@
     }
   },
   {
-    "id": "preset_customer_service",
+    "id": "customer_service",
     "name": "客服助手",
     "avatar": "/personas/CUSTOMER_SERVICE.png",
     "voice": "BV002_streaming",
     "model": "doubao-pro-32k",
-    "prompt": "./prompts/customer_service.md",
+    "prompt": "prompt://customer_service.md",
     "welcome": "您好！我是客服助手，很高兴为您服务，请问有什么可以帮助您的？",
     "description": "客服助手，专业的客户服务支持",
     "questions": [
@@ -138,12 +138,12 @@
     }
   },
   {
-    "id": "preset_teaching_assistant",
+    "id": "teaching_assistant",
     "name": "教学助手",
     "avatar": "/personas/TEACHING_ASSISTANT.png",
     "voice": "BV002_streaming",
     "model": "doubao-pro-32k",
-    "prompt": "./prompts/teaching_assistant.md",
+    "prompt": "prompt://teaching_assistant.md",
     "welcome": "同学你好！我是教学助手，有什么学习问题可以帮助你解答。",
     "description": "教学助手，专业的教育辅导助手",
     "questions": [

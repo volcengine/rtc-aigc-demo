@@ -207,63 +207,26 @@ const promptCache: Record<string, string> = {};
 /**
  * 异步读取 Prompt 文件内容
  */
-const loadPromptFromFile = async (fileName: string): Promise<string> => {
-  if (promptCache[fileName]) {
-    return promptCache[fileName];
+export const loadPromptFromFile = async (path: string): Promise<string> => {
+  if (promptCache[path]) {
+    return promptCache[path];
+  }
+
+  if(!path.startsWith("prompt://")) {
+    return path;
   }
   
   try {
-    const response = await fetch(`/prompts/${fileName}`);
+    const response = await fetch(`/prompts/${path.split('prompt://')[1]}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const content = await response.text();
-    promptCache[fileName] = content;
+    promptCache[path] = content;
     return content;
   } catch (error) {
-    console.warn(`Failed to load prompt file: ${fileName}`, error);
+    console.warn(`Failed to load prompt file: ${path}`, error);
     return '';
   }
 };
 
-/**
- * 同步获取已缓存的 Prompt 内容，如果未缓存则返回空字符串
- */
-const getPromptFromCache = (fileName: string): string => {
-  return promptCache[fileName] || '';
-};
-
-/**
- * 预加载所有 Prompt 文件
- */
-export const preloadAllPrompts = async (): Promise<void> => {
-  const promptFiles = [
-    'intelligent_assistant.md',
-    'virtual_girl_friend.md', 
-    'translate.md',
-    'children_encyclopedia.md',
-    'customer_service.md',
-    'teaching_assistant.md',
-    'screen_reader.md',
-    'custom.md'
-  ];
-  
-  await Promise.all(
-    promptFiles.map(fileName => loadPromptFromFile(fileName))
-  );
-};
-
-/**
- * @brief 大模型 System 角色预设指令，可用于控制模型输出, 类似 Prompt 的概念。
- * 现在从 Markdown 文件中读取
- */
-export const Prompt = {
-  [SCENE.INTELLIGENT_ASSISTANT]: getPromptFromCache('intelligent_assistant.md'),
-  [SCENE.VIRTUAL_GIRL_FRIEND]: getPromptFromCache('virtual_girl_friend.md'),
-  [SCENE.TRANSLATE]: getPromptFromCache('translate.md'),
-  [SCENE.CHILDREN_ENCYCLOPEDIA]: getPromptFromCache('children_encyclopedia.md'),
-  [SCENE.CUSTOMER_SERVICE]: getPromptFromCache('customer_service.md'),
-  [SCENE.TEACHING_ASSISTANT]: getPromptFromCache('teaching_assistant.md'),
-  [SCENE.SCREEN_READER]: getPromptFromCache('screen_reader.md'),
-  [SCENE.CUSTOM]: getPromptFromCache('custom.md'),
-};

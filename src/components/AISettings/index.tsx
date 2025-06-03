@@ -11,7 +11,7 @@ import { IconExclamationCircle } from '@arco-design/web-react/icon';
 
 import PersonaSelector from '../PersonaSelector';
 
-import { AI_MODEL, MODEL_MODE, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY } from '@/config';
+import { AI_MODEL, MODEL_MODE, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY, loadPromptFromFile } from '@/config';
 
 import TitleCard from '../TitleCard';
 
@@ -19,11 +19,12 @@ import CheckBoxSelector from '@/components/CheckBoxSelector';
 
 import utils from '@/utils/utils';
 
-import { activePersonaAtom, modelModeAtom, loadingAtom } from '@/store/atoms';
+import { activePersonaAtom, modelModeAtom, loadingAtom, promptAtom } from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
 
 import ModelChangeSVG from '@/assets/img/ModelChange.svg';
+import { useEffect, useState } from 'react';
 
 export interface IAISettingsProps {
   open?: boolean;
@@ -44,6 +45,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   // const [model, setModel] = useAtom(modelAtom);
   const [loading, setLoading] = useAtom(loadingAtom);
   const activePersona = useAtomValue(activePersonaAtom);
+  const prompt = useAtomValue(promptAtom);
 
   const getVoiceCategoryData = () => {
     const categoryData: Record<string, any[]> = {};
@@ -242,7 +244,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         <TitleCard title="系统 Prompt">
           <Input.TextArea
             autoSize
-            value={activePersona.prompt}
+            value={prompt}
             onChange={(val) => {
               // todo
             }}

@@ -5,13 +5,13 @@
 
 import { atom, useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { SCENE, MODEL_MODE, VoiceName, AI_MODEL, DEFAULT_VOICE_CATEGORY } from '@/config/common';
+import { SCENE, MODEL_MODE, VoiceName, AI_MODEL, DEFAULT_VOICE_CATEGORY, loadPromptFromFile } from '@/config/common';
 import { PRESET_PERSONAS, getDefaultPersona, generatePersonaId, getVoiceByScene, getModelByScene, getDefaultPersonaManager } from '@/config/personas';
 import { IPersona, IPersonaManager } from '@/types/persona';
 
 // 人设管理状态
 export const personaManagerAtom = atomWithStorage<IPersonaManager>(
-  'persona-manager-v9', // 更新版本强制刷新缓存
+  'persona-manager-v13', // 更新版本强制刷新缓存
   getDefaultPersonaManager()
 );
 
@@ -48,6 +48,15 @@ export const activePersonaAtom = atom(
     }
   }
 );
+
+export const promptAtom = atom((get) => {
+  const persona = get(activePersonaAtom);
+  loadPromptFromFile(persona.prompt)
+    .then((prompt) => {
+      persona.prompt = prompt;
+    })
+  return persona.prompt;
+})
 
 // 自定义人设列表（衍生 atom）
 export const customPersonasAtom = atom((get) => {

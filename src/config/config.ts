@@ -4,7 +4,7 @@
  */
 
 import { StreamIndex } from '@volcengine/rtc';
-import { TTS_CLUSTER, ARK_V3_MODEL_ID, MODEL_MODE, SCENE, Prompt, AI_MODEL, AI_MODEL_MODE, LLM_BOT_ID, VoiceName, isVisionMode, AI_MODE_MAP } from './common';
+import { TTS_CLUSTER, ARK_V3_MODEL_ID, MODEL_MODE, SCENE, AI_MODEL, AI_MODEL_MODE, LLM_BOT_ID, VoiceName, isVisionMode, AI_MODE_MAP } from './common';
 import { getWelcomeByScene, getModelByScene, getVoiceByScene } from './personas';
 
 export const CONVERSATION_SIGNATURE = 'conversation';
@@ -73,7 +73,7 @@ export class ConfigFactory {
   /**
    * @note 大模型 System 角色预设指令, 可用于控制模型输出, 类似 Prompt 的概念。
    */
-  Prompt = Prompt[SCENE.INTELLIGENT_ASSISTANT];
+  Prompt = '';
 
   /**
    * @note 智能体启动后的欢迎词。
