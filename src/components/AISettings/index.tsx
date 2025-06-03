@@ -46,7 +46,7 @@ import { clearHistoryMsg, updateAIConfig, updateModelMode, updateScene } from '@
 import { RootState } from '@/store';
 import utils from '@/utils/utils';
 import { useDeviceState } from '@/lib/useCommon';
-import { aiSettingsAtom } from '@/store/atoms';
+import { aiSettingsAtom, sceneAtom } from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
 import DoubaoModelSVG from '@/assets/img/DoubaoModel.svg';
@@ -135,6 +135,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   });
 
   const [aiSettings, setAiSettings] = useAtom(aiSettingsAtom);
+  const [currentScene, setCurrentScene] = useAtom(sceneAtom);
 
   const handleVoiceTypeChanged = (key: string) => {
     setData((prev) => ({
@@ -161,22 +162,11 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
   const handleChecked = (checkedScene: SCENE) => {
     setScene(checkedScene);
+    setCurrentScene(checkedScene);
     setData((prev) => ({
       ...prev,
       prompt: Prompt[checkedScene],
       welcome: Welcome[checkedScene],
-      voice: Voice[checkedScene],
-      model: Model[checkedScene],
-    }));
-
-    // 同步更新 jotai 状态
-    setAiSettings((prevSettings) => ({
-      ...prevSettings,
-      scene: checkedScene,
-      prompt: Prompt[checkedScene],
-      welcome: Welcome[checkedScene],
-      voice: Voice[checkedScene],
-      model: Model[checkedScene],
     }));
   };
 
@@ -355,6 +345,25 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       setScene(aiSettings.scene || room.scene);
     }
   }, [aiSettings, open, scene, room.modelMode, room.scene]);
+
+  // 监听 jotai 状态中音色和模型的变化，同步到本地状态
+  useEffect(() => {
+    if (aiSettings.voice && aiSettings.voice !== data.voice) {
+      setData((prev) => ({
+        ...prev,
+        voice: aiSettings.voice,
+      }));
+    }
+  }, [aiSettings.voice, data.voice]);
+
+  useEffect(() => {
+    if (aiSettings.model && aiSettings.model !== data.model) {
+      setData((prev) => ({
+        ...prev,
+        model: aiSettings.model,
+      }));
+    }
+  }, [aiSettings.model, data.model]);
 
   // 初始化音色类别 - 根据当前选中的音色找到对应的类别
   useEffect(() => {

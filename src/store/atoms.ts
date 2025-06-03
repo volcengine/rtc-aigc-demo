@@ -5,7 +5,7 @@
 
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { SCENE, MODEL_MODE, VoiceTypeValues, AI_MODEL } from '@/config';
+import { SCENE, MODEL_MODE, VoiceTypeValues, AI_MODEL, Voice, Model } from '@/config';
 
 // AI设置的状态管理
 export interface AISettingsState {
@@ -42,8 +42,8 @@ export const aiSettingsAtom = atomWithStorage<AISettingsState>('ai-settings', {
   modelMode: MODEL_MODE.ORIGINAL,
   prompt: '',
   welcome: '',
-  voice: '' as VoiceTypeValues,
-  model: '' as AI_MODEL,
+  voice: Voice[SCENE.INTELLIGENT_ASSISTANT],
+  model: Model[SCENE.INTELLIGENT_ASSISTANT],
   Url: '',
   APIKey: '',
   customModelName: '',
@@ -69,7 +69,13 @@ export const aiSettingsAtom = atomWithStorage<AISettingsState>('ai-settings', {
 export const sceneAtom = atom(
   (get) => get(aiSettingsAtom).scene,
   (get, set, newScene: SCENE) => {
-    set(aiSettingsAtom, { ...get(aiSettingsAtom), scene: newScene });
+    const currentSettings = get(aiSettingsAtom);
+    set(aiSettingsAtom, {
+      ...currentSettings,
+      scene: newScene,
+      voice: Voice[newScene],
+      model: Model[newScene],
+    });
   }
 );
 

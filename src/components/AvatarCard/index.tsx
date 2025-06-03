@@ -18,7 +18,7 @@ import {
   getVoiceDetailWithCategory,
   DEFAULT_VOICE_CATEGORY,
 } from '@/config';
-import { avatarConfigAtom } from '@/store/atoms';
+import { avatarConfigAtom, sceneAtom } from '@/store/atoms';
 
 interface IAvatarCardProps extends React.HTMLAttributes<HTMLDivElement> {
   avatar?: string;
@@ -42,8 +42,6 @@ function AvatarCard(props: IAvatarCardProps) {
   const avatarConfig = useAtomValue(avatarConfigAtom);
   const [open, setOpen] = useState(false);
 
-  // 优先使用 jotai 状态，如果没有则使用 Redux 状态作为 fallback
-  const scene = avatarConfig.scene || room.scene;
   const modelMode = avatarConfig.modelMode || room.modelMode;
   const voice =
     avatarConfig.voice || room.aiConfig.Config?.TTSConfig?.ProviderParams?.audio?.voice_type;
@@ -68,6 +66,12 @@ function AvatarCard(props: IAvatarCardProps) {
 
   const voiceDetail = getVoiceDetailWithCategory(voice || DEFAULT_VOICE_CATEGORY);
   const voiceCategory = voiceDetail ? voiceDetail.category : '';
+  const scene = useAtomValue(sceneAtom);
+
+  // 获取场景的中文显示名称
+  const getSceneName = () => {
+    return Name[scene] || '未知场景';
+  };
 
   return (
     <div className={`${style.card} ${className}`} {...rest}>
@@ -83,7 +87,7 @@ function AvatarCard(props: IAvatarCardProps) {
       <div className={style.body} />
       <div className={style['text-wrapper']}>
         <div className={style['user-info']}>
-          <div className={style.title}>{voiceCategory}</div>
+          <div className={style.title}>{getSceneName()}</div>
           <div className={style.description}>声源来自 {ReversedVoiceType[voice || '']}</div>
           <div className={style.description}>{displayModelName()}</div>
           <AISettings open={open} onOk={handleCloseDrawer} onCancel={handleCloseDrawer} />

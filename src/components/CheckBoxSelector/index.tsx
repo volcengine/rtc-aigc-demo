@@ -120,8 +120,10 @@ function CheckBoxSelector(props: IProps) {
           width: utils.isMobile() ? '100%' : '650px',
         }}
         closable={false}
+        maskClosable
         title={label}
         visible={visible}
+        onCancel={() => setVisible(false)}
         footer={
           <div className="flex justify-end gap-3 p-4">
             <Button onClick={() => setVisible(false)}>取消</Button>
