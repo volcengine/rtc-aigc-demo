@@ -1,1 +1,1 @@
-export const AIGC_PROXY_HOST = 'http://localhost:50602/proxyAIGCFetch';
+export const AIGC_PROXY_HOST = `${process.env.REACT_APP_BACKEND_URL}/proxyAIGCFetch`;
