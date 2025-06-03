@@ -7,6 +7,7 @@ import { useAtom } from 'jotai';
 import DouBaoAvatar from '@/assets/img/DoubaoAvatarGIF.webp';
 import { activePersonaAtom } from '@/store/atoms';
 import style from './index.module.less';
+import { getVoiceName } from '@/config';
 
 interface IAvatarCardProps extends React.HTMLAttributes<HTMLDivElement> {
   avatar?: string;
@@ -29,7 +30,7 @@ function AvatarCard(props: IAvatarCardProps) {
       <div className={style['text-wrapper']}>
         <div className={style['user-info']}>
           <div className={style.title}>{persona.name}</div>
-          <div className={style.description}>声源： {persona.voice}</div>
+          <div className={style.description}>声源：{getVoiceName(persona.voice)}</div>
           <div className={style.description}>模型：{persona.model}</div>
         </div>
       </div>

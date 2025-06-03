@@ -186,4 +186,4 @@ function CheckBoxSelector(props: IProps) {
   );
 }
 
-export default CheckBoxSelector
+export default memo(CheckBoxSelector)

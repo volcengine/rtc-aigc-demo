@@ -11,7 +11,7 @@ import { IPersona, IPersonaManager } from '@/types/persona';
 
 // 人设管理状态
 export const personaManagerAtom = atomWithStorage<IPersonaManager>(
-  'persona-manager-v8', // 更新版本强制刷新缓存
+  'persona-manager-v9', // 更新版本强制刷新缓存
   getDefaultPersonaManager()
 );
 

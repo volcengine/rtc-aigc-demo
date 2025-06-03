@@ -59,6 +59,17 @@ const allVoicesData = [
   },
   ,...presetVoices] as typeof presetVoices
 
+export const voiceTypes = allVoicesData.map((voice) => voice.details.voice_type);
+export type VoiceType = (typeof voiceTypes)[number];
+
+export const voiceNames = allVoicesData.map((voice) => voice.resource_display);
+export type VoiceName = (typeof voiceNames)[number];
+
+export const getVoiceName = (voiceType: VoiceType) => {
+  const voice = allVoicesData.find((voice) => voice.details.voice_type === voiceType);
+  return voice?.resource_display || '';
+}
+
 export enum MODEL_MODE {
   ORIGINAL = 'original',
   VENDOR = 'vendor',
@@ -74,8 +85,7 @@ export enum MODEL_MODE {
  */
 
 
-export const voiceNames = allVoicesData.map((voice) => voice.resource_display);
-export type VoiceName = (typeof voiceNames)[number];
+
 
 // 按场景分组的音色映射
 export const VOICE_BY_SCENARIO = allVoicesData.reduce((acc, voice) => {
