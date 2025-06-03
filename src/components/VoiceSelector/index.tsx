@@ -85,20 +85,27 @@ function VoiceSelector(props: IProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-        {selectedVoice ? (
-          <CheckBox
-            className="flex-1"
-            icon={selectedVoice.icon}
-            label={selectedVoice.name || ''}
-            description={`${selectedVoice.language} - ${selectedVoice.name}`}
-            noStyle
-          />
-        ) : (
-          <div className="text-gray-400">{placeHolder}</div>
-        )}
-        <Button type="text" className="ml-4 text-blue-600 hover:text-blue-800" onClick={handleSeeMore}>
-          {moreIcon ? <img src={moreIcon} alt="moreIcon" className="w-4 h-4 mr-1" /> : ''}
+      <div className="flex items-center p-4 bg-gray-50 rounded-lg">
+        <div className="flex-1 min-w-0">
+          {selectedVoice ? (
+            <CheckBox
+              icon={selectedVoice.icon}
+              label={selectedVoice.name || ''}
+              description={`${selectedVoice.language} - ${selectedVoice.name}`}
+              noStyle
+            />
+          ) : (
+            <div className="text-gray-400">{placeHolder}</div>
+          )}
+        </div>
+        <Button
+          type="text"
+          className="ml-4 text-blue-600 hover:text-blue-800 flex items-center flex-shrink-0"
+          onClick={handleSeeMore}
+        >
+          {moreIcon && (
+            <img src={moreIcon} alt="moreIcon" className="w-4 h-4 mr-1" />
+          )}
           <span>{moreText || '查看更多'}</span>
         </Button>
       </div>

@@ -6,7 +6,6 @@
 import { useEffect, useMemo, useState, memo } from 'react';
 import { Button, Drawer } from '@arco-design/web-react';
 import CheckBox from '@/components/CheckBox';
-import styles from './index.module.less';
 import utils from '@/utils/utils';
 
 export interface ICheckBoxItemProps {
@@ -40,38 +39,42 @@ function CheckBoxSelector(props: IProps) {
 
   return (
     <>
-      <div className={styles.wrapper}>
-        {selectedOne ? (
-          <CheckBox
-            className={styles.box}
-            icon={selectedOne?.icon}
-            label={selectedOne?.label || ''}
-            description={selectedOne?.description}
-            noStyle
-          />
-        ) : (
-          <div className={styles.placeholder}>{placeHolder}</div>
-        )}
-        <Button type="text" className={styles.seeMore} onClick={handleSeeMore}>
-          {moreIcon ? <img src={moreIcon} alt="moreIcon" /> : ''}
-          <span className={styles.seeMoreText}>{moreText || '查看更多'}</span>
+      <div className="flex items-center justify-between w-full gap-4 bg-gray-50 rounded-lg">
+        <div className="flex-1 min-w-0">
+          {selectedOne ? (
+            <CheckBox
+              icon={selectedOne?.icon}
+              label={selectedOne?.label || ''}
+              description={selectedOne?.description}
+              noStyle
+            />
+          ) : (
+            <div className="text-gray-400">{placeHolder}</div>
+          )}
+        </div>
+
+        <Button
+          type="text"
+          className="ml-4 text-blue-600 hover:text-blue-800 flex items-center flex-shrink-0"
+          onClick={handleSeeMore}
+        >
+          {moreIcon && <img src={moreIcon} alt="moreIcon" className="w-4 h-4 mr-1" />}
+          <span>{moreText || '查看更多'}</span>
         </Button>
       </div>
+
       <Drawer
         style={{
           width: utils.isMobile() ? '100%' : '650px',
         }}
         closable={false}
-        className={styles.modal}
         title={label}
         visible={visible}
         footer={
-          <div className={styles.footer}>
-            <Button className={styles.cancel} onClick={() => setVisible(false)}>
-              取消
-            </Button>
+          <div className="flex justify-end gap-3 p-4">
+            <Button onClick={() => setVisible(false)}>取消</Button>
             <Button
-              className={styles.confirm}
+              type="primary"
               onClick={() => {
                 onChange?.(selected);
                 setVisible(false);
@@ -82,18 +85,20 @@ function CheckBoxSelector(props: IProps) {
           </div>
         }
       >
-        <div className={styles.modalInner}>
-          {data.map((item) => (
-            <CheckBox
-              className={styles.box}
-              key={item.key}
-              icon={item.icon}
-              label={item.label}
-              description={item.description}
-              checked={item.key === selected}
-              onClick={() => setSelected(item.key)}
-            />
-          ))}
+        <div className="p-4">
+          <div className="space-y-2">
+            {data.map((item) => (
+              <CheckBox
+                className="w-full"
+                key={item.key}
+                icon={item.icon}
+                label={item.label}
+                description={item.description}
+                checked={item.key === selected}
+                onClick={() => setSelected(item.key)}
+              />
+            ))}
+          </div>
         </div>
       </Drawer>
     </>

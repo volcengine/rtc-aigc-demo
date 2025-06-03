@@ -40,7 +40,6 @@ import Config, {
   isVisionMode,
 } from '@/config';
 import TitleCard from '../TitleCard';
-import VoiceSelector from '@/components/VoiceSelector';
 import CheckBoxSelector from '@/components/CheckBoxSelector';
 import RtcClient from '@/lib/RtcClient';
 import { clearHistoryMsg, updateAIConfig, updateModelMode, updateScene } from '@/store/slices/room';
@@ -371,6 +370,16 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     }
   }, [data.voice]);
 
+  const getAllVoices = () => {
+    const allVoices = Object.values(VOICE_BY_SCENARIO).flat();
+    return allVoices.map((voice) => ({
+      key: voice.value,
+      label: voice.name,
+      description: `${voice.language} - ${voice.name}`,
+      icon: voice.icon || '', // 如果没有图标就使用空字符串
+    }));
+  };
+
   const renderContent = () => (
     <div className={embedded ? 'p-0 bg-transparent' : ''}>
       <div className="text-lg font-semibold leading-7 text-gray-900">
@@ -489,14 +498,15 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           }}
         >
           <TitleCard title="音色">
-              <VoiceSelector
-                label="音色选择"
-                onChange={handleVoiceTypeChanged}
-                value={data.voice}
-                moreIcon={VoiceTypeChangeSVG}
-                moreText="更换音色"
-                placeHolder="请选择你需要的音色"
-              />
+            <CheckBoxSelector
+              label="音色选择"
+              data={getAllVoices()}
+              onChange={handleVoiceTypeChanged}
+              value={data.voice}
+              moreIcon={VoiceTypeChangeSVG}
+              moreText="更换音色"
+              placeHolder="请选择你需要的音色"
+            />
           </TitleCard>
 
           <div className="mt-4">
