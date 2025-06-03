@@ -9,7 +9,7 @@ import { IconEdit, IconDelete, IconCopy } from '@arco-design/web-react/icon';
 import { useAtom, useAtomValue } from 'jotai';
 import CheckIcon from '../CheckIcon';
 import { IPersona } from '@/types/persona';
-import { personaManagerAtom, activePersonaAtom, usePersonaActions, presetPersonasAtom, customPersonasAtom } from '@/store/atoms';
+import { activePersonaAtom, usePersonaActions, presetPersonasListAtom, customPersonasListAtom } from '@/store/atoms';
 import { clonePersona, generatePersonaId } from '@/config/personas';
 import { VOICE_BY_SCENARIO, AI_MODEL } from '../../config/common';
 
@@ -290,8 +290,8 @@ function PersonaSelector({ className }: PersonaSelectorProps) {
     setEditingPersona(undefined);
   };
 
-  const presetPersonas = useAtomValue(presetPersonasAtom);
-  const customPersonas = useAtomValue(customPersonasAtom);
+  const presetPersonas = useAtomValue(presetPersonasListAtom);
+  const customPersonas = useAtomValue(customPersonasListAtom);
 
   const renderPersonaCard = (persona: IPersona) => {
     const isActive = persona.id === activePersona?.id;

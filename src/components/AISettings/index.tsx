@@ -24,7 +24,7 @@ import { activePersonaAtom, modelModeAtom, loadingAtom, promptAtom } from '@/sto
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
 
 import ModelChangeSVG from '@/assets/img/ModelChange.svg';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface IAISettingsProps {
   open?: boolean;
@@ -42,26 +42,26 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   const [modelMode, setModelMode] = useAtom(modelModeAtom);
   const [loading, setLoading] = useAtom(loadingAtom);
   const [activePersona, setActivePersona] = useAtom(activePersonaAtom);
-  
+
   // 使用 useState 来处理异步 prompt 加载
   const [prompt, setPrompt] = useState(activePersona.prompt);
-  
+
   // 监听 activePersona 变化，异步加载 prompt
   useEffect(() => {
     const loadPrompt = async () => {
-      if (activePersona.prompt.startsWith('prompt://')) {
+      const originalPrompt = activePersona.prompt;
+      if (originalPrompt.startsWith('prompt://')) {
         try {
-          const promptContent = await loadPromptFromFile(activePersona.prompt);
+          const promptContent = await loadPromptFromFile(originalPrompt);
           setPrompt(promptContent);
         } catch (error) {
           console.error('Failed to load prompt:', error);
-          setPrompt(activePersona.prompt); // fallback to original
         }
       } else {
         setPrompt(activePersona.prompt);
       }
-    };
-    
+    }
+
     loadPrompt();
   }, [activePersona.prompt]);
 
@@ -528,11 +528,11 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <Switch
                   checked={activePersona.extra?.advanced?.withTimestamp}
                   onChange={(checked) => {
-                    updatePersonaExtra({ 
-                      advanced: { 
-                        ...activePersona.extra?.advanced, 
-                        withTimestamp: checked 
-                      } 
+                    updatePersonaExtra({
+                      advanced: {
+                        ...activePersona.extra?.advanced,
+                        withTimestamp: checked
+                      }
                     });
                   }}
                 />
@@ -543,11 +543,11 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <Switch
                   checked={activePersona.extra?.advanced?.disableMarkdownFilter}
                   onChange={(checked) => {
-                    updatePersonaExtra({ 
-                      advanced: { 
-                        ...activePersona.extra?.advanced, 
-                        disableMarkdownFilter: checked 
-                      } 
+                    updatePersonaExtra({
+                      advanced: {
+                        ...activePersona.extra?.advanced,
+                        disableMarkdownFilter: checked
+                      }
                     });
                   }}
                 />
@@ -558,11 +558,11 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <Switch
                   checked={activePersona.extra?.advanced?.enableLatexTn}
                   onChange={(checked) => {
-                    updatePersonaExtra({ 
-                      advanced: { 
-                        ...activePersona.extra?.advanced, 
-                        enableLatexTn: checked 
-                      } 
+                    updatePersonaExtra({
+                      advanced: {
+                        ...activePersona.extra?.advanced,
+                        enableLatexTn: checked
+                      }
                     });
                   }}
                 />
@@ -573,11 +573,11 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <Switch
                   checked={activePersona.extra?.advanced?.enableCache}
                   onChange={(checked) => {
-                    updatePersonaExtra({ 
-                      advanced: { 
-                        ...activePersona.extra?.advanced, 
-                        enableCache: checked 
-                      } 
+                    updatePersonaExtra({
+                      advanced: {
+                        ...activePersona.extra?.advanced,
+                        enableCache: checked
+                      }
                     });
                   }}
                 />

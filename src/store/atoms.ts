@@ -9,77 +9,85 @@ import { SCENE, MODEL_MODE, VoiceName, AI_MODEL, DEFAULT_VOICE_CATEGORY, loadPro
 import { PRESET_PERSONAS, getDefaultPersona, generatePersonaId, getVoiceByScene, getModelByScene, getDefaultPersonaManager } from '@/config/personas';
 import { IPersona, IPersonaManager } from '@/types/persona';
 
-// 人设管理状态
-export const personaManagerAtom = atomWithStorage<IPersonaManager>(
-  'persona-manager-v15', // 更新版本强制刷新缓存
-  getDefaultPersonaManager()
-);
+// 人设管理 - 原子化状态
+export const activePersonaIdAtom = atomWithStorage<string>('active-persona-id', PRESET_PERSONAS[0]!.id, undefined, {getOnInit: true});
+export const customPersonasAtom = atomWithStorage<IPersona[]>('custom-personas', [], undefined, {getOnInit: true});
+export const presetPersonasAtom = atomWithStorage<IPersona[]>('preset-personas', PRESET_PERSONAS, undefined, {getOnInit: true});
 
 // 当前激活的人设（可读写 atom）
 export const activePersonaAtom = atom(
-  (get) => {
-    const manager = get(personaManagerAtom);
-    const allPersonas = [...manager.presetPersonas, ...manager.customPersonas];
-    return allPersonas.find((p) => p.id === manager.activePersonaId) || getDefaultPersona();
+  (get): IPersona => {
+    const activePersonaId = get(activePersonaIdAtom);
+    const presetPersonas = get(presetPersonasAtom);
+    const customPersonas = get(customPersonasAtom);
+    const allPersonas = [...presetPersonas, ...customPersonas];
+    return allPersonas.find((p) => p.id === activePersonaId) || getDefaultPersona();
   },
-  (get, set, newPersona: IPersona) => {
-    // 更新人设管理器中的对应人设
-    const manager = get(personaManagerAtom);
+  (get, set, newPersona: IPersona): void => {
+    // 更新对应的人设
     const isPreset = newPersona.isPreset;
     
     if (isPreset) {
       // 更新预设人设
-      const updatedPresetPersonas = manager.presetPersonas.map((p) =>
+      const presetPersonas = get(presetPersonasAtom);
+      const updatedPresetPersonas = presetPersonas.map((p) =>
         p.id === newPersona.id ? newPersona : p
       );
-      set(personaManagerAtom, {
-        ...manager,
-        presetPersonas: updatedPresetPersonas,
-      });
+      set(presetPersonasAtom, updatedPresetPersonas);
     } else {
       // 更新自定义人设
-      const updatedCustomPersonas = manager.customPersonas.map((p) =>
+      const customPersonas = get(customPersonasAtom);
+      const updatedCustomPersonas = customPersonas.map((p) =>
         p.id === newPersona.id ? newPersona : p
       );
-      set(personaManagerAtom, {
-        ...manager,
-        customPersonas: updatedCustomPersonas,
-      });
+      set(customPersonasAtom, updatedCustomPersonas);
     }
   }
 );
 
 // Prompt atom - 简单返回当前人设的 prompt 字段
-export const promptAtom = atom((get) => {
-  const persona = get(activePersonaAtom);
-  return persona.prompt;
-});
+export const promptAtom = atom(
+  (get): string => {
+    const persona = get(activePersonaAtom);
+    return persona.prompt;
+  }
+);
+
+// 场景 atom（只读）
+export const sceneAtom = atom(
+  (get): SCENE => {
+    const activePersona = get(activePersonaAtom);
+    return activePersona.originalScene || SCENE.INTELLIGENT_ASSISTANT;
+  }
+);
 
 // 自定义人设列表（衍生 atom）
-export const customPersonasAtom = atom((get) => {
-  const manager = get(personaManagerAtom);
-  return manager.customPersonas;
-});
+export const customPersonasListAtom = atom(
+  (get): IPersona[] => {
+    const customPersonas = get(customPersonasAtom);
+    return customPersonas;
+  }
+);
 
 // 预设人设列表（衍生 atom）
-export const presetPersonasAtom = atom((get) => {
-  const manager = get(personaManagerAtom);
-  return manager.presetPersonas;
-});
+export const presetPersonasListAtom = atom(
+  (get): IPersona[] => {
+    const presetPersonas = get(presetPersonasAtom);
+    return presetPersonas;
+  }
+);
 
 // 人设操作函数
 export const usePersonaActions = () => {
-  const [, setPersonaManager] = useAtom(personaManagerAtom);
+  const [, setActivePersonaId] = useAtom(activePersonaIdAtom);
+  const [, setCustomPersonas] = useAtom(customPersonasAtom);
 
   return {
-    setActivePersona: (personaId: string) => {
-      setPersonaManager((prev) => ({
-        ...prev,
-        activePersonaId: personaId,
-      }));
+    setActivePersona: (personaId: string): void => {
+      setActivePersonaId(personaId);
     },
 
-    createPersona: (personaData: Partial<IPersona>) => {
+    createPersona: (personaData: Partial<IPersona>): void => {
       const defaultVoice = getVoiceByScene(SCENE.INTELLIGENT_ASSISTANT) as VoiceName;
       const defaultModel = getModelByScene(SCENE.INTELLIGENT_ASSISTANT) as AI_MODEL;
 
@@ -97,19 +105,13 @@ export const usePersonaActions = () => {
         updatedAt: Date.now(),
       };
 
-      setPersonaManager((prev) => {
-        const newCustomPersonas = [...prev.customPersonas, newPersona];
-        return {
-          ...prev,
-          customPersonas: newCustomPersonas,
-          activePersonaId: newPersona.id,
-        };
-      });
+      setCustomPersonas((prev) => [...prev, newPersona]);
+      setActivePersonaId(newPersona.id);
     },
 
-    updatePersona: (personaId: string, personaData: Partial<IPersona>) => {
-      setPersonaManager((prev) => {
-        const newCustomPersonas = prev.customPersonas.map((p) =>
+    updatePersona: (personaId: string, personaData: Partial<IPersona>): void => {
+      setCustomPersonas((prev) =>
+        prev.map((p) =>
           p.id === personaId
             ? {
                 ...p,
@@ -117,26 +119,15 @@ export const usePersonaActions = () => {
                 updatedAt: Date.now(),
               }
             : p
-        );
-
-        return {
-          ...prev,
-          customPersonas: newCustomPersonas,
-        };
-      });
+        )
+      );
     },
 
-    deletePersona: (personaId: string) => {
-      setPersonaManager((prev) => {
-        const newCustomPersonas = prev.customPersonas.filter((p) => p.id !== personaId);
-        const newActivePersonaId = prev.activePersonaId === personaId ? PRESET_PERSONAS[0].id : prev.activePersonaId;
-
-        return {
-          ...prev,
-          customPersonas: newCustomPersonas,
-          activePersonaId: newActivePersonaId,
-        };
-      });
+    deletePersona: (personaId: string): void => {
+      setCustomPersonas((prev) => prev.filter((p) => p.id !== personaId));
+      setActivePersonaId((prevId) => 
+        prevId === personaId ? PRESET_PERSONAS[0]!.id : prevId
+      );
     },
   };
 };
@@ -148,38 +139,38 @@ export const aiSettingsUIAtom = atom({
 });
 
 export const selectedVoiceCategoryAtom = atom(
-  (get) => get(aiSettingsUIAtom).selectedVoiceCategory,
-  (get, set, newCategory: string) => {
+  (get): string => get(aiSettingsUIAtom).selectedVoiceCategory,
+  (get, set, newCategory: string): void => {
     set(aiSettingsUIAtom, { ...get(aiSettingsUIAtom), selectedVoiceCategory: newCategory });
   }
 );
 
 export const loadingAtom = atom(
-  (get) => get(aiSettingsUIAtom).loading,
-  (get, set, newLoading: boolean) => {
+  (get): boolean => get(aiSettingsUIAtom).loading,
+  (get, set, newLoading: boolean): void => {
     set(aiSettingsUIAtom, { ...get(aiSettingsUIAtom), loading: newLoading });
   }
 );
 
 export const voiceAtom = atom(
-  (get) => get(activePersonaAtom).voice,
-  (get, set, newVoice: VoiceName) => {
+  (get): VoiceName => get(activePersonaAtom).voice,
+  (get, set, newVoice: VoiceName): void => {
     const currentPersona = get(activePersonaAtom);
     set(activePersonaAtom, { ...currentPersona, voice: newVoice });
   }
 );
 
 export const modelAtom = atom(
-  (get) => get(activePersonaAtom).model,
-  (get, set, newModel: AI_MODEL) => {
+  (get): AI_MODEL => get(activePersonaAtom).model,
+  (get, set, newModel: AI_MODEL): void => {
     const currentPersona = get(activePersonaAtom);
     set(activePersonaAtom, { ...currentPersona, model: newModel });
   }
 );
 
 export const modelModeAtom = atom(
-  (get) => get(activePersonaAtom).extra?.modelMode || MODEL_MODE.ORIGINAL,
-  (get, set, newModelMode: MODEL_MODE) => {
+  (get): MODEL_MODE => get(activePersonaAtom).extra?.modelMode || MODEL_MODE.ORIGINAL,
+  (get, set, newModelMode: MODEL_MODE): void => {
     const currentPersona = get(activePersonaAtom);
     set(activePersonaAtom, { 
       ...currentPersona, 
