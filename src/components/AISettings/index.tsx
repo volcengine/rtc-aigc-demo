@@ -3,17 +3,7 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import {
-  Button,
-  Drawer,
-  Input,
-  Message,
-  Radio,
-  Tooltip,
-  Select,
-  Slider,
-  Switch,
-} from '@arco-design/web-react';
+import { Button, Drawer, Input, Message, Radio, Tooltip, Select, Slider, Switch } from '@arco-design/web-react';
 
 import { useEffect, useRef } from 'react';
 
@@ -27,25 +17,7 @@ import { StreamIndex } from '@volcengine/rtc';
 
 import PersonaSelector from '../PersonaSelector';
 
-import Config, {
-  Icon,
-  Name,
-  SCENE,
-  Prompt,
-  Welcome,
-  Voice,
-  Model,
-  AI_MODEL,
-  MODEL_MODE,
-  VOICE_INFO_MAP,
-  VOICE_TYPE,
-  VoiceTypeValues,
-  VOICE_CATEGORIES,
-  VOICE_BY_SCENARIO,
-  DEFAULT_VOICE_CATEGORY,
-  getVoicesByCategory,
-  isVisionMode,
-} from '@/config';
+import Config, { SCENE, AI_MODEL, MODEL_MODE, VoiceNames, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY, isVisionMode } from '@/config';
 
 import TitleCard from '../TitleCard';
 
@@ -61,20 +33,9 @@ import utils from '@/utils/utils';
 
 import { useDeviceState } from '@/lib/useCommon';
 
-import {
-  aiSettingsAtom,
-  activePersonaAtom,
-  sceneAtom,
-  modelModeAtom,
-  voiceAtom,
-  modelAtom,
-  selectedVoiceCategoryAtom,
-  loadingAtom,
-} from '@/store/atoms';
+import { aiSettingsAtom, activePersonaAtom, sceneAtom, modelModeAtom, voiceAtom, modelAtom, selectedVoiceCategoryAtom, loadingAtom } from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
-
-import DoubaoModelSVG from '@/assets/img/DoubaoModel.svg';
 
 import ModelChangeSVG from '@/assets/img/ModelChange.svg';
 
@@ -92,8 +53,7 @@ const RadioGroup = Radio.Group;
  */
 function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   const dispatch = useDispatch();
-  const { isVideoPublished, isScreenPublished, switchScreenCapture, switchCamera } =
-    useDeviceState();
+  const { isVideoPublished, isScreenPublished, switchScreenCapture, switchCamera } = useDeviceState();
   const room = useSelector((state: RootState) => state.room);
 
   // 使用 Jotai atoms 替代本地状态
@@ -107,11 +67,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   const activePersona = useAtomValue(activePersonaAtom);
 
   const handleVoiceTypeChanged = (key: string) => {
-    setVoice(key as VoiceTypeValues);
-  };
-
-  const handleChecked = (value: SCENE) => {
-    setScene(value);
+    setVoice(key as VoiceNames);
   };
 
   const handleUseThirdPart = (key: string) => {
@@ -218,20 +174,6 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     }
   }, [open, setLoading]);
 
-  // 监听音色分类初始化
-  useEffect(() => {
-    const currentVoice = voice;
-    if (currentVoice) {
-      // 查找当前音色属于哪个类别
-      for (const [category, voices] of Object.entries(VOICE_BY_SCENARIO)) {
-        if (voices.some((v) => v.value === currentVoice)) {
-          setSelectedVoiceCategory(category);
-          break;
-        }
-      }
-    }
-  }, [voice, setSelectedVoiceCategory]);
-
   // 监听激活的人设变化，同步相关配置
   const previousPersonaIdRef = useRef<string | null>(null);
 
@@ -260,7 +202,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         }));
       }
     }
-  }, [activePersona.id]);
+  }, [activePersona]);
 
   const getVoiceCategoryData = () => {
     const categoryData: Record<string, any[]> = {};
@@ -297,23 +239,13 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     content={
                       <div>
                         访问令牌可参考{' '}
-                        <a
-                          href="https://www.coze.cn/open/docs/developer_guides/pat"
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: 'gray' }}
-                        >
+                        <a href="https://www.coze.cn/open/docs/developer_guides/pat" target="_blank" rel="noreferrer" style={{ color: 'gray' }}>
                           添加个人访问令牌
                         </a>{' '}
                         获取。
                         <br />
                         智能体 ID 可参考{' '}
-                        <a
-                          href="https://www.coze.cn/open/docs/developer_guides/coze_api_overview#c5ac4993"
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: 'gray' }}
-                        >
+                        <a href="https://www.coze.cn/open/docs/developer_guides/coze_api_overview#c5ac4993" target="_blank" rel="noreferrer" style={{ color: 'gray' }}>
                           发送请求
                         </a>{' '}
                         获取。
@@ -336,12 +268,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     content={
                       <div>
                         如第三方模型使用失败, 可前往{' '}
-                        <a
-                          href="https://www.volcengine.com/docs/6348/1399966"
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: 'gray' }}
-                        >
+                        <a href="https://www.volcengine.com/docs/6348/1399966" target="_blank" rel="noreferrer" style={{ color: 'gray' }}>
                           第三方模型接口验证工具
                         </a>{' '}
                         下载工具定位原因。
@@ -511,10 +438,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
         {/* 新增语音合成配置区域 */}
         <div className="mt-4">
-          <div
-            className="text-lg font-semibold leading-7 text-gray-900"
-            style={{ marginTop: '24px', marginBottom: '16px' }}
-          >
+          <div className="text-lg font-semibold leading-7 text-gray-900" style={{ marginTop: '24px', marginBottom: '16px' }}>
             语音合成参数配置
           </div>
 
@@ -531,7 +455,10 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 options={[
                   { label: 'MP3', value: 'mp3' },
                   { label: 'WAV', value: 'wav' },
-                  { label: 'PCM', value: 'pcm' },
+                  {
+                    label: 'PCM',
+                    value: 'pcm',
+                  },
                   { label: 'OGG Opus', value: 'ogg_opus' },
                 ]}
                 placeholder="选择音频编码格式"
@@ -551,7 +478,10 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 options={[
                   { label: '8000 Hz', value: 8000 },
                   { label: '16000 Hz', value: 16000 },
-                  { label: '24000 Hz', value: 24000 },
+                  {
+                    label: '24000 Hz',
+                    value: 24000,
+                  },
                 ]}
                 placeholder="选择采样率"
                 style={{ width: '100%' }}
@@ -597,9 +527,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     2.0: '2.0x',
                   }}
                 />
-                <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                  当前: {aiSettings.speedRatio}x
-                </div>
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>当前: {aiSettings.speedRatio}x</div>
               </div>
             </TitleCard>
           </div>
@@ -625,9 +553,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     2.0: '2.0x',
                   }}
                 />
-                <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                  当前: {aiSettings.loudnessRatio}x
-                </div>
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>当前: {aiSettings.loudnessRatio}x</div>
               </div>
             </TitleCard>
 
@@ -660,12 +586,21 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 }}
                 options={[
                   { label: '自动识别', value: '' },
-                  { label: '中文为主（支持中英混）', value: 'zh' },
+                  {
+                    label: '中文为主（支持中英混）',
+                    value: 'zh',
+                  },
                   { label: '仅英文', value: 'en' },
                   { label: '仅日文', value: 'ja' },
-                  { label: '仅墨西哥语', value: 'es-mx' },
+                  {
+                    label: '仅墨西哥语',
+                    value: 'es-mx',
+                  },
                   { label: '仅印尼语', value: 'id' },
-                  { label: '仅巴西葡萄牙语', value: 'pt-br' },
+                  {
+                    label: '仅巴西葡萄牙语',
+                    value: 'pt-br',
+                  },
                   { label: '多语种前端', value: 'crosslingual' },
                 ]}
                 placeholder="选择语种"
@@ -685,7 +620,10 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 options={[
                   { label: '默认', value: '' },
                   { label: '印尼语', value: 'id' },
-                  { label: '墨西哥语', value: 'es' },
+                  {
+                    label: '墨西哥语',
+                    value: 'es',
+                  },
                   { label: '巴西葡萄牙语', value: 'pt' },
                 ]}
                 placeholder="选择参考语种"
@@ -725,9 +663,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   </div>
 
                   <div style={{ marginTop: '16px' }}>
-                    <div style={{ marginBottom: '8px' }}>
-                      情绪强度 (1-5): {aiSettings.emotionScale}
-                    </div>
+                    <div style={{ marginBottom: '8px' }}>情绪强度 (1-5): {aiSettings.emotionScale}</div>
                     <Slider
                       value={aiSettings.emotionScale}
                       min={1}
@@ -813,7 +749,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     </div>
   );
 
-  console.log("人设 id: ", activePersona?.id)
+  console.log('state: ', { aiSettings, voice });
 
   if (embedded) {
     return renderContent();
@@ -831,17 +767,11 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       }}
       footer={
         <div className="flex flex-row justify-end items-center gap-2">
-          <div className="text-xs font-normal leading-5 text-gray-500">
-            AI 配置修改后，退出房间将不再保存该配置方案
-          </div>
+          <div className="text-xs font-normal leading-5 text-gray-500">AI 配置修改后，退出房间将不再保存该配置方案</div>
           <Button loading={loading} className="bg-gray-200 hover:bg-gray-300" onClick={onCancel}>
             取消
           </Button>
-          <Button
-            loading={loading}
-            className="bg-blue-600 hover:bg-blue-700"
-            onClick={handleUpdateConfig}
-          >
+          <Button loading={loading} className="bg-blue-600 hover:bg-blue-700" onClick={handleUpdateConfig}>
             确定
           </Button>
         </div>

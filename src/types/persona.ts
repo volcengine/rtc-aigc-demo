@@ -3,7 +3,7 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { AI_MODEL, VoiceTypeValues, SCENE } from '@/config';
+import { AI_MODEL, VoiceNames, SCENE } from '@/config';
 
 /**
  * 人设类型定义
@@ -16,7 +16,7 @@ export interface IPersona {
   /** 人设头像 */
   avatar: string;
   /** 人设音色 */
-  voice: VoiceTypeValues;
+  voice: VoiceNames;
   /** 人设模型 */
   model: AI_MODEL;
   /** 人设提示词 */

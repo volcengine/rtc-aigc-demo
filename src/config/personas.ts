@@ -7,13 +7,13 @@ import { IPersona } from '@/types/persona';
 import {
   SCENE,
   Icon,
-  Name,
-  Voice,
+  Persona2Name,
+  Persona2VoiceType,
   Model,
   Prompt,
   Welcome,
   AI_MODEL,
-  VoiceTypeValues,
+  VoiceNames,
 } from './common';
 
 /**
@@ -22,9 +22,9 @@ import {
 export const PRESET_PERSONAS: IPersona[] = [
   {
     id: 'preset_intelligent_assistant',
-    name: Name[SCENE.INTELLIGENT_ASSISTANT],
+    name: Persona2Name[SCENE.INTELLIGENT_ASSISTANT],
     avatar: Icon[SCENE.INTELLIGENT_ASSISTANT],
-    voice: Voice[SCENE.INTELLIGENT_ASSISTANT] as VoiceTypeValues,
+    voice: Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT] as VoiceNames,
     model: Model[SCENE.INTELLIGENT_ASSISTANT] as AI_MODEL,
     prompt: Prompt[SCENE.INTELLIGENT_ASSISTANT],
     welcome: Welcome[SCENE.INTELLIGENT_ASSISTANT],
@@ -36,9 +36,9 @@ export const PRESET_PERSONAS: IPersona[] = [
   },
   {
     id: 'preset_screen_reader',
-    name: Name[SCENE.SCREEN_READER],
+    name: Persona2Name[SCENE.SCREEN_READER],
     avatar: Icon[SCENE.SCREEN_READER],
-    voice: Voice[SCENE.SCREEN_READER] as VoiceTypeValues,
+    voice: Persona2VoiceType[SCENE.SCREEN_READER] as VoiceNames,
     model: Model[SCENE.SCREEN_READER] as AI_MODEL,
     prompt: Prompt[SCENE.SCREEN_READER],
     welcome: Welcome[SCENE.SCREEN_READER],
@@ -50,9 +50,9 @@ export const PRESET_PERSONAS: IPersona[] = [
   },
   {
     id: 'preset_virtual_girl_friend',
-    name: Name[SCENE.VIRTUAL_GIRL_FRIEND],
+    name: Persona2Name[SCENE.VIRTUAL_GIRL_FRIEND],
     avatar: Icon[SCENE.VIRTUAL_GIRL_FRIEND],
-    voice: Voice[SCENE.VIRTUAL_GIRL_FRIEND] as VoiceTypeValues,
+    voice: Persona2VoiceType[SCENE.VIRTUAL_GIRL_FRIEND] as VoiceNames,
     model: Model[SCENE.VIRTUAL_GIRL_FRIEND] as AI_MODEL,
     prompt: Prompt[SCENE.VIRTUAL_GIRL_FRIEND],
     welcome: Welcome[SCENE.VIRTUAL_GIRL_FRIEND],
@@ -64,9 +64,9 @@ export const PRESET_PERSONAS: IPersona[] = [
   },
   {
     id: 'preset_translate',
-    name: Name[SCENE.TRANSLATE],
+    name: Persona2Name[SCENE.TRANSLATE],
     avatar: Icon[SCENE.TRANSLATE],
-    voice: Voice[SCENE.TRANSLATE] as VoiceTypeValues,
+    voice: Persona2VoiceType[SCENE.TRANSLATE] as VoiceNames,
     model: Model[SCENE.TRANSLATE] as AI_MODEL,
     prompt: Prompt[SCENE.TRANSLATE],
     welcome: Welcome[SCENE.TRANSLATE],
@@ -78,9 +78,9 @@ export const PRESET_PERSONAS: IPersona[] = [
   },
   {
     id: 'preset_children_encyclopedia',
-    name: Name[SCENE.CHILDREN_ENCYCLOPEDIA],
+    name: Persona2Name[SCENE.CHILDREN_ENCYCLOPEDIA],
     avatar: Icon[SCENE.CHILDREN_ENCYCLOPEDIA],
-    voice: Voice[SCENE.CHILDREN_ENCYCLOPEDIA] as VoiceTypeValues,
+    voice: Persona2VoiceType[SCENE.CHILDREN_ENCYCLOPEDIA] as VoiceNames,
     model: Model[SCENE.CHILDREN_ENCYCLOPEDIA] as AI_MODEL,
     prompt: Prompt[SCENE.CHILDREN_ENCYCLOPEDIA],
     welcome: Welcome[SCENE.CHILDREN_ENCYCLOPEDIA],
@@ -92,9 +92,9 @@ export const PRESET_PERSONAS: IPersona[] = [
   },
   {
     id: 'preset_customer_service',
-    name: Name[SCENE.CUSTOMER_SERVICE],
+    name: Persona2Name[SCENE.CUSTOMER_SERVICE],
     avatar: Icon[SCENE.CUSTOMER_SERVICE],
-    voice: Voice[SCENE.CUSTOMER_SERVICE] as VoiceTypeValues,
+    voice: Persona2VoiceType[SCENE.CUSTOMER_SERVICE] as VoiceNames,
     model: Model[SCENE.CUSTOMER_SERVICE] as AI_MODEL,
     prompt: Prompt[SCENE.CUSTOMER_SERVICE],
     welcome: Welcome[SCENE.CUSTOMER_SERVICE],
@@ -106,9 +106,9 @@ export const PRESET_PERSONAS: IPersona[] = [
   },
   {
     id: 'preset_teaching_assistant',
-    name: Name[SCENE.TEACHING_ASSISTANT],
+    name: Persona2Name[SCENE.TEACHING_ASSISTANT],
     avatar: Icon[SCENE.TEACHING_ASSISTANT],
-    voice: Voice[SCENE.TEACHING_ASSISTANT] as VoiceTypeValues,
+    voice: Persona2VoiceType[SCENE.TEACHING_ASSISTANT] as VoiceNames,
     model: Model[SCENE.TEACHING_ASSISTANT] as AI_MODEL,
     prompt: Prompt[SCENE.TEACHING_ASSISTANT],
     welcome: Welcome[SCENE.TEACHING_ASSISTANT],

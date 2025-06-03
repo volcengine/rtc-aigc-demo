@@ -12,11 +12,11 @@ import {
   Prompt,
   Welcome,
   Model,
-  Voice,
+  Persona2VoiceType,
   AI_MODEL,
   AI_MODEL_MODE,
   LLM_BOT_ID,
-  VoiceTypeValues,
+  VoiceNames,
   isVisionMode,
   AI_MODE_MAP,
 } from '.';
@@ -90,7 +90,7 @@ export class ConfigFactory {
    *       音色 ID 获取方式可查看 VOICE_TYPE 定义
    *       此处已有默认值, 不影响跑通, 可按需修改。
    */
-  VoiceType: VoiceTypeValues = Voice[SCENE.INTELLIGENT_ASSISTANT];
+  VoiceType: VoiceNames = Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT];
 
   /**
    * @note 大模型 System 角色预设指令, 可用于控制模型输出, 类似 Prompt 的概念。

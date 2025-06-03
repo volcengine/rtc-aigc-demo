@@ -12,18 +12,61 @@ import CHILDREN_ENCYCLOPEDIA from '@/assets/img/CHILDREN_ENCYCLOPEDIA.png';
 import TEACHING_ASSISTANT from '@/assets/img/TEACHING_ASSISTANT.png';
 import CUSTOMER_SERVICE from '@/assets/img/CUSTOMER_SERVICE.png';
 import SCREEN_READER from '@/assets/img/SCREEN_READER.png';
-import allVoicesData from './all-voices-latest.json';
+import importedVoicesData from './all-voices-latest.json';
 
-export enum ModelSourceType {
-  Custom = 'Custom',
-  Available = 'Available',
-}
+const VOICE_TYPE_GENERAL_FEMALE = 'BV001_streaming' ;
+const VOICE_TYPE_GENERAL_MALE = 'BV002_streaming' ;
 
-export enum CustomParamsType {
-  TTS = 'TTS',
-  ASR = 'ASR',
-  LLM = 'LLM',
-}
+const allVoicesData = [
+  {
+    "instance_number": "",
+    "is_shareable": false,
+    "resource_id": "",
+    "code": VOICE_TYPE_GENERAL_FEMALE,
+    "configuration_code": "Timbre-Free",
+    "resource_display": "通用女声",
+    "raw_type": "",
+    "type": "",
+    "purchased_amount": "",
+    "current_usage": "",
+    "expires": "-",
+    "details": {
+      "demo_link": "",
+      "language": "中文",
+      "recommended_scenario": "通用场景",
+      "tone_number": "zh_female_wanqudashu_moon_bigtts",
+      "voice_type": "zh_female_wanqudashu_moon_bigtts"
+    },
+    "group_name": "",
+    "alias": "",
+    "train_id": "",
+    "state": ""
+  },
+  {
+    "instance_number": "",
+    "is_shareable": false,
+    "resource_id": VOICE_TYPE_GENERAL_MALE,
+    "code": "BV001_streaming",
+    "configuration_code": "Timbre-Free",
+    "resource_display": "通用男声",
+    "raw_type": "",
+    "type": "",
+    "purchased_amount": "",
+    "current_usage": "",
+    "expires": "-",
+    "details": {
+      "demo_link": "",
+      "language": "中文",
+      "recommended_scenario": "通用场景",
+      "tone_number": "zh_male_wanqudashu_moon_bigtts",
+      "voice_type": "zh_male_wanqudashu_moon_bigtts"
+    },
+    "group_name": "",
+    "alias": "",
+    "train_id": "",
+    "state": ""
+  },
+  ,...importedVoicesData] as typeof importedVoicesData
 
 export enum MODEL_MODE {
   ORIGINAL = 'original',
@@ -39,64 +82,11 @@ export enum MODEL_MODE {
  *        对应 "音色详情" 中, "Voice_type" 列的值。
  */
 
-// 生成基础音色枚举
-const baseVoiceTypes = {
-  "通用女声": 'BV001_streaming',
-  "通用男声": 'BV002_streaming',
-} as const;
 
-// 从 JSON 数据动态生成音色类型
-const dynamicVoiceTypes = allVoicesData.reduce((acc, voice) => {
-  acc[voice.resource_display] = voice.details.voice_type;
-  return acc;
-}, {} as Record<string, string>);
-
-// 合并所有音色类型
-export const VOICE_TYPE = {
-  ...baseVoiceTypes,
-  ...dynamicVoiceTypes,
-} as const;
-
-export type VoiceTypeKeys = keyof typeof VOICE_TYPE;
-export type VoiceTypeValues = (typeof VOICE_TYPE)[VoiceTypeKeys];
-
-// 生成基础音色信息映射
-const baseVoiceInfoMap = {
-  [VOICE_TYPE["通用女声"]]: {
-    description: '女声 青年 语音合成 通用场景',
-    url: '',
-    icon: 通用女声,
-    scenario: '通用场景',
-    language: '中文',
-  },
-  [VOICE_TYPE["通用男声"]]: {
-    description: '男声 青年 语音合成 通用场景',
-    url: '',
-    icon: 通用男声,
-    scenario: '通用场景',
-    language: '中文',
-  },
-};
-
-// 从 JSON 数据动态生成音色信息映射
-const dynamicVoiceInfoMap = allVoicesData.reduce((acc, voice) => {
-  const voiceType = voice.details.voice_type;
-  acc[voiceType] = {
-    description: `${voice.resource_display} - ${voice.details.language} - ${voice.details.recommended_scenario}`,
-    url: voice.details.demo_link || '',
-    icon: null, // 可以后续添加默认图标或根据性别/场景分配图标
-    scenario: voice.details.recommended_scenario,
-    language: voice.details.language,
-    displayName: voice.resource_display,
-  };
-  return acc;
-}, {} as Record<string, any>);
-
-// 合并所有音色信息
-export const VOICE_INFO_MAP = {
-  ...baseVoiceInfoMap,
-  ...dynamicVoiceInfoMap,
-};
+export const voiceTypes = allVoicesData.map((voice) => voice.resource_id);
+export type VoiceTypes = (typeof voiceTypes)[number];
+export const voiceNames = allVoicesData.map((voice) => voice.resource_display);
+export type VoiceNames = (typeof voiceNames)[number];
 
 // 按场景分组的音色映射
 export const VOICE_BY_SCENARIO = allVoicesData.reduce((acc, voice) => {
@@ -122,6 +112,7 @@ export const VOICE_BY_SCENARIO = allVoicesData.reduce((acc, voice) => {
 
 // 获取所有音色类别
 export const VOICE_CATEGORIES = Object.keys(VOICE_BY_SCENARIO);
+console.log({VOICE_BY_SCENARIO, VOICE_CATEGORIES});
 
 // 默认音色类别
 export const DEFAULT_VOICE_CATEGORY = '通用场景';
@@ -131,53 +122,6 @@ export const getVoicesByCategory = (category: string) => {
   return VOICE_BY_SCENARIO[category] || [];
 };
 
-// 获取音色详细信息（包含类别信息）
-export const getVoiceDetailWithCategory = (voiceType: string) => {
-  const baseInfo = VOICE_INFO_MAP[voiceType as keyof typeof VOICE_INFO_MAP];
-  if (!baseInfo) return null;
-  
-  return {
-    ...baseInfo,
-    category: baseInfo.scenario,
-  };
-};
-
-// 按性别分组的音色映射  
-export const VOICE_BY_GENDER: Record<
-  string,
-  Array<{
-    name: string;
-    value: string;
-    language: string;
-    scenario: string;
-    demoUrl: string;
-  }>
-> = allVoicesData.reduce(
-  (acc, voice) => {
-    const gender = voice.details.voice_type.includes('female') ? '女声' : '男声';
-    if (!acc[gender]) {
-      acc[gender] = [];
-    }
-    acc[gender].push({
-      name: voice.resource_display,
-      value: voice.details.voice_type,
-      language: voice.details.language,
-      scenario: voice.details.recommended_scenario,
-      demoUrl: voice.details.demo_link,
-    });
-    return acc;
-  },
-  {} as Record<
-    string,
-    Array<{
-      name: string;
-      value: string;
-      language: string;
-      scenario: string;
-      demoUrl: string;
-    }>
-  >
-);
 
 /**
  * @brief TTS 的 Cluster
@@ -187,19 +131,6 @@ export enum TTS_CLUSTER {
   MEGA = 'volcano_mega',
   ICL = 'volcano_icl',
 }
-
-/**
- * @brief TTS 的 Cluster Mapping
- */
-export const TTS_CLUSTER_MAP = {
-  ...(Object.keys(VOICE_TYPE).reduce(
-    (map, type) => ({
-      ...map,
-      [type]: TTS_CLUSTER.TTS,
-    }),
-    {}
-  ) as Record<string, TTS_CLUSTER>),
-};
 
 /**
  * @brief 模型可选值
@@ -282,7 +213,7 @@ export const Icon = {
   [SCENE.CUSTOM]: INTELLIGENT_ASSISTANT,
 };
 
-export const Name = {
+export const Persona2Name = {
   [SCENE.INTELLIGENT_ASSISTANT]: '智能助手',
   [SCENE.VIRTUAL_GIRL_FRIEND]: '虚拟女友',
   [SCENE.TRANSLATE]: '同声传译',
@@ -318,15 +249,15 @@ export const Model = {
   [SCENE.CUSTOM]: AI_MODEL.DOUBAO_PRO_32K,
 };
 
-export const Voice = {
-  [SCENE.INTELLIGENT_ASSISTANT]: VOICE_TYPE["通用女声"],
-  [SCENE.VIRTUAL_GIRL_FRIEND]: VOICE_TYPE["通用女声"],
-  [SCENE.TRANSLATE]: VOICE_TYPE["通用女声"],
-  [SCENE.CHILDREN_ENCYCLOPEDIA]: VOICE_TYPE["通用女声"],
-  [SCENE.CUSTOMER_SERVICE]: VOICE_TYPE["通用女声"],
-  [SCENE.TEACHING_ASSISTANT]: VOICE_TYPE["通用女声"],
-  [SCENE.SCREEN_READER]: VOICE_TYPE["通用男声"],
-  [SCENE.CUSTOM]: VOICE_TYPE["通用女声"],
+export const Persona2VoiceType = {
+  [SCENE.INTELLIGENT_ASSISTANT]: VOICE_TYPE_GENERAL_FEMALE,
+  [SCENE.VIRTUAL_GIRL_FRIEND]: VOICE_TYPE_GENERAL_FEMALE,
+  [SCENE.TRANSLATE]: VOICE_TYPE_GENERAL_FEMALE,
+  [SCENE.CHILDREN_ENCYCLOPEDIA]: VOICE_TYPE_GENERAL_FEMALE,
+  [SCENE.CUSTOMER_SERVICE]: VOICE_TYPE_GENERAL_FEMALE,
+  [SCENE.TEACHING_ASSISTANT]: VOICE_TYPE_GENERAL_FEMALE,
+  [SCENE.SCREEN_READER]: VOICE_TYPE_GENERAL_MALE,
+  [SCENE.CUSTOM]: VOICE_TYPE_GENERAL_FEMALE,
 };
 
 export const Questions = {

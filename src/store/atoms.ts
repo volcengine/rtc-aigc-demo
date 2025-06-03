@@ -5,7 +5,7 @@
 
 import { atom, useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { SCENE, MODEL_MODE, VoiceTypeValues, AI_MODEL, Voice, Model, DEFAULT_VOICE_CATEGORY } from '@/config/common';
+import { SCENE, MODEL_MODE, VoiceNames, AI_MODEL, Persona2VoiceType, Model, DEFAULT_VOICE_CATEGORY } from '@/config/common';
 import { PRESET_PERSONAS, getDefaultPersona, generatePersonaId } from '@/config/personas';
 import { IPersona, IPersonaManager } from '@/types/persona';
 
@@ -15,7 +15,7 @@ export interface AISettingsState {
   modelMode: MODEL_MODE;
   prompt: string;
   welcome: string;
-  voice: VoiceTypeValues;
+  voice: VoiceNames;
   model: AI_MODEL;
   Url: string;
   APIKey: string;
@@ -44,7 +44,7 @@ export const aiSettingsAtom = atomWithStorage<AISettingsState>('ai-settings', {
   modelMode: MODEL_MODE.ORIGINAL,
   prompt: '',
   welcome: '',
-  voice: Voice[SCENE.INTELLIGENT_ASSISTANT],
+  voice: Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT],
   model: Model[SCENE.INTELLIGENT_ASSISTANT],
   Url: '',
   APIKey: '',
@@ -75,7 +75,7 @@ export const sceneAtom = atom(
     set(aiSettingsAtom, {
       ...currentSettings,
       scene: newScene,
-      voice: Voice[newScene],
+      voice: Persona2VoiceType[newScene],
       model: Model[newScene],
     });
   }
@@ -90,7 +90,7 @@ export const modelModeAtom = atom(
 
 export const voiceAtom = atom(
   (get) => get(aiSettingsAtom).voice,
-  (get, set, newVoice: VoiceTypeValues) => {
+  (get, set, newVoice: VoiceNames) => {
     set(aiSettingsAtom, { ...get(aiSettingsAtom), voice: newVoice });
   }
 );
@@ -153,7 +153,7 @@ export const usePersonaActions = () => {
     },
 
     createPersona: (personaData: Partial<IPersona>) => {
-      const defaultVoice = Voice[SCENE.INTELLIGENT_ASSISTANT] as VoiceTypeValues;
+      const defaultVoice = Persona2VoiceType[SCENE.INTELLIGENT_ASSISTANT] as VoiceNames;
       const defaultModel = Model[SCENE.INTELLIGENT_ASSISTANT] as AI_MODEL;
       
       const newPersona: IPersona = {
@@ -162,7 +162,7 @@ export const usePersonaActions = () => {
         avatar: personaData.avatar || '🤖',
         prompt: personaData.prompt || '',
         welcome: personaData.welcome || '',
-        voice: (personaData.voice as VoiceTypeValues) || defaultVoice,
+        voice: (personaData.voice as VoiceNames) || defaultVoice,
         model: (personaData.model as AI_MODEL) || defaultModel,
         originalScene: personaData.originalScene,
         isPreset: false,

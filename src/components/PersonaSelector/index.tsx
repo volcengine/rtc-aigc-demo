@@ -99,7 +99,6 @@ function PersonaSelector({ className }: PersonaSelectorProps) {
   const [editingPersona, setEditingPersona] = useState<IPersona | undefined>(undefined);
   const [isCloneMode, setIsCloneMode] = useState(false);
 
-  const personaManager = useAtomValue(personaManagerAtom);
   const activePersona = useAtomValue(activePersonaAtom);
   const { setActivePersona, createPersona, updatePersona, deletePersona } = usePersonaActions();
 

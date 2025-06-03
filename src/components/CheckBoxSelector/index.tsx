@@ -90,6 +90,8 @@ function CheckBoxSelector(props: IProps) {
     }
   };
 
+  // console.log({allData, value, selectedOne, moreText});
+
   return (
     <>
       <div className="flex items-center justify-between p-0 bg-gray-50 rounded-lg">
@@ -105,6 +107,7 @@ function CheckBoxSelector(props: IProps) {
             <div className="text-gray-400">{placeHolder}</div>
           )}
         </div>
+
         <Button
           type="text"
           className="text-blue-600 hover:text-blue-800 flex items-center flex-shrink-0 p-2"

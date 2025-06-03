@@ -6,19 +6,15 @@
 import { useAtomValue } from 'jotai';
 import { useSelector } from 'react-redux';
 import DouBaoAvatar from '@/assets/img/DoubaoAvatarGIF.webp';
-import { MODEL_MODE, Name, VOICE_TYPE } from '@/config';
+import { MODEL_MODE, Persona2Name } from '@/config';
 import { RootState } from '@/store';
 import { avatarConfigAtom, sceneAtom } from '@/store/atoms';
 import style from './index.module.less';
+import { log } from 'console';
 
 interface IAvatarCardProps extends React.HTMLAttributes<HTMLDivElement> {
   avatar?: string;
 }
-
-const ReversedVoiceType = Object.entries(VOICE_TYPE).reduce<Record<string, string>>((acc, [key, value]) => {
-  acc[value] = key;
-  return acc;
-}, {});
 
 const SourceName = {
   [MODEL_MODE.VENDOR]: '第三方模型',
@@ -51,8 +47,14 @@ function AvatarCard(props: IAvatarCardProps) {
 
   // 获取场景的中文显示名称
   const getSceneName = () => {
-    return Name[scene] || '未知场景';
+    return Persona2Name[scene] || '未知场景';
   };
+
+  const modelName = displayModelName();
+
+  const sceneName = getSceneName()
+  console.log({voice, sceneName, modelName});
+  
 
   return (
     <div className={`${style.card} ${className}`} {...rest}>
@@ -63,9 +65,9 @@ function AvatarCard(props: IAvatarCardProps) {
       <div className={style.body} />
       <div className={style['text-wrapper']}>
         <div className={style['user-info']}>
-          <div className={style.title}>{getSceneName()}</div>
-          <div className={style.description}>声源来自 {ReversedVoiceType[voice || '']}</div>
-          <div className={style.description}>{displayModelName()}</div>
+          <div className={style.title}>{sceneName}</div>
+          <div className={style.description}>声源来自 {voice}</div>
+          <div className={style.description}>{modelName}</div>
         </div>
       </div>
     </div>

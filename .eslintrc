@@ -125,6 +125,7 @@
     "react/no-unescaped-entities": "off",
     "react/jsx-boolean-value": "off",
     "no-unsafe-optional-chaining": "off",
-    "import/order": "warn"
+    "import/order": "warn",
+    "no-sparse-arrays": 0
   }
 }
