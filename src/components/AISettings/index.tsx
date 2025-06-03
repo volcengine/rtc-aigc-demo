@@ -16,6 +16,7 @@ import {
 } from '@arco-design/web-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useAtom } from 'jotai';
 import { IconExclamationCircle } from '@arco-design/web-react/icon';
 import { StreamIndex } from '@volcengine/rtc';
 import CheckIcon from '../CheckIcon';
@@ -41,6 +42,7 @@ import { clearHistoryMsg, updateAIConfig, updateModelMode, updateScene } from '@
 import { RootState } from '@/store';
 import utils from '@/utils/utils';
 import { useDeviceState } from '@/lib/useCommon';
+import { aiSettingsAtom } from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
 import DoubaoModelSVG from '@/assets/img/DoubaoModel.svg';
@@ -127,9 +129,17 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     enableCache: false,
   });
 
+  const [aiSettings, setAiSettings] = useAtom(aiSettingsAtom);
+
   const handleVoiceTypeChanged = (key: string) => {
     setData((prev) => ({
       ...prev,
+      voice: key as VoiceTypeValues,
+    }));
+
+    // 同步更新 jotai 状态
+    setAiSettings((prevSettings) => ({
+      ...prevSettings,
       voice: key as VoiceTypeValues,
     }));
   };
@@ -143,11 +153,27 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       voice: Voice[checkedScene],
       model: Model[checkedScene],
     }));
+
+    // 同步更新 jotai 状态
+    setAiSettings((prevSettings) => ({
+      ...prevSettings,
+      scene: checkedScene,
+      prompt: Prompt[checkedScene],
+      welcome: Welcome[checkedScene],
+      voice: Voice[checkedScene],
+      model: Model[checkedScene],
+    }));
   };
 
   const handleUseThirdPart = (val: MODEL_MODE) => {
     setModelMode(val);
     Config.ModeSourceType = val;
+
+    // 同步更新 jotai 状态
+    setAiSettings((prevSettings) => ({
+      ...prevSettings,
+      modelMode: val,
+    }));
   };
 
   const handleUpdateConfig = async () => {
@@ -240,6 +266,35 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       await RtcClient.updateAudioBot();
     }
 
+    // 同步完整的配置到 jotai 状态
+    setAiSettings({
+      scene,
+      modelMode,
+      prompt: data.prompt,
+      welcome: data.welcome,
+      voice: data.voice,
+      model: data.model,
+      Url: data.Url,
+      APIKey: data.APIKey,
+      customModelName: data.customModelName,
+      BotID: data.BotID,
+      encoding: data.encoding,
+      speedRatio: data.speedRatio,
+      rate: data.rate,
+      bitrate: data.bitrate,
+      loudnessRatio: data.loudnessRatio,
+      emotion: data.emotion,
+      enableEmotion: data.enableEmotion,
+      emotionScale: data.emotionScale,
+      explicitLanguage: data.explicitLanguage,
+      contextLanguage: data.contextLanguage,
+      withTimestamp: data.withTimestamp,
+      disableMarkdownFilter: data.disableMarkdownFilter,
+      enableLatexTn: data.enableLatexTn,
+      silenceDuration: data.silenceDuration,
+      enableCache: data.enableCache,
+    });
+
     setLoading(false);
     onOk?.();
   };
@@ -250,11 +305,50 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     }
   }, [open, room.scene]);
 
+  // 初始化时从 jotai 状态同步数据
+  useEffect(() => {
+    if (open) {
+      // 从 jotai 状态或配置中读取数据
+      const initialData = {
+        prompt: aiSettings.prompt || Config.Prompt || Prompt[scene],
+        welcome: aiSettings.welcome || Config.WelcomeSpeech || Welcome[scene],
+        voice: aiSettings.voice || Config.VoiceType || Voice[scene],
+        model: aiSettings.model || Config.Model || Model[scene],
+        Url: aiSettings.Url || Config.Url || '',
+        APIKey: aiSettings.APIKey || Config.APIKey || '',
+        customModelName: aiSettings.customModelName || ((Config.Model || '') as string),
+        BotID: aiSettings.BotID || Config.BotID || '',
+        encoding: aiSettings.encoding,
+        speedRatio: aiSettings.speedRatio,
+        rate: aiSettings.rate,
+        bitrate: aiSettings.bitrate,
+        loudnessRatio: aiSettings.loudnessRatio,
+        emotion: aiSettings.emotion,
+        enableEmotion: aiSettings.enableEmotion,
+        emotionScale: aiSettings.emotionScale,
+        explicitLanguage: aiSettings.explicitLanguage,
+        contextLanguage: aiSettings.contextLanguage,
+        withTimestamp: aiSettings.withTimestamp,
+        disableMarkdownFilter: aiSettings.disableMarkdownFilter,
+        enableLatexTn: aiSettings.enableLatexTn,
+        silenceDuration: aiSettings.silenceDuration,
+        enableCache: aiSettings.enableCache,
+      };
+
+      setData(initialData);
+      setModelMode(aiSettings.modelMode || room.modelMode);
+      setScene(aiSettings.scene || room.scene);
+    }
+  }, [open, aiSettings, scene, room.modelMode, room.scene]);
+
   const renderContent = () => (
     <div className={embedded ? 'p-0 bg-transparent' : ''}>
       <div className="text-lg font-semibold leading-7 text-gray-900">
         选择你所需要的
-        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> AI 人设</span>
+        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          {' '}
+          AI 人设
+        </span>
       </div>
       <div className="text-xs font-normal leading-5 text-gray-500 mt-1.5">
         我们已为您配置好对应人设的基本参数，您也可以根据自己的需求进行自定义设置

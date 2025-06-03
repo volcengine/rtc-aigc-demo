@@ -88,6 +88,11 @@ function Sidebar() {
           <BasicInfo />
         </CollapseItem>
 
+
+        <CollapseItem header="设备设置" name="device">
+          <DeviceSettings />
+        </CollapseItem>
+        
         <CollapseItem header="快速提问" name="questions">
           <QuickQuestions />
         </CollapseItem>
@@ -98,9 +103,6 @@ function Sidebar() {
           </div>
         </CollapseItem>
 
-        <CollapseItem header="设备设置" name="device">
-          <DeviceSettings />
-        </CollapseItem>
 
         <CollapseItem header="高级操作" name="advanced">
           <AdvancedOperations />

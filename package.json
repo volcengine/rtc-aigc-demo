@@ -7,6 +7,7 @@
     "@arco-design/web-react": "^2.65.0",
     "@reduxjs/toolkit": "^1.8.3",
     "@volcengine/rtc": "~4.66.14",
+    "jotai": "^2.12.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.2",
