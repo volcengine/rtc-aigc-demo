@@ -126,6 +126,7 @@
     "no-unsafe-optional-chaining": "off",
     "import/order": "warn",
     "no-sparse-arrays": 0,
-    "prettier/prettier": 0
+    "prettier/prettier": 0,
+    "react/self-closing-comp": 0
   }
 }

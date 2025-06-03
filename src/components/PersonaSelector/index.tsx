@@ -26,9 +26,6 @@ interface IPersonaEditModalProps {
 }
 
 const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, isClone = false, onOk, onCancel }) => {
-  // 添加调试信息
-  console.log("PersonaEditModal props:", { visible, persona: persona?.name, isClone });
-
   const getAllVoiceOptions = () => {
     const allVoices: Array<{ label: string; value: string; category: string }> = [];
     Object.entries(VOICE_BY_SCENARIO).forEach(([category, voices]) => {
@@ -51,25 +48,16 @@ const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, 
   };
 
   const [formData, setFormData] = useState<Partial<IPersona>>(() => {
-    console.log("初始化 formData，参数:", { persona: persona?.name, isClone });
-    
     if (persona) {
       if (isClone) {
-        console.log("进入克隆分支，源数据:", persona);
-        // 克隆模式：创建完整的克隆数据，包含所有字段
         const cloned = clonePersona(persona);
-        console.log("克隆后的数据:", cloned);
         return { 
           ...cloned, 
           id: generatePersonaId(),
         };
       }
-      console.log("进入编辑分支");
-      // 编辑模式：使用现有人设的完整数据
       return { ...persona };
     }
-    console.log("进入新建分支");
-    // 新建模式：使用默认空值
     return {
       name: '',
       description: '',
@@ -81,25 +69,18 @@ const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, 
     };
   });
 
-  // 监听 persona 和 isClone 的变化，重新初始化 formData
   useEffect(() => {
-    console.log("useEffect 触发，参数:", { persona: persona?.name, isClone });
-    
     if (persona) {
       if (isClone) {
-        console.log("useEffect 克隆分支，源数据:", persona);
         const cloned = clonePersona(persona);
-        console.log("useEffect 克隆后的数据:", cloned);
         setFormData({ 
           ...cloned, 
           id: generatePersonaId(),
         });
       } else {
-        console.log("useEffect 编辑分支");
         setFormData({ ...persona });
       }
     } else {
-      console.log("useEffect 新建分支");
       setFormData({
         name: '',
         description: '',
@@ -138,9 +119,6 @@ const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, 
 
   const voiceOptions = getAllVoiceOptions();
   const modelOptions = getModelOptions();
-
-  console.log("formData: ", formData);
-  
 
   return (
     <Modal 
@@ -317,50 +295,60 @@ function PersonaSelector({ className }: PersonaSelectorProps) {
 
     return (
       <div key={persona.id} className="relative group">
-        <CheckIcon icon={persona.avatar} title={persona.name} checked={isActive} onClick={() => handleSelectPersona(persona)} />
-
-        {/* 操作按钮 */}
-        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-          {isPreset ? (
-            <Button
-              type="primary"
-              size="mini"
-              icon={<IconCopy />}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClonePersona(persona);
-              }}
-              title="克隆人设"
-            />
-          ) : (
-            <>
-              <Button
-                type="primary"
-                size="mini"
-                icon={<IconEdit />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEditPersona(persona);
-                }}
-                title="编辑人设"
-              />
-              <Button
-                type="primary"
-                size="mini"
-                status="danger"
-                icon={<IconDelete />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeletePersona(persona);
-                }}
-                title="删除人设"
-              />
-            </>
-          )}
+        {/* 主要点击区域 */}
+        <div className="cursor-pointer" onClick={() => handleSelectPersona(persona)}>
+          <CheckIcon icon={persona.avatar} title={persona.name} checked={isActive} />
         </div>
 
-        {/* 人设标识 */}
-        {/* <div className="absolute bottom-1 left-1">{isPreset && <span className="text-xs bg-blue-100 text-blue-800 px-1 rounded">预设</span>}</div> */}
+        {/* 操作菜单 - 右上角小圆点 */}
+        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+          <div className="relative">
+            <div className="w-6 h-6 bg-white/90 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-white">
+              <div className="w-1 h-1 bg-gray-600 rounded-full" />
+              <div className="w-1 h-1 bg-gray-600 rounded-full ml-0.5" />
+              <div className="w-1 h-1 bg-gray-600 rounded-full ml-0.5" />
+            </div>
+            
+            {/* 下拉菜单 */}
+            <div className="absolute top-7 right-0 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-20 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200">
+              {isPreset ? (
+                <button
+                  className="w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClonePersona(persona);
+                  }}
+                >
+                  <IconCopy className="w-3 h-3" />
+                  克隆
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditPersona(persona);
+                    }}
+                  >
+                    <IconEdit className="w-3 h-3" />
+                    编辑
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePersona(persona);
+                    }}
+                  >
+                    <IconDelete className="w-3 h-3" />
+                    删除
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
@@ -377,7 +365,9 @@ function PersonaSelector({ className }: PersonaSelectorProps) {
       {presetPersonas.length > 0 && (
         <div className="mt-4">
           <h3 className="text-sm font-medium text-gray-700 mb-2">预设人设</h3>
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2">{presetPersonas.map(renderPersonaCard)}</div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+            {presetPersonas.map(renderPersonaCard)}
+          </div>
         </div>
       )}
 
@@ -391,7 +381,9 @@ function PersonaSelector({ className }: PersonaSelectorProps) {
         </div>
 
         {customPersonas.length > 0 ? (
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2">{customPersonas.map(renderPersonaCard)}</div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+            {customPersonas.map(renderPersonaCard)}
+          </div>
         ) : (
           <div className="text-center py-8 text-gray-400">
             <div className="text-4xl mb-2">👤</div>
