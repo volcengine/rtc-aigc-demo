@@ -3,14 +3,15 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import React, { useState } from 'react';
-import { Button, Modal, Input, Message } from '@arco-design/web-react';
+import React, { useState, useEffect } from 'react';
+import { Button, Modal, Input, Message, Select } from '@arco-design/web-react';
 import { IconPlus, IconEdit, IconDelete, IconCopy } from '@arco-design/web-react/icon';
 import { useAtom, useAtomValue } from 'jotai';
 import CheckIcon from '../CheckIcon';
 import { IPersona } from '@/types/persona';
 import { personaManagerAtom, activePersonaAtom, usePersonaActions, presetPersonasAtom, customPersonasAtom } from '@/store/atoms';
 import { clonePersona, generatePersonaId } from '@/config/personas';
+import { VOICE_BY_SCENARIO, AI_MODEL } from '../../config/common';
 
 interface PersonaSelectorProps {
   className?: string
@@ -25,13 +26,81 @@ interface IPersonaEditModalProps {
 }
 
 const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, isClone = false, onOk, onCancel }) => {
+  // 添加调试信息
+  console.log("PersonaEditModal props:", { visible, persona: persona?.name, isClone });
+
+  const getAllVoiceOptions = () => {
+    const allVoices: Array<{ label: string; value: string; category: string }> = [];
+    Object.entries(VOICE_BY_SCENARIO).forEach(([category, voices]) => {
+      voices.forEach(voice => {
+        allVoices.push({
+          label: `${voice.name} (${voice.language})`,
+          value: voice.value,
+          category
+        });
+      });
+    });
+    return allVoices;
+  };
+
+  const getModelOptions = () => {
+    return Object.values(AI_MODEL).map(model => ({
+      label: model,
+      value: model
+    }));
+  };
+
   const [formData, setFormData] = useState<Partial<IPersona>>(() => {
-    if (persona && isClone) {
-      const cloned = clonePersona(persona);
-      return { ...cloned, id: generatePersonaId() };
+    console.log("初始化 formData，参数:", { persona: persona?.name, isClone });
+    
+    if (persona) {
+      if (isClone) {
+        console.log("进入克隆分支，源数据:", persona);
+        // 克隆模式：创建完整的克隆数据，包含所有字段
+        const cloned = clonePersona(persona);
+        console.log("克隆后的数据:", cloned);
+        return { 
+          ...cloned, 
+          id: generatePersonaId(),
+        };
+      }
+      console.log("进入编辑分支");
+      // 编辑模式：使用现有人设的完整数据
+      return { ...persona };
     }
-    return (
-      persona || {
+    console.log("进入新建分支");
+    // 新建模式：使用默认空值
+    return {
+      name: '',
+      description: '',
+      prompt: '',
+      welcome: '',
+      voice: '' as any,
+      model: '' as any,
+      avatar: '',
+    };
+  });
+
+  // 监听 persona 和 isClone 的变化，重新初始化 formData
+  useEffect(() => {
+    console.log("useEffect 触发，参数:", { persona: persona?.name, isClone });
+    
+    if (persona) {
+      if (isClone) {
+        console.log("useEffect 克隆分支，源数据:", persona);
+        const cloned = clonePersona(persona);
+        console.log("useEffect 克隆后的数据:", cloned);
+        setFormData({ 
+          ...cloned, 
+          id: generatePersonaId(),
+        });
+      } else {
+        console.log("useEffect 编辑分支");
+        setFormData({ ...persona });
+      }
+    } else {
+      console.log("useEffect 新建分支");
+      setFormData({
         name: '',
         description: '',
         prompt: '',
@@ -39,9 +108,9 @@ const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, 
         voice: '' as any,
         model: '' as any,
         avatar: '',
-      }
-    );
-  });
+      });
+    }
+  }, [persona, isClone]);
 
   const handleSubmit = () => {
     if (!formData.name?.trim()) {
@@ -67,28 +136,116 @@ const PersonaEditModal: React.FC<IPersonaEditModalProps> = ({ visible, persona, 
     onOk(newPersona);
   };
 
+  const voiceOptions = getAllVoiceOptions();
+  const modelOptions = getModelOptions();
+
+  console.log("formData: ", formData);
+  
+
   return (
-    <Modal title={isClone ? `克隆人设 - ${persona?.name}` : persona ? '编辑人设' : '创建新人设'} visible={visible} onOk={handleSubmit} onCancel={onCancel} autoFocus={false} focusLock={true}>
+    <Modal 
+      title={isClone ? `克隆人设 - ${persona?.name}` : persona ? '编辑人设' : '创建新人设'} 
+      visible={visible} 
+      onOk={handleSubmit} 
+      onCancel={onCancel} 
+      autoFocus={false} 
+      focusLock={true}
+      style={{ minWidth: '600px' }}
+    >
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">人设名称 *</label>
-          <Input value={formData.name} onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))} placeholder="输入人设名称" />
+          <Input 
+            value={formData.name} 
+            onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))} 
+            placeholder="输入人设名称" 
+          />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">人设描述</label>
-          <Input value={formData.description} onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))} placeholder="简短描述这个人设的特点" />
+          <Input 
+            value={formData.description} 
+            onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))} 
+            placeholder="简短描述这个人设的特点" 
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">头像</label>
+          <Input 
+            value={formData.avatar} 
+            onChange={(value) => setFormData((prev) => ({ ...prev, avatar: value }))} 
+            placeholder="头像URL或emoji字符" 
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">音色</label>
+            <Select 
+              value={formData.voice} 
+              onChange={(value) => setFormData((prev) => ({ ...prev, voice: value as any }))} 
+              placeholder="选择音色" 
+              showSearch
+              allowClear
+            >
+              {voiceOptions.map((option) => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">模型</label>
+            <Select 
+              value={formData.model} 
+              onChange={(value) => setFormData((prev) => ({ ...prev, model: value as any }))} 
+              placeholder="选择AI模型" 
+              allowClear
+            >
+              {modelOptions.map((option) => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">提示词</label>
-          <Input.TextArea value={formData.prompt} onChange={(value) => setFormData((prev) => ({ ...prev, prompt: value }))} placeholder="定义人设的性格、行为特征等" rows={4} />
+          <Input.TextArea 
+            value={formData.prompt} 
+            onChange={(value) => setFormData((prev) => ({ ...prev, prompt: value }))} 
+            placeholder="定义人设的性格、行为特征等（可以是文本内容或文件路径）" 
+            rows={4} 
+          />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">欢迎语</label>
-          <Input value={formData.welcome} onChange={(value) => setFormData((prev) => ({ ...prev, welcome: value }))} placeholder="人设的开场白" />
+          <Input 
+            value={formData.welcome} 
+            onChange={(value) => setFormData((prev) => ({ ...prev, welcome: value }))} 
+            placeholder="人设的开场白" 
+          />
         </div>
+
+        {/* 显示继承的元数据（只读） */}
+        {isClone && persona && (
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="text-sm font-medium text-gray-700 mb-2">继承信息</div>
+            <div className="text-xs text-gray-500 space-y-1">
+              {persona.originalScene && <div>原始场景: {persona.originalScene}</div>}
+              {persona.questions && persona.questions.length > 0 && (
+                <div>问题列表: {persona.questions.length} 个预设问题</div>
+              )}
+              {persona.extra && <div>扩展配置: 已继承原有的高级设置</div>}
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   );
@@ -134,13 +291,9 @@ function PersonaSelector({ className }: PersonaSelectorProps) {
     setEditModalVisible(true);
   };
 
-  const handleModalOk = (personaData: Partial<IPersona>) => {
+  const handleModalOk = (personaData: IPersona) => {
     if (isCloneMode && editingPersona) {
-      createPersona({
-        ...editingPersona,
-        ...personaData,
-        name: personaData.name || `${editingPersona.name} (副本)`
-      });
+      createPersona(personaData);
     } else if (editingPersona) {
       updatePersona(editingPersona.id, personaData);
     } else {
