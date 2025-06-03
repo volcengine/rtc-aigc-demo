@@ -15,7 +15,7 @@ import {
   Switch,
 } from '@arco-design/web-react';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -87,7 +87,9 @@ export interface IAISettingsProps {
 
 const RadioGroup = Radio.Group;
 
-
+/**
+ * AI 设置面板
+ */
 function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   const dispatch = useDispatch();
   const { isVideoPublished, isScreenPublished, switchScreenCapture, switchCamera } =
@@ -155,8 +157,8 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     // 保存基本配置
     Config.Prompt = aiSettings.prompt;
     Config.WelcomeSpeech = aiSettings.welcome;
-    Config.VoiceType = aiSettings.voice;
-    Config.Model = aiSettings.model;
+    Config.VoiceType = voice;
+    Config.Model = model;
 
     // 保存语音合成配置
     Config.VoiceSynthesisConfig = {
@@ -181,7 +183,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     dispatch(updateModelMode(modelMode));
     dispatch(updateAIConfig(Config.aigcConfig));
 
-    if (isVisionMode(aiSettings.model)) {
+    if (isVisionMode(model)) {
       switch (scene) {
         case SCENE.SCREEN_READER:
           /** 关摄像头，打开屏幕采集 */
@@ -216,16 +218,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     }
   }, [open, setLoading]);
 
-  // 监听人设切换时同步场景
-  useEffect(() => {
-    if (scene !== room.scene) {
-      dispatch(updateScene(scene));
-    }
-  }, [scene, dispatch, room.scene]);
-
   // 监听音色分类初始化
   useEffect(() => {
-    const currentVoice = aiSettings.voice;
+    const currentVoice = voice;
     if (currentVoice) {
       // 查找当前音色属于哪个类别
       for (const [category, voices] of Object.entries(VOICE_BY_SCENARIO)) {
@@ -235,16 +230,35 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         }
       }
     }
-  }, [aiSettings.voice, setSelectedVoiceCategory]);
+  }, [voice, setSelectedVoiceCategory]);
 
   // 监听激活的人设变化，同步相关配置
+  const previousPersonaIdRef = useRef<string | null>(null);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (activePersona) {
-      setAiSettings((prev) => ({
-        ...prev,
-        prompt: activePersona.prompt || prev.prompt,
-        welcome: activePersona.welcome || prev.welcome,
-      }));
+    const currentPersonaId = activePersona?.id || null;
+
+    // 只有当人设 ID 真正发生变化时才执行
+    if (currentPersonaId !== previousPersonaIdRef.current) {
+      previousPersonaIdRef.current = currentPersonaId;
+
+      if (activePersona) {
+        // 只在开发环境下打印调试日志
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 人设切换:', {
+            timestamp: new Date().toLocaleTimeString(),
+            personaId: activePersona.id,
+            personaName: activePersona.name,
+          });
+        }
+
+        setAiSettings((prev) => ({
+          ...prev,
+          prompt: activePersona.prompt || prev.prompt,
+          welcome: activePersona.welcome || prev.welcome,
+        }));
+      }
     }
   }, [activePersona, setAiSettings]);
 
@@ -361,7 +375,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               categories={VOICE_CATEGORIES}
               defaultCategory={DEFAULT_VOICE_CATEGORY}
               onChange={handleVoiceTypeChanged}
-              value={aiSettings.voice}
+              value={voice}
               moreIcon={VoiceTypeChangeSVG}
               moreText="更换音色"
               placeHolder="请选择你需要的音色"
@@ -382,12 +396,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   moreText="更换模型"
                   placeHolder="请选择模型"
                   onChange={(key) => {
-                    setAiSettings((prev) => ({
-                      ...prev,
-                      model: key as AI_MODEL,
-                    }));
+                    setModel(key as AI_MODEL);
                   }}
-                  value={aiSettings.model}
+                  value={model}
                 />
               </TitleCard>
             )}

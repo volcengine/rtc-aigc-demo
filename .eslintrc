@@ -123,6 +123,7 @@
     "react/jsx-curly-brace-presence": "off",
     "react/function-component-definition": "off",
     "react/no-unescaped-entities": "off",
-    "react/jsx-boolean-value": "off"
+    "react/jsx-boolean-value": "off",
+    "no-unsafe-optional-chaining": "off"
   }
 }
