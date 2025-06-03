@@ -260,7 +260,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         }));
       }
     }
-  }, [activePersona, setAiSettings]);
+  }, [activePersona.id]);
 
   const getVoiceCategoryData = () => {
     const categoryData: Record<string, any[]> = {};
@@ -812,6 +812,8 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       </div>
     </div>
   );
+
+  console.log("人设 id: ", activePersona?.id)
 
   if (embedded) {
     return renderContent();

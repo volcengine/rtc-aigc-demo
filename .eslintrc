@@ -124,6 +124,7 @@
     "react/function-component-definition": "off",
     "react/no-unescaped-entities": "off",
     "react/jsx-boolean-value": "off",
-    "no-unsafe-optional-chaining": "off"
+    "no-unsafe-optional-chaining": "off",
+    "import/order": "warn"
   }
 }
