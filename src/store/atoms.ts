@@ -11,7 +11,7 @@ import { IPersona, IPersonaManager } from '@/types/persona';
 
 // 人设管理状态
 export const personaManagerAtom = atomWithStorage<IPersonaManager>(
-  'persona-manager-v13', // 更新版本强制刷新缓存
+  'persona-manager-v14', // 更新版本强制刷新缓存
   getDefaultPersonaManager()
 );
 
@@ -49,14 +49,11 @@ export const activePersonaAtom = atom(
   }
 );
 
+// Prompt atom - 简单返回当前人设的 prompt 字段
 export const promptAtom = atom((get) => {
   const persona = get(activePersonaAtom);
-  loadPromptFromFile(persona.prompt)
-    .then((prompt) => {
-      persona.prompt = prompt;
-    })
   return persona.prompt;
-})
+});
 
 // 自定义人设列表（衍生 atom）
 export const customPersonasAtom = atom((get) => {

@@ -45,7 +45,28 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   // const [model, setModel] = useAtom(modelAtom);
   const [loading, setLoading] = useAtom(loadingAtom);
   const activePersona = useAtomValue(activePersonaAtom);
-  const prompt = useAtomValue(promptAtom);
+  
+  // 使用 useState 来处理异步 prompt 加载
+  const [prompt, setPrompt] = useState(activePersona.prompt);
+  
+  // 监听 activePersona 变化，异步加载 prompt
+  useEffect(() => {
+    const loadPrompt = async () => {
+      if (activePersona.prompt.startsWith('prompt://')) {
+        try {
+          const promptContent = await loadPromptFromFile(activePersona.prompt);
+          setPrompt(promptContent);
+        } catch (error) {
+          console.error('Failed to load prompt:', error);
+          setPrompt(activePersona.prompt); // fallback to original
+        }
+      } else {
+        setPrompt(activePersona.prompt);
+      }
+    };
+    
+    loadPrompt();
+  }, [activePersona.prompt]);
 
   const getVoiceCategoryData = () => {
     const categoryData: Record<string, any[]> = {};
