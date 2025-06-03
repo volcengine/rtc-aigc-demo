@@ -5,7 +5,7 @@
 
 import Header from '@/components/Header';
 import ResizeWrapper from '@/components/ResizeWrapper';
-import Menu from './Menu';
+import Sidebar from '@/components/Sidebar';
 import utils from '@/utils/utils';
 import MainArea from './MainArea';
 import styles from './index.module.less';
@@ -25,7 +25,7 @@ export default function () {
         </div>
         {utils.isMobile() ? null : (
           <div className={styles.operationArea}>
-            <Menu />
+            <Sidebar />
           </div>
         )}
       </div>

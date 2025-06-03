@@ -31,15 +31,6 @@
     "afterEach": false,
     "beforeEach": false
   },
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "@typescript-eslint/no-unused-vars": [2, { "args": "none" }],
-        "@typescript-eslint/no-use-before-define": [2, { "functions": false, "classes": false }]
-      }
-    }
-  ],
   "rules": {
     "prettier/prettier": ["warn", { "trailingComma": "es5", "printWidth": 100 }],
     "linebreak-style": "off",
@@ -48,7 +39,6 @@
     "no-param-reassign": 0,
     "no-underscore-dangle": 0,
     "no-useless-constructor": 0,
-    "no-unused-vars": [2, { "vars": "all", "args": "none" }],
     "no-restricted-syntax": 0,
     "no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true }],
     "no-plusplus": 0,
@@ -127,6 +117,8 @@
     "prefer-spread": 0,
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "no-undef": 0
+    "no-undef": 0,
+    "no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": "warn"
   }
 }

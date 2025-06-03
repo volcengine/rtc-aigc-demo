@@ -9,6 +9,14 @@ module.exports = {
   devServer: {
     open: false, // 设置为 false 不自动打开浏览器
   },
+  style: {
+    postcss: {
+      plugins: [
+        require('@tailwindcss/postcss'),
+        require('autoprefixer'),
+      ],
+    },
+  },
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -23,6 +31,7 @@ module.exports = {
           use: [
             'style-loader',
             'css-loader',
+            'postcss-loader', // 添加 postcss-loader 支持 Tailwind
             {
               loader: 'less-loader',
               options: {
@@ -46,6 +55,7 @@ module.exports = {
                 },
               },
             },
+            'postcss-loader', // 添加 postcss-loader 支持 Tailwind
             {
               loader: 'less-loader',
               options: {

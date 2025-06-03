@@ -45,12 +45,12 @@ import { useDeviceState } from '@/lib/useCommon';
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
 import DoubaoModelSVG from '@/assets/img/DoubaoModel.svg';
 import ModelChangeSVG from '@/assets/img/ModelChange.svg';
-import styles from './index.module.less';
 
 export interface IAISettingsProps {
-  open: boolean;
+  open?: boolean;
   onOk?: () => void;
   onCancel?: () => void;
+  embedded?: boolean;
 }
 
 const RadioGroup = Radio.Group;
@@ -66,7 +66,7 @@ const SCENES = [
   SCENE.CUSTOM,
 ];
 
-function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
+function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   const dispatch = useDispatch();
   const { isVideoPublished, isScreenPublished, switchScreenCapture, switchCamera } =
     useDeviceState();
@@ -109,7 +109,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
     customModelName: (Config.Model || '') as string,
 
     BotID: Config.BotID || '',
-    
+
     encoding: 'mp3',
     speedRatio: 1.0,
     rate: 24000,
@@ -248,40 +248,22 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
     if (open) {
       setScene(room.scene);
     }
-  }, [open]);
+  }, [open, room.scene]);
 
-  return (
-    <Drawer
-      width={utils.isMobile() ? '100%' : 940}
-      closable={false}
-      maskClosable={false}
-      title={null}
-      className={styles.container}
-      style={{
-        padding: utils.isMobile() ? '0px' : '16px 8px',
-      }}
-      footer={
-        <div className={styles.footer}>
-          <div className={styles.suffix}>AI 配置修改后，退出房间将不再保存该配置方案</div>
-          <Button loading={loading} className={styles.cancel} onClick={onCancel}>
-            取消
-          </Button>
-          <Button loading={loading} className={styles.confirm} onClick={handleUpdateConfig}>
-            确定
-          </Button>
-        </div>
-      }
-      visible={open}
-      onCancel={onCancel}
-    >
-      <div className={styles.title}>
+  const renderContent = () => (
+    <div className={embedded ? 'p-0 bg-transparent' : ''}>
+      <div className="text-lg font-semibold leading-7 text-gray-900">
         选择你所需要的
-        <span className={styles['special-text']}> AI 人设</span>
+        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> AI 人设</span>
       </div>
-      <div className={styles['sub-title']}>
+      <div className="text-xs font-normal leading-5 text-gray-500 mt-1.5">
         我们已为您配置好对应人设的基本参数，您也可以根据自己的需求进行自定义设置
       </div>
-      <div className={utils.isMobile() ? styles['scenes-mobile'] : styles.scenes}>
+
+      <div className={utils.isMobile() 
+        ? 'w-full flex flex-row flex-wrap justify-center items-center gap-3.5 mt-8 overflow-x-auto pb-2' 
+        : 'w-full flex flex-row flex-wrap justify-start items-start gap-2 mt-4'
+      }>
         {[...SCENES, null].map((key) =>
           key ? (
             <CheckIcon
@@ -296,22 +278,12 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
               onClick={() => handleChecked(key as SCENE)}
             />
           ) : utils.isMobile() ? (
-            <div style={{ width: '100px', height: '100px' }} />
+            <div className="w-20 h-20" />
           ) : null
         )}
       </div>
-      <div className={styles.configuration}>
-        {utils.isMobile() ? null : (
-          <div
-            className={styles.anchor}
-            style={{
-              /**
-               * @note 单个场景卡片 100px, 间距 14px;
-               */
-              left: `${SCENES.indexOf(scene) * 100 + 50 + SCENES.indexOf(scene) * 14}px`,
-            }}
-          />
-        )}
+
+      <div className="mt-4">
         <RadioGroup
           options={[
             {
@@ -321,7 +293,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             {
               value: MODEL_MODE.COZE,
               label: (
-                <div className={styles['radio-text']}>
+                <div className="flex items-center">
                   <span style={{ marginRight: '4px' }}>Coze</span>
                   <Tooltip
                     content={
@@ -360,7 +332,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             {
               value: MODEL_MODE.VENDOR,
               label: (
-                <div className={styles['radio-text']}>
+                <div className="flex items-center">
                   <span style={{ marginRight: '4px' }}>第三方模型</span>
                   <Tooltip
                     content={
@@ -388,17 +360,18 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
           size="mini"
           type="button"
           defaultValue="Beijing"
-          className={styles['ai-settings-radio']}
+          className="mt-4"
           onChange={handleUseThirdPart}
         />
+        
         <div
-          className={styles['ai-settings']}
+          className="mt-4"
           style={{
             flexWrap: utils.isMobile() ? 'wrap' : 'nowrap',
           }}
         >
           <TitleCard title="音色">
-            <div className={styles['ai-settings-wrapper']}>
+            <div className="mt-2">
               <CheckBoxSelector
                 label="音色选择"
                 data={Object.keys(VOICE_TYPE).map((type) => {
@@ -418,7 +391,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
               />
             </div>
           </TitleCard>
-          <div className={styles['ai-settings-model']}>
+          <div className="mt-4">
             {modelMode === MODEL_MODE.ORIGINAL && (
               <TitleCard title="官方模型">
                 <CheckBoxSelector
@@ -547,12 +520,12 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
         </TitleCard>
         
         {/* 新增语音合成配置区域 */}
-        <div className={styles['voice-synthesis-config']}>
-          <div className={styles.title} style={{ marginTop: '24px', marginBottom: '16px' }}>
+        <div className="mt-4">
+          <div className="text-lg font-semibold leading-7 text-gray-900" style={{ marginTop: '24px', marginBottom: '16px' }}>
             语音合成参数配置
           </div>
           
-          <div className={styles['config-row']}>
+          <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="音频编码格式">
               <Select
                 value={data.encoding}
@@ -593,7 +566,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             </TitleCard>
           </div>
           
-          <div className={styles['config-row']}>
+          <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="比特率 (kb/s)">
               <Input
                 type="number"
@@ -638,7 +611,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             </TitleCard>
           </div>
           
-          <div className={styles['config-row']}>
+          <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="音量调节">
               <div>
                 <Slider
@@ -682,7 +655,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             </TitleCard>
           </div>
           
-          <div className={styles['config-row']}>
+          <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="语种设置">
               <Select
                 value={data.explicitLanguage}
@@ -729,8 +702,8 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
           </div>
           
           <TitleCard title="情感设置">
-            <div className={styles['emotion-config']}>
-              <div className={styles['switch-row']}>
+            <div className="mt-2">
+              <div className="flex items-center">
                 <Switch
                   checked={data.enableEmotion}
                   onChange={(checked) => {
@@ -786,8 +759,8 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
           </TitleCard>
           
           <TitleCard title="高级选项">
-            <div className={styles['advanced-options']}>
-              <div className={styles['switch-row']}>
+            <div className="mt-2">
+              <div className="flex items-center">
                 <Switch
                   checked={data.withTimestamp}
                   onChange={(checked) => {
@@ -800,7 +773,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
                 <span style={{ marginLeft: '8px' }}>启用时间戳</span>
               </div>
               
-              <div className={styles['switch-row']}>
+              <div className="flex items-center">
                 <Switch
                   checked={data.disableMarkdownFilter}
                   onChange={(checked) => {
@@ -813,7 +786,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
                 <span style={{ marginLeft: '8px' }}>启用 Markdown 解析过滤</span>
               </div>
               
-              <div className={styles['switch-row']}>
+              <div className="flex items-center">
                 <Switch
                   checked={data.enableLatexTn}
                   onChange={(checked) => {
@@ -826,7 +799,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
                 <span style={{ marginLeft: '8px' }}>启用 LaTeX 公式播报</span>
               </div>
               
-              <div className={styles['switch-row']}>
+              <div className="flex items-center">
                 <Switch
                   checked={data.enableCache}
                   onChange={(checked) => {
@@ -842,6 +815,38 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
           </TitleCard>
         </div>
       </div>
+    </div>
+  );
+
+  if (embedded) {
+    return renderContent();
+  }
+
+  return (
+    <Drawer
+      width={utils.isMobile() ? '100%' : 940}
+      closable={false}
+      maskClosable={false}
+      title={null}
+      className="p-4"
+      style={{
+        padding: utils.isMobile() ? '0px' : '16px 8px',
+      }}
+      footer={
+        <div className="flex flex-row justify-end items-center gap-2">
+          <div className="text-xs font-normal leading-5 text-gray-500">AI 配置修改后，退出房间将不再保存该配置方案</div>
+          <Button loading={loading} className="bg-gray-200 hover:bg-gray-300" onClick={onCancel}>
+            取消
+          </Button>
+          <Button loading={loading} className="bg-blue-600 hover:bg-blue-700" onClick={handleUpdateConfig}>
+            确定
+          </Button>
+        </div>
+      }
+      visible={open}
+      onCancel={onCancel}
+    >
+      {renderContent()}
     </Drawer>
   );
 }
