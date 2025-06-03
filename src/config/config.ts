@@ -130,6 +130,27 @@ export class ConfigFactory {
   BotID = '';
 
   /**
+   * @brief 语音合成高级配置参数
+   */
+  VoiceSynthesisConfig = {
+    encoding: 'mp3',
+    speedRatio: 1.0,
+    rate: 24000,
+    bitrate: 160,
+    loudnessRatio: 1.0,
+    emotion: '',
+    enableEmotion: false,
+    emotionScale: 4,
+    explicitLanguage: '',
+    contextLanguage: '',
+    withTimestamp: false,
+    disableMarkdownFilter: false,
+    enableLatexTn: false,
+    silenceDuration: 0,
+    enableCache: false,
+  };
+
+  /**
    * @brief 是否为打断模式
    */
   InterruptMode = true;
@@ -221,6 +242,71 @@ export class ConfigFactory {
     return params;
   }
 
+  get TTSConfig() {
+    const params: Record<string, any> = {
+      Provider: 'volcano',
+      ProviderParams: {
+        app: {
+          AppId: this.BaseConfig.TTSAppId,
+          Cluster: TTS_CLUSTER.TTS,
+        },
+        audio: {
+          voice_type: this.VoiceType,
+          speed_ratio: this.VoiceSynthesisConfig.speedRatio,
+          encoding: this.VoiceSynthesisConfig.encoding,
+          rate: this.VoiceSynthesisConfig.rate,
+          bitrate: this.VoiceSynthesisConfig.bitrate,
+          loudness_ratio: this.VoiceSynthesisConfig.loudnessRatio,
+          explicit_language: this.VoiceSynthesisConfig.explicitLanguage,
+          context_language: this.VoiceSynthesisConfig.contextLanguage,
+        },
+        request: {
+          operation: 'submit',
+        },
+      },
+      IgnoreBracketText: [1, 2, 3, 4, 5],
+    };
+
+    // 添加情感配置
+    if (this.VoiceSynthesisConfig.enableEmotion && this.VoiceSynthesisConfig.emotion) {
+      params.ProviderParams.audio.emotion = this.VoiceSynthesisConfig.emotion;
+      params.ProviderParams.audio.emotion_scale = this.VoiceSynthesisConfig.emotionScale;
+    }
+
+    // 添加高级配置参数
+    const extraParam: Record<string, any> = {};
+    
+    if (this.VoiceSynthesisConfig.withTimestamp) {
+      extraParam.with_timestamp = this.VoiceSynthesisConfig.withTimestamp;
+    }
+
+    if (this.VoiceSynthesisConfig.disableMarkdownFilter) {
+      extraParam.disable_markdown_filter = this.VoiceSynthesisConfig.disableMarkdownFilter;
+    }
+
+    if (this.VoiceSynthesisConfig.enableLatexTn) {
+      extraParam.enable_latex_tn = this.VoiceSynthesisConfig.enableLatexTn;
+    }
+
+    if (this.VoiceSynthesisConfig.silenceDuration > 0) {
+      extraParam.silence_duration = this.VoiceSynthesisConfig.silenceDuration;
+    }
+
+    if (this.VoiceSynthesisConfig.enableCache) {
+      extraParam.enable_cache = this.VoiceSynthesisConfig.enableCache;
+    }
+
+    // 如果有高级参数，添加到 extra_param 字段
+    if (Object.keys(extraParam).length > 0) {
+      params.ProviderParams.extra_param = JSON.stringify(extraParam);
+    }
+
+    if (this.BaseConfig.TTSToken) {
+      params.ProviderParams.app.Token = this.BaseConfig.TTSToken;
+    }
+    return params;
+  }
+
   get ASRConfig() {
     /**
      * @brief SmallModelASRConfigs 为小模型的配置
@@ -260,27 +346,6 @@ export class ConfigFactory {
       },
     };
     return this.BaseConfig.ASRToken ? BigModelASRConfigs : SmallModelASRConfigs;
-  }
-
-  get TTSConfig() {
-    const params: Record<string, any> = {
-      Provider: 'volcano',
-      ProviderParams: {
-        app: {
-          AppId: this.BaseConfig.TTSAppId,
-          Cluster: TTS_CLUSTER.TTS,
-        },
-        audio: {
-          voice_type: this.VoiceType,
-          speed_ratio: 1.0,
-        },
-      },
-      IgnoreBracketText: [1, 2, 3, 4, 5],
-    };
-    if (this.BaseConfig.TTSToken) {
-      params.ProviderParams.app.Token = this.BaseConfig.TTSToken;
-    }
-    return params;
   }
 
   get aigcConfig() {

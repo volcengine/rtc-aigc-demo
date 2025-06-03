@@ -3,7 +3,17 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { Button, Drawer, Input, Message, Radio, Tooltip } from '@arco-design/web-react';
+import {
+  Button,
+  Drawer,
+  Input,
+  Message,
+  Radio,
+  Tooltip,
+  Select,
+  Slider,
+  Switch,
+} from '@arco-design/web-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { IconExclamationCircle } from '@arco-design/web-react/icon';
@@ -73,6 +83,21 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
     APIKey: string;
     customModelName: string;
     BotID: string;
+    encoding: string;
+    speedRatio: number;
+    rate: number;
+    bitrate: number;
+    loudnessRatio: number;
+    emotion: string;
+    enableEmotion: boolean;
+    emotionScale: number;
+    explicitLanguage: string;
+    contextLanguage: string;
+    withTimestamp: boolean;
+    disableMarkdownFilter: boolean;
+    enableLatexTn: boolean;
+    silenceDuration: number;
+    enableCache: boolean;
   }>({
     prompt: Config.Prompt || Prompt[scene],
     welcome: Config.WelcomeSpeech || Welcome[scene],
@@ -84,6 +109,22 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
     customModelName: (Config.Model || '') as string,
 
     BotID: Config.BotID || '',
+    
+    encoding: 'mp3',
+    speedRatio: 1.0,
+    rate: 24000,
+    bitrate: 160,
+    loudnessRatio: 1.0,
+    emotion: '',
+    enableEmotion: false,
+    emotionScale: 4,
+    explicitLanguage: '',
+    contextLanguage: '',
+    withTimestamp: false,
+    disableMarkdownFilter: false,
+    enableLatexTn: false,
+    silenceDuration: 0,
+    enableCache: false,
   });
 
   const handleVoiceTypeChanged = (key: string) => {
@@ -144,14 +185,33 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
       default:
         break;
     }
-    setLoading(true);
-    Config.Model =
-      modelMode === MODEL_MODE.VENDOR
-        ? (data.customModelName as AI_MODEL)
-        : (data.model as AI_MODEL);
+
+    // 保存基本配置
     Config.Prompt = data.prompt;
-    Config.VoiceType = data.voice;
     Config.WelcomeSpeech = data.welcome;
+    Config.VoiceType = data.voice;
+    Config.Model = data.model;
+
+    // 保存语音合成配置
+    Config.VoiceSynthesisConfig = {
+      encoding: data.encoding,
+      speedRatio: data.speedRatio,
+      rate: data.rate,
+      bitrate: data.bitrate,
+      loudnessRatio: data.loudnessRatio,
+      emotion: data.emotion,
+      enableEmotion: data.enableEmotion,
+      emotionScale: data.emotionScale,
+      explicitLanguage: data.explicitLanguage,
+      contextLanguage: data.contextLanguage,
+      withTimestamp: data.withTimestamp,
+      disableMarkdownFilter: data.disableMarkdownFilter,
+      enableLatexTn: data.enableLatexTn,
+      silenceDuration: data.silenceDuration,
+      enableCache: data.enableCache,
+    };
+
+    setLoading(true);
     dispatch(updateModelMode(modelMode));
     dispatch(updateAIConfig(Config.aigcConfig));
 
@@ -485,6 +545,302 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             placeholder="请输入欢迎语"
           />
         </TitleCard>
+        
+        {/* 新增语音合成配置区域 */}
+        <div className={styles['voice-synthesis-config']}>
+          <div className={styles.title} style={{ marginTop: '24px', marginBottom: '16px' }}>
+            语音合成参数配置
+          </div>
+          
+          <div className={styles['config-row']}>
+            <TitleCard title="音频编码格式">
+              <Select
+                value={data.encoding}
+                onChange={(val) => {
+                  setData((prev) => ({
+                    ...prev,
+                    encoding: val,
+                  }));
+                }}
+                options={[
+                  { label: 'MP3', value: 'mp3' },
+                  { label: 'WAV', value: 'wav' },
+                  { label: 'PCM', value: 'pcm' },
+                  { label: 'OGG Opus', value: 'ogg_opus' },
+                ]}
+                placeholder="选择音频编码格式"
+                style={{ width: '100%' }}
+              />
+            </TitleCard>
+            
+            <TitleCard title="音频采样率">
+              <Select
+                value={data.rate}
+                onChange={(val) => {
+                  setData((prev) => ({
+                    ...prev,
+                    rate: val,
+                  }));
+                }}
+                options={[
+                  { label: '8000 Hz', value: 8000 },
+                  { label: '16000 Hz', value: 16000 },
+                  { label: '24000 Hz', value: 24000 },
+                ]}
+                placeholder="选择采样率"
+                style={{ width: '100%' }}
+              />
+            </TitleCard>
+          </div>
+          
+          <div className={styles['config-row']}>
+            <TitleCard title="比特率 (kb/s)">
+              <Input
+                type="number"
+                value={data.bitrate.toString()}
+                min={64}
+                max={320}
+                onChange={(val) => {
+                  setData((prev) => ({
+                    ...prev,
+                    bitrate: parseInt(val) || 160,
+                  }));
+                }}
+                placeholder="比特率"
+              />
+            </TitleCard>
+            
+            <TitleCard title="语速调节">
+              <div>
+                <Slider
+                  value={data.speedRatio}
+                  min={0.8}
+                  max={2.0}
+                  step={0.1}
+                  onChange={(val) => {
+                    setData((prev) => ({
+                      ...prev,
+                      speedRatio: Array.isArray(val) ? val[0] : val,
+                    }));
+                  }}
+                  marks={{
+                    0.8: '0.8x',
+                    1.0: '1.0x',
+                    1.2: '1.2x',
+                    1.5: '1.5x',
+                    2.0: '2.0x',
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                  当前: {data.speedRatio}x
+                </div>
+              </div>
+            </TitleCard>
+          </div>
+          
+          <div className={styles['config-row']}>
+            <TitleCard title="音量调节">
+              <div>
+                <Slider
+                  value={data.loudnessRatio}
+                  min={0.5}
+                  max={2.0}
+                  step={0.1}
+                  onChange={(val) => {
+                    setData((prev) => ({
+                      ...prev,
+                      loudnessRatio: Array.isArray(val) ? val[0] : val,
+                    }));
+                  }}
+                  marks={{
+                    0.5: '0.5x',
+                    1.0: '1.0x',
+                    1.5: '1.5x',
+                    2.0: '2.0x',
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                  当前: {data.loudnessRatio}x
+                </div>
+              </div>
+            </TitleCard>
+            
+            <TitleCard title="句尾静音 (ms)">
+              <Input
+                type="number"
+                value={data.silenceDuration.toString()}
+                min={0}
+                max={30000}
+                onChange={(val) => {
+                  setData((prev) => ({
+                    ...prev,
+                    silenceDuration: parseInt(val) || 0,
+                  }));
+                }}
+                placeholder="句尾静音时长"
+              />
+            </TitleCard>
+          </div>
+          
+          <div className={styles['config-row']}>
+            <TitleCard title="语种设置">
+              <Select
+                value={data.explicitLanguage}
+                onChange={(val) => {
+                  setData((prev) => ({
+                    ...prev,
+                    explicitLanguage: val,
+                  }));
+                }}
+                options={[
+                  { label: '自动识别', value: '' },
+                  { label: '中文为主（支持中英混）', value: 'zh' },
+                  { label: '仅英文', value: 'en' },
+                  { label: '仅日文', value: 'ja' },
+                  { label: '仅墨西哥语', value: 'es-mx' },
+                  { label: '仅印尼语', value: 'id' },
+                  { label: '仅巴西葡萄牙语', value: 'pt-br' },
+                  { label: '多语种前端', value: 'crosslingual' },
+                ]}
+                placeholder="选择语种"
+                style={{ width: '100%' }}
+              />
+            </TitleCard>
+            
+            <TitleCard title="参考语种">
+              <Select
+                value={data.contextLanguage}
+                onChange={(val) => {
+                  setData((prev) => ({
+                    ...prev,
+                    contextLanguage: val,
+                  }));
+                }}
+                options={[
+                  { label: '默认', value: '' },
+                  { label: '印尼语', value: 'id' },
+                  { label: '墨西哥语', value: 'es' },
+                  { label: '巴西葡萄牙语', value: 'pt' },
+                ]}
+                placeholder="选择参考语种"
+                style={{ width: '100%' }}
+              />
+            </TitleCard>
+          </div>
+          
+          <TitleCard title="情感设置">
+            <div className={styles['emotion-config']}>
+              <div className={styles['switch-row']}>
+                <Switch
+                  checked={data.enableEmotion}
+                  onChange={(checked) => {
+                    setData((prev) => ({
+                      ...prev,
+                      enableEmotion: checked,
+                    }));
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用音色情感</span>
+              </div>
+              
+              {data.enableEmotion && (
+                <>
+                  <div style={{ marginTop: '12px' }}>
+                    <Input
+                      value={data.emotion}
+                      onChange={(val) => {
+                        setData((prev) => ({
+                          ...prev,
+                          emotion: val,
+                        }));
+                      }}
+                      placeholder="输入情感类型，如: happy, sad, angry, excited"
+                    />
+                  </div>
+                  
+                  <div style={{ marginTop: '16px' }}>
+                    <div style={{ marginBottom: '8px' }}>情绪强度 (1-5): {data.emotionScale}</div>
+                    <Slider
+                      value={data.emotionScale}
+                      min={1}
+                      max={5}
+                      step={1}
+                      onChange={(val) => {
+                        setData((prev) => ({
+                          ...prev,
+                          emotionScale: Array.isArray(val) ? val[0] : val,
+                        }));
+                      }}
+                      marks={{
+                        1: '1',
+                        2: '2',
+                        3: '3',
+                        4: '4',
+                        5: '5',
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </TitleCard>
+          
+          <TitleCard title="高级选项">
+            <div className={styles['advanced-options']}>
+              <div className={styles['switch-row']}>
+                <Switch
+                  checked={data.withTimestamp}
+                  onChange={(checked) => {
+                    setData((prev) => ({
+                      ...prev,
+                      withTimestamp: checked,
+                    }));
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用时间戳</span>
+              </div>
+              
+              <div className={styles['switch-row']}>
+                <Switch
+                  checked={data.disableMarkdownFilter}
+                  onChange={(checked) => {
+                    setData((prev) => ({
+                      ...prev,
+                      disableMarkdownFilter: checked,
+                    }));
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用 Markdown 解析过滤</span>
+              </div>
+              
+              <div className={styles['switch-row']}>
+                <Switch
+                  checked={data.enableLatexTn}
+                  onChange={(checked) => {
+                    setData((prev) => ({
+                      ...prev,
+                      enableLatexTn: checked,
+                    }));
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用 LaTeX 公式播报</span>
+              </div>
+              
+              <div className={styles['switch-row']}>
+                <Switch
+                  checked={data.enableCache}
+                  onChange={(checked) => {
+                    setData((prev) => ({
+                      ...prev,
+                      enableCache: checked,
+                    }));
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用缓存加速</span>
+              </div>
+            </div>
+          </TitleCard>
+        </div>
       </div>
     </Drawer>
   );

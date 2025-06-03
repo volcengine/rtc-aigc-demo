@@ -6,6 +6,9 @@
 const path = require('path');
 
 module.exports = {
+  devServer: {
+    open: false, // 设置为 false 不自动打开浏览器
+  },
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
