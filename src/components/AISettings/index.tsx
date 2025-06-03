@@ -21,6 +21,7 @@ import Config, {
   MODEL_MODE,
   VOICE_INFO_MAP,
   VOICE_TYPE,
+  VoiceTypeValues,
   isVisionMode,
 } from '@/config';
 import TitleCard from '../TitleCard';
@@ -63,7 +64,16 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
   const [loading, setLoading] = useState(false);
   const [modelMode, setModelMode] = useState<MODEL_MODE>(room.modelMode);
   const [scene, setScene] = useState(room.scene);
-  const [data, setData] = useState({
+  const [data, setData] = useState<{
+    prompt: string;
+    welcome: string;
+    voice: VoiceTypeValues;
+    model: AI_MODEL;
+    Url: string;
+    APIKey: string;
+    customModelName: string;
+    BotID: string;
+  }>({
     prompt: Config.Prompt || Prompt[scene],
     welcome: Config.WelcomeSpeech || Welcome[scene],
     voice: Config.VoiceType || Voice[scene],
@@ -79,7 +89,7 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
   const handleVoiceTypeChanged = (key: string) => {
     setData((prev) => ({
       ...prev,
-      voice: key as VOICE_TYPE,
+      voice: key as VoiceTypeValues,
     }));
   };
 

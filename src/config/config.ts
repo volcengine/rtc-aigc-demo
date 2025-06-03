@@ -14,10 +14,11 @@ import {
   Model,
   Voice,
   AI_MODEL,
-  AI_MODE_MAP,
   AI_MODEL_MODE,
   LLM_BOT_ID,
+  VoiceTypeValues,
   isVisionMode,
+  AI_MODE_MAP,
 } from '.';
 
 export const CONVERSATION_SIGNATURE = 'conversation';
@@ -89,7 +90,7 @@ export class ConfigFactory {
    *       音色 ID 获取方式可查看 VOICE_TYPE 定义
    *       此处已有默认值, 不影响跑通, 可按需修改。
    */
-  VoiceType = Voice[SCENE.INTELLIGENT_ASSISTANT];
+  VoiceType: VoiceTypeValues = Voice[SCENE.INTELLIGENT_ASSISTANT];
 
   /**
    * @note 大模型 System 角色预设指令, 可用于控制模型输出, 类似 Prompt 的概念。
@@ -162,7 +163,7 @@ export class ConfigFactory {
     if (LLM_BOT_ID[this.Model]) {
       /**
        * @note 如果您配置了方舟智能体, 并且开启了 Function Call 能力, 需要传入 Tools 字段, 描述函数相关信息。
-       *       相关配置可查看 https://www.volcengine.com/docs/6348/1404673?s=g#llmconfig%EF%BC%88%E7%81%AB%E5%B1%B1%E6%96%B9%E8%88%9F%E5%B9%B3%E5%8F%B0%EF%BC%89
+       *       相关配置可查看 https://www.volcengine.com/docs/6348/1404673#llmconfig%EF%BC%88%E7%81%AB%E5%B1%B1%E6%96%B9%E8%88%9F%E5%B9%B3%E5%8F%B0%EF%BC%89
        *       对应的调用定义于 src/utils/handler.ts 文件中, 可参考对应逻辑。
        */
       params.Tools = [
@@ -202,7 +203,7 @@ export class ConfigFactory {
     }
     if (this.ModeSourceType === MODEL_MODE.COZE) {
       /**
-       * @note Coze 智能体配置的相关参数, 可参考: https://www.volcengine.com/docs/6348/1404673?s=g#llmconfig%EF%BC%88coze%E5%B9%B3%E5%8F%B0%EF%BC%89
+       * @note Coze 智能体配置的相关参数, 可参考: https://www.volcengine.com/docs/6348/1404673#llmconfig%EF%BC%88coze%E5%B9%B3%E5%8F%B0%EF%BC%89
        */
       return {
         Mode: 'CozeBot',
