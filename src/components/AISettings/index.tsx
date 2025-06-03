@@ -346,25 +346,6 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     }
   }, [aiSettings, open, scene, room.modelMode, room.scene]);
 
-  // 监听 jotai 状态中音色和模型的变化，同步到本地状态
-  useEffect(() => {
-    if (aiSettings.voice && aiSettings.voice !== data.voice) {
-      setData((prev) => ({
-        ...prev,
-        voice: aiSettings.voice,
-      }));
-    }
-  }, [aiSettings.voice, data.voice]);
-
-  useEffect(() => {
-    if (aiSettings.model && aiSettings.model !== data.model) {
-      setData((prev) => ({
-        ...prev,
-        model: aiSettings.model,
-      }));
-    }
-  }, [aiSettings.model, data.model]);
-
   // 初始化音色类别 - 根据当前选中的音色找到对应的类别
   useEffect(() => {
     const currentVoice = data.voice;
