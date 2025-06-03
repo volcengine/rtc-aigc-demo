@@ -17,7 +17,7 @@
     "uuid": "^8.3.2"
   },
   "scripts": {
-    "dev:client": "npm run echo && npm run start",
+    "dev:client": "npm run echo && craco start",
     "dev:server": "node Server/app.js",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" --names=server,client --prefix-colors=blue,green",
     "check:config": "node scripts/check-config.js",
