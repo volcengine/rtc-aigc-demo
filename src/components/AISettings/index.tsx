@@ -260,7 +260,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         我们已为您配置好对应人设的基本参数，您也可以根据自己的需求进行自定义设置
       </div>
 
-      <div className={'grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3'}>
+      <div className={'grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2'}>
         {[...SCENES, null].map((key) =>
           key ? (
             <CheckIcon

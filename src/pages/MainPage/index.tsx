@@ -8,23 +8,28 @@ import ResizeWrapper from '@/components/ResizeWrapper';
 import Sidebar from '@/components/Sidebar';
 import utils from '@/utils/utils';
 import MainArea from './MainArea';
-import styles from './index.module.less';
 
 export default function () {
+  const isMobile = utils.isMobile();
+
   return (
-    <ResizeWrapper className={styles.container}>
+    <ResizeWrapper>
       <Header />
       <div
-        className={styles.main}
+        className="relative w-full h-[calc(100%-48px)] flex flex-row items-center box-border gap-x-[2%]"
         style={{
-          padding: utils.isMobile() ? '' : '24px 124px',
+          padding: isMobile ? '' : '24px 124px',
         }}
       >
-        <div className={`${styles.mainArea} ${utils.isMobile() ? styles.isMobile : ''}`}>
+        <div
+          className={`relative h-full bg-white overflow-hidden ${
+            isMobile ? 'w-full rounded-none' : 'flex-1 rounded-2xl'
+          }`}
+        >
           <MainArea />
         </div>
-        {utils.isMobile() ? null : (
-          <div className={styles.operationArea}>
+        {isMobile ? null : (
+          <div className="relative w-[360px] h-full">
             <Sidebar />
           </div>
         )}
