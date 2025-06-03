@@ -3,9 +3,11 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { atom } from 'jotai';
+import { atom, useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { SCENE, MODEL_MODE, VoiceTypeValues, AI_MODEL, Voice, Model } from '@/config';
+import { SCENE, MODEL_MODE, VoiceTypeValues, AI_MODEL, Voice, Model } from '@/config/common';
+import { PRESET_PERSONAS, getDefaultPersona, generatePersonaId } from '@/config/personas';
+import { IPersona, IPersonaManager } from '@/types/persona';
 
 // AI设置的状态管理
 export interface AISettingsState {
@@ -111,3 +113,103 @@ export const avatarConfigAtom = atom((get) => {
     customModelName: settings.customModelName,
   };
 });
+
+// 人设管理状态
+export const personaManagerAtom = atomWithStorage<IPersonaManager>('persona-manager', {
+  activePersonaId: PRESET_PERSONAS[0].id, // 默认选择智能助手
+  personas: PRESET_PERSONAS,
+  customPersonas: [],
+  presetPersonas: PRESET_PERSONAS,
+});
+
+// 当前激活的人设（衍生 atom）
+export const activePersonaAtom = atom((get) => {
+  const manager = get(personaManagerAtom);
+  return manager.personas.find((p) => p.id === manager.activePersonaId) || getDefaultPersona();
+});
+
+// 自定义人设列表（衍生 atom）
+export const customPersonasAtom = atom((get) => {
+  const manager = get(personaManagerAtom);
+  return manager.customPersonas;
+});
+
+// 预设人设列表（衍生 atom）
+export const presetPersonasAtom = atom((get) => {
+  const manager = get(personaManagerAtom);
+  return manager.presetPersonas;
+});
+
+// 人设操作函数
+export const usePersonaActions = () => {
+  const [, setPersonaManager] = useAtom(personaManagerAtom);
+
+  return {
+    setActivePersona: (personaId: string) => {
+      setPersonaManager((prev) => ({
+        ...prev,
+        activePersonaId: personaId,
+      }));
+    },
+
+    createPersona: (personaData: Partial<IPersona>) => {
+      const defaultVoice = Voice[SCENE.INTELLIGENT_ASSISTANT] as VoiceTypeValues;
+      const defaultModel = Model[SCENE.INTELLIGENT_ASSISTANT] as AI_MODEL;
+      
+      const newPersona: IPersona = {
+        id: generatePersonaId(),
+        name: personaData.name || '新人设',
+        avatar: personaData.avatar || '🤖',
+        prompt: personaData.prompt || '',
+        welcome: personaData.welcome || '',
+        voice: (personaData.voice as VoiceTypeValues) || defaultVoice,
+        model: (personaData.model as AI_MODEL) || defaultModel,
+        originalScene: personaData.originalScene,
+        isPreset: false,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      setPersonaManager((prev) => {
+        const newCustomPersonas = [...prev.customPersonas, newPersona];
+        return {
+          ...prev,
+          customPersonas: newCustomPersonas,
+          personas: [...prev.presetPersonas, ...newCustomPersonas],
+          activePersonaId: newPersona.id,
+        };
+      });
+    },
+
+    updatePersona: (personaId: string, personaData: Partial<IPersona>) => {
+      setPersonaManager((prev) => {
+        const newCustomPersonas = prev.customPersonas.map((p) =>
+          p.id === personaId ? { ...p, ...personaData, updatedAt: Date.now() } : p
+        );
+        
+        return {
+          ...prev,
+          customPersonas: newCustomPersonas,
+          personas: [...prev.presetPersonas, ...newCustomPersonas],
+        };
+      });
+    },
+
+    deletePersona: (personaId: string) => {
+      setPersonaManager((prev) => {
+        const newCustomPersonas = prev.customPersonas.filter((p) => p.id !== personaId);
+        const newActivePersonaId = 
+          prev.activePersonaId === personaId
+            ? PRESET_PERSONAS[0].id
+            : prev.activePersonaId;
+
+        return {
+          ...prev,
+          customPersonas: newCustomPersonas,
+          personas: [...prev.presetPersonas, ...newCustomPersonas],
+          activePersonaId: newActivePersonaId,
+        };
+      });
+    },
+  };
+};

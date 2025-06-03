@@ -16,10 +16,11 @@ import {
 } from '@arco-design/web-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { IconExclamationCircle } from '@arco-design/web-react/icon';
 import { StreamIndex } from '@volcengine/rtc';
 import CheckIcon from '../CheckIcon';
+import PersonaSelector from '../PersonaSelector';
 import Config, {
   Icon,
   Name,
@@ -46,7 +47,7 @@ import { clearHistoryMsg, updateAIConfig, updateModelMode, updateScene } from '@
 import { RootState } from '@/store';
 import utils from '@/utils/utils';
 import { useDeviceState } from '@/lib/useCommon';
-import { aiSettingsAtom, sceneAtom } from '@/store/atoms';
+import { aiSettingsAtom, activePersonaAtom } from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
 import DoubaoModelSVG from '@/assets/img/DoubaoModel.svg';
@@ -135,7 +136,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
   });
 
   const [aiSettings, setAiSettings] = useAtom(aiSettingsAtom);
-  const [currentScene, setCurrentScene] = useAtom(sceneAtom);
+  const activePersona = useAtomValue(activePersonaAtom);
 
   const handleVoiceTypeChanged = (key: string) => {
     setData((prev) => ({
@@ -162,7 +163,6 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
   const handleChecked = (checkedScene: SCENE) => {
     setScene(checkedScene);
-    setCurrentScene(checkedScene);
     setData((prev) => ({
       ...prev,
       prompt: Prompt[checkedScene],
@@ -360,6 +360,30 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     }
   }, [data.voice]);
 
+  useEffect(() => {
+    if (data.voice && data.voice !== aiSettings.voice) {
+      setAiSettings((prev) => ({ ...prev, voice: data.voice }));
+    }
+  }, [data.voice, aiSettings.voice, setAiSettings]);
+
+  // 监听激活的人设变化，同步相关配置
+  useEffect(() => {
+    if (activePersona) {
+      setData((prev) => ({
+        ...prev,
+        prompt: activePersona.prompt || prev.prompt,
+        welcome: activePersona.welcome || prev.welcome,
+        voice: activePersona.voice || prev.voice,
+        model: activePersona.model || prev.model,
+      }));
+
+      // 同步场景（为了兼容性）
+      if (activePersona.originalScene) {
+        setScene(activePersona.originalScene);
+      }
+    }
+  }, [activePersona]);
+
   const getVoiceCategoryData = () => {
     const categoryData: Record<string, any[]> = {};
     Object.keys(VOICE_BY_SCENARIO).forEach((category) => {
@@ -376,33 +400,8 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
   const renderContent = () => (
     <div className={embedded ? 'p-0 bg-transparent' : ''}>
-      <div className="text-lg font-semibold leading-7 text-gray-900">
-        选择你所需要的
-        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          {' '}
-          AI 人设
-        </span>
-      </div>
-      <div className="text-xs font-normal leading-5 text-gray-500 mt-1.5">
-        我们已为您配置好对应人设的基本参数，您也可以根据自己的需求进行自定义设置
-      </div>
-
-      <div className={'grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2'}>
-        {[...SCENES, null].map((key) =>
-          key ? (
-            <CheckIcon
-              key={key}
-              icon={Icon[key as keyof typeof Icon]}
-              title={Name[key as keyof typeof Name]}
-              checked={key === scene}
-              blur={key !== scene && key === SCENE.CUSTOM}
-              onClick={() => handleChecked(key as SCENE)}
-            />
-          ) : utils.isMobile() ? (
-            <div className="w-20 h-20" />
-          ) : null
-        )}
-      </div>
+      {/* 人设选择器 */}
+      <PersonaSelector className="mb-6" />
 
       <div className="mt-4">
         <RadioGroup
