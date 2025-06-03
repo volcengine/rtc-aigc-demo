@@ -5,15 +5,13 @@
 
 import { Button, Drawer, Input, Radio, Tooltip, Select, Slider, Switch } from '@arco-design/web-react';
 
-import { useEffect, useRef } from 'react';
-
 import { useAtom, useAtomValue } from 'jotai';
 
 import { IconExclamationCircle } from '@arco-design/web-react/icon';
 
 import PersonaSelector from '../PersonaSelector';
 
-import { AI_MODEL, MODEL_MODE, VoiceName, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY } from '@/config';
+import { AI_MODEL, MODEL_MODE, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY } from '@/config';
 
 import TitleCard from '../TitleCard';
 
@@ -21,7 +19,7 @@ import CheckBoxSelector from '@/components/CheckBoxSelector';
 
 import utils from '@/utils/utils';
 
-import { aiSettingsAtom, activePersonaAtom, modelModeAtom, voiceAtom, modelAtom, loadingAtom } from '@/store/atoms';
+import { activePersonaAtom, modelModeAtom, loadingAtom } from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
 
@@ -40,56 +38,12 @@ const RadioGroup = Radio.Group;
  * AI 设置面板
  */
 function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
-  const [aiSettings, setAiSettings] = useAtom(aiSettingsAtom);
+  // const [aiSettings, setAiSettings] = useAtom(aiSettingsAtom);
   const [modelMode, setModelMode] = useAtom(modelModeAtom);
-  const [voice, setVoice] = useAtom(voiceAtom);
-  const [model, setModel] = useAtom(modelAtom);
+  // const [voice, setVoice] = useAtom(voiceAtom);
+  // const [model, setModel] = useAtom(modelAtom);
   const [loading, setLoading] = useAtom(loadingAtom);
   const activePersona = useAtomValue(activePersonaAtom);
-
-  const handleVoiceTypeChanged = (key: string) => {
-    setVoice(key as VoiceName);
-  };
-
-  const handleUseThirdPart = (key: string) => {
-    setModelMode(key as MODEL_MODE);
-  };
-
-  useEffect(() => {
-    if (open) {
-      setLoading(false);
-    }
-  }, [open, setLoading]);
-
-  // 监听激活的人设变化，同步相关配置
-  const previousPersonaIdRef = useRef<string | null>(null);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    const currentPersonaId = activePersona?.id || null;
-
-    // 只有当人设 ID 真正发生变化时才执行
-    if (currentPersonaId !== previousPersonaIdRef.current) {
-      previousPersonaIdRef.current = currentPersonaId;
-
-      if (activePersona) {
-        // 只在开发环境下打印调试日志
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🔄 人设切换:', {
-            timestamp: new Date().toLocaleTimeString(),
-            personaId: activePersona.id,
-            personaName: activePersona.name,
-          });
-        }
-
-        setAiSettings((prev) => ({
-          ...prev,
-          prompt: activePersona.prompt || prev.prompt,
-          welcome: activePersona.welcome || prev.welcome,
-        }));
-      }
-    }
-  }, [activePersona]);
 
   const getVoiceCategoryData = () => {
     const categoryData: Record<string, any[]> = {};
@@ -173,7 +127,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           type="button"
           defaultValue="Beijing"
           className="mt-4"
-          onChange={handleUseThirdPart}
+          onChange={() => {
+            // todo
+          }}
         />
 
         <div
@@ -188,8 +144,10 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
               categoryData={getVoiceCategoryData()}
               categories={VOICE_CATEGORIES}
               defaultCategory={DEFAULT_VOICE_CATEGORY}
-              onChange={handleVoiceTypeChanged}
-              value={voice}
+              onChange={() => {
+                // todo
+              }}
+              value={activePersona.voice}
               moreIcon={VoiceTypeChangeSVG}
               moreText="更换音色"
               placeHolder="请选择你需要的音色"
@@ -210,9 +168,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                   moreText="更换模型"
                   placeHolder="请选择模型"
                   onChange={(key) => {
-                    setModel(key as AI_MODEL);
+                    // todo: change model
                   }}
-                  value={model}
+                  value={activePersona.model}
                 />
               </TitleCard>
             )}
@@ -222,12 +180,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard required title="第三方模型地址">
                   <Input.TextArea
                     autoSize
-                    value={aiSettings.Url}
+                    value={activePersona.extra?.url}
                     onChange={(val) => {
-                      setAiSettings((prev) => ({
-                        ...prev,
-                        Url: val,
-                      }));
+                      // todo
                     }}
                     placeholder="请输入第三方模型地址"
                   />
@@ -235,12 +190,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard title="请求密钥">
                   <Input.TextArea
                     autoSize
-                    value={aiSettings.APIKey}
+                    value={activePersona.extra?.apiKey}
                     onChange={(val) => {
-                      setAiSettings((prev) => ({
-                        ...prev,
-                        APIKey: val,
-                      }));
+                      //   todo
                     }}
                     placeholder="请输入请求密钥"
                   />
@@ -248,12 +200,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard title="模型名称">
                   <Input.TextArea
                     autoSize
-                    value={aiSettings.customModelName}
+                    value={activePersona.extra?.modelName}
                     onChange={(val) => {
-                      setAiSettings((prev) => ({
-                        ...prev,
-                        customModelName: val,
-                      }));
+                      //   todo
                     }}
                     placeholder="请输入模型名称"
                   />
@@ -268,12 +217,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard required title="访问令牌">
                   <Input.TextArea
                     autoSize
-                    value={aiSettings.APIKey}
+                    value={activePersona.extra?.apiKey}
                     onChange={(val) => {
-                      setAiSettings((prev) => ({
-                        ...prev,
-                        APIKey: val,
-                      }));
+                      //   todo
                     }}
                     placeholder="请输入访问令牌"
                   />
@@ -281,12 +227,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                 <TitleCard required title="智能体 ID">
                   <Input.TextArea
                     autoSize
-                    value={aiSettings.BotID}
+                    value={activePersona.extra?.botId}
                     onChange={(val) => {
-                      setAiSettings((prev) => ({
-                        ...prev,
-                        BotID: val,
-                      }));
+                      //   todo
                     }}
                     placeholder="请输入智能体 ID"
                   />
@@ -299,12 +242,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         <TitleCard title="系统 Prompt">
           <Input.TextArea
             autoSize
-            value={aiSettings.prompt}
+            value={activePersona.prompt}
             onChange={(val) => {
-              setAiSettings((prev) => ({
-                ...prev,
-                prompt: val,
-              }));
+              // todo
             }}
             placeholder="请输入你需要的 Prompt 设定"
           />
@@ -312,12 +252,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
         <TitleCard title="欢迎语">
           <Input.TextArea
             autoSize
-            value={aiSettings.welcome}
+            value={activePersona.welcome}
             onChange={(val) => {
-              setAiSettings((prev) => ({
-                ...prev,
-                welcome: val,
-              }));
+              //   todo
             }}
             placeholder="请输入欢迎语"
           />
@@ -332,12 +269,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="音频编码格式">
               <Select
-                value={aiSettings.encoding}
+                value={activePersona.extra?.encoding}
                 onChange={(val) => {
-                  setAiSettings((prev) => ({
-                    ...prev,
-                    encoding: val,
-                  }));
+                  //   todo
                 }}
                 options={[
                   { label: 'MP3', value: 'mp3' },
@@ -355,12 +289,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
             <TitleCard title="音频采样率">
               <Select
-                value={aiSettings.rate}
+                value={activePersona.extra?.rate?.toString()}
                 onChange={(val) => {
-                  setAiSettings((prev) => ({
-                    ...prev,
-                    rate: val,
-                  }));
+                  //   todo
                 }}
                 options={[
                   { label: '8000 Hz', value: 8000 },
@@ -380,14 +311,11 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             <TitleCard title="比特率 (kb/s)">
               <Input
                 type="number"
-                value={aiSettings.bitrate.toString()}
+                value={activePersona.extra?.bitRate?.toString()}
                 min={64}
                 max={320}
                 onChange={(val) => {
-                  setAiSettings((prev) => ({
-                    ...prev,
-                    bitrate: parseInt(val) || 160,
-                  }));
+                  //   todo
                 }}
                 placeholder="比特率"
               />
@@ -396,15 +324,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             <TitleCard title="语速调节">
               <div>
                 <Slider
-                  value={aiSettings.speedRatio}
+                  value={activePersona.extra?.speedRatio}
                   min={0.8}
                   max={2.0}
                   step={0.1}
                   onChange={(val) => {
-                    setAiSettings((prev) => ({
-                      ...prev,
-                      speedRatio: Array.isArray(val) ? val[0] : val,
-                    }));
+                    //   todo
                   }}
                   marks={{
                     0.8: '0.8x',
@@ -414,7 +339,7 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     2.0: '2.0x',
                   }}
                 />
-                <div style={{ textAlign: 'center', marginTop: '8px' }}>当前: {aiSettings.speedRatio}x</div>
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>当前: {activePersona.extra?.speedRatio}x</div>
               </div>
             </TitleCard>
           </div>
@@ -423,15 +348,12 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             <TitleCard title="音量调节">
               <div>
                 <Slider
-                  value={aiSettings.loudnessRatio}
+                  value={activePersona.extra?.loudnessRatio}
                   min={0.5}
                   max={2.0}
                   step={0.1}
                   onChange={(val) => {
-                    setAiSettings((prev) => ({
-                      ...prev,
-                      loudnessRatio: Array.isArray(val) ? val[0] : val,
-                    }));
+                    //   todo
                   }}
                   marks={{
                     0.5: '0.5x',
@@ -440,21 +362,18 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
                     2.0: '2.0x',
                   }}
                 />
-                <div style={{ textAlign: 'center', marginTop: '8px' }}>当前: {aiSettings.loudnessRatio}x</div>
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>当前: {activePersona.extra?.loudnessRatio}x</div>
               </div>
             </TitleCard>
 
             <TitleCard title="句尾静音 (ms)">
               <Input
                 type="number"
-                value={aiSettings.silenceDuration.toString()}
+                value={activePersona.extra?.silenceDuration?.toString()}
                 min={0}
                 max={30000}
                 onChange={(val) => {
-                  setAiSettings((prev) => ({
-                    ...prev,
-                    silenceDuration: parseInt(val) || 0,
-                  }));
+                  //   todo
                 }}
                 placeholder="句尾静音时长"
               />
@@ -464,12 +383,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           <div className="flex flex-row flex-wrap justify-start items-start gap-2">
             <TitleCard title="语种设置">
               <Select
-                value={aiSettings.explicitLanguage}
+                value={activePersona.extra?.explicitLanguage}
                 onChange={(val) => {
-                  setAiSettings((prev) => ({
-                    ...prev,
-                    explicitLanguage: val,
-                  }));
+                  //   todo
                 }}
                 options={[
                   { label: '自动识别', value: '' },
@@ -497,12 +413,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
             <TitleCard title="参考语种">
               <Select
-                value={aiSettings.contextLanguage}
+                value={activePersona.extra?.contextLanguage}
                 onChange={(val) => {
-                  setAiSettings((prev) => ({
-                    ...prev,
-                    contextLanguage: val,
-                  }));
+                  //   todo
                 }}
                 options={[
                   { label: '默认', value: '' },
@@ -523,44 +436,35 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             <div className="mt-2">
               <div className="flex items-center">
                 <Switch
-                  checked={aiSettings.enableEmotion}
+                  checked={activePersona.extra?.enableEmotion}
                   onChange={(checked) => {
-                    setAiSettings((prev) => ({
-                      ...prev,
-                      enableEmotion: checked,
-                    }));
+                    //   todo
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用音色情感</span>
               </div>
 
-              {aiSettings.enableEmotion && (
+              {activePersona.extra?.enableEmotion && (
                 <>
                   <div style={{ marginTop: '12px' }}>
                     <Input
-                      value={aiSettings.emotion}
+                      value={activePersona.extra.emotion}
                       onChange={(val) => {
-                        setAiSettings((prev) => ({
-                          ...prev,
-                          emotion: val,
-                        }));
+                        //   todo
                       }}
                       placeholder="输入情感类型，如: happy, sad, angry, excited"
                     />
                   </div>
 
                   <div style={{ marginTop: '16px' }}>
-                    <div style={{ marginBottom: '8px' }}>情绪强度 (1-5): {aiSettings.emotionScale}</div>
+                    <div style={{ marginBottom: '8px' }}>情绪强度 (1-5): {activePersona.extra.emotionScale}</div>
                     <Slider
-                      value={aiSettings.emotionScale}
+                      value={activePersona.extra?.emotionScale}
                       min={1}
                       max={5}
                       step={1}
                       onChange={(val) => {
-                        setAiSettings((prev) => ({
-                          ...prev,
-                          emotionScale: Array.isArray(val) ? val[0] : val,
-                        }));
+                        //   todo
                       }}
                       marks={{
                         1: '1',
@@ -580,12 +484,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
             <div className="mt-2">
               <div className="flex items-center">
                 <Switch
-                  checked={aiSettings.withTimestamp}
+                  checked={activePersona?.extra?.advanced?.withTimestamp}
                   onChange={(checked) => {
-                    setAiSettings((prev) => ({
-                      ...prev,
-                      withTimestamp: checked,
-                    }));
+                    // todo
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用时间戳</span>
@@ -593,12 +494,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
               <div className="flex items-center">
                 <Switch
-                  checked={aiSettings.disableMarkdownFilter}
+                  checked={activePersona?.extra?.advanced?.disableMarkdownFilter}
                   onChange={(checked) => {
-                    setAiSettings((prev) => ({
-                      ...prev,
-                      disableMarkdownFilter: checked,
-                    }));
+                    // todo
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用 Markdown 解析过滤</span>
@@ -606,12 +504,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
               <div className="flex items-center">
                 <Switch
-                  checked={aiSettings.enableLatexTn}
+                  checked={activePersona?.extra?.advanced?.enableLatexTn}
                   onChange={(checked) => {
-                    setAiSettings((prev) => ({
-                      ...prev,
-                      enableLatexTn: checked,
-                    }));
+                    // todo
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用 LaTeX 公式播报</span>
@@ -619,12 +514,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
 
               <div className="flex items-center">
                 <Switch
-                  checked={aiSettings.enableCache}
+                  checked={activePersona?.extra?.advanced?.enableCache}
                   onChange={(checked) => {
-                    setAiSettings((prev) => ({
-                      ...prev,
-                      enableCache: checked,
-                    }));
+                    // todo
                   }}
                 />
                 <span style={{ marginLeft: '8px' }}>启用缓存加速</span>
@@ -635,8 +527,6 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
       </div>
     </div>
   );
-
-  console.log('state: ', { aiSettings, voice });
 
   if (embedded) {
     return renderContent();

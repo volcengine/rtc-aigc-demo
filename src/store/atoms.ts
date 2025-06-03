@@ -9,114 +9,9 @@ import { SCENE, MODEL_MODE, VoiceName, AI_MODEL, DEFAULT_VOICE_CATEGORY } from '
 import { PRESET_PERSONAS, getDefaultPersona, generatePersonaId, getVoiceByScene, getModelByScene, getDefaultPersonaManager } from '@/config/personas';
 import { IPersona, IPersonaManager } from '@/types/persona';
 
-// AI设置的状态管理
-export interface AISettingsState {
-  scene: SCENE;
-  modelMode: MODEL_MODE;
-  prompt: string;
-  welcome: string;
-  voice: VoiceName;
-  model: AI_MODEL;
-  Url: string;
-  APIKey: string;
-  customModelName: string;
-  BotID: string;
-  encoding: string;
-  speedRatio: number;
-  rate: number;
-  bitrate: number;
-  loudnessRatio: number;
-  emotion: string;
-  enableEmotion: boolean;
-  emotionScale: number;
-  explicitLanguage: string;
-  contextLanguage: string;
-  withTimestamp: boolean;
-  disableMarkdownFilter: boolean;
-  enableLatexTn: boolean;
-  silenceDuration: number;
-  enableCache: boolean;
-}
-
-// 使用 atomWithStorage 实现持久化
-export const aiSettingsAtom = atomWithStorage<AISettingsState>('ai-settings', {
-  scene: SCENE.INTELLIGENT_ASSISTANT,
-  modelMode: MODEL_MODE.ORIGINAL,
-  prompt: '',
-  welcome: '',
-  voice: getVoiceByScene(SCENE.INTELLIGENT_ASSISTANT),
-  model: getModelByScene(SCENE.INTELLIGENT_ASSISTANT),
-  Url: '',
-  APIKey: '',
-  customModelName: '',
-  BotID: '',
-  encoding: 'mp3',
-  speedRatio: 1.0,
-  rate: 24000,
-  bitrate: 160,
-  loudnessRatio: 1.0,
-  emotion: '',
-  enableEmotion: false,
-  emotionScale: 4,
-  explicitLanguage: '',
-  contextLanguage: '',
-  withTimestamp: false,
-  disableMarkdownFilter: false,
-  enableLatexTn: false,
-  silenceDuration: 0,
-  enableCache: false,
-});
-
-// 衍生的 atoms，用于监听特定字段的变化
-export const sceneAtom = atom(
-  (get) => get(aiSettingsAtom).scene,
-  (get, set, newScene: SCENE) => {
-    const currentSettings = get(aiSettingsAtom);
-    set(aiSettingsAtom, {
-      ...currentSettings,
-      scene: newScene,
-      voice: getVoiceByScene(newScene),
-      model: getModelByScene(newScene),
-    });
-  }
-);
-
-export const modelModeAtom = atom(
-  (get) => get(aiSettingsAtom).modelMode,
-  (get, set, newModelMode: MODEL_MODE) => {
-    set(aiSettingsAtom, { ...get(aiSettingsAtom), modelMode: newModelMode });
-  }
-);
-
-export const voiceAtom = atom(
-  (get) => get(aiSettingsAtom).voice,
-  (get, set, newVoice: VoiceName) => {
-    set(aiSettingsAtom, { ...get(aiSettingsAtom), voice: newVoice });
-  }
-);
-
-export const modelAtom = atom(
-  (get) => get(aiSettingsAtom).model,
-  (get, set, newModel: AI_MODEL) => {
-    set(aiSettingsAtom, { ...get(aiSettingsAtom), model: newModel });
-  }
-);
-
-// AvatarCard 需要的配置信息 atom
-export const avatarConfigAtom = atom((get) => {
-  const settings = get(aiSettingsAtom);
-  return {
-    scene: settings.scene,
-    voice: settings.voice,
-    model: settings.model,
-    modelMode: settings.modelMode,
-    customModelName: settings.customModelName,
-  };
-});
-
 // 人设管理状态
 export const personaManagerAtom = atomWithStorage<IPersonaManager>(
-  'persona-manager-v4', // 更新版本强制刷新缓存
+  'persona-manager-v5', // 更新版本强制刷新缓存
   getDefaultPersonaManager()
 );
 
@@ -124,9 +19,7 @@ export const personaManagerAtom = atomWithStorage<IPersonaManager>(
 export const activePersonaAtom = atom((get) => {
   const manager = get(personaManagerAtom);
   const allPersonas = [...manager.presetPersonas, ...manager.customPersonas];
-  return (
-    allPersonas.find((p) => p.id === manager.activePersonaId) || getDefaultPersona()
-  );
+  return allPersonas.find((p) => p.id === manager.activePersonaId) || getDefaultPersona();
 });
 
 // 自定义人设列表（衍生 atom）
@@ -156,7 +49,7 @@ export const usePersonaActions = () => {
     createPersona: (personaData: Partial<IPersona>) => {
       const defaultVoice = getVoiceByScene(SCENE.INTELLIGENT_ASSISTANT) as VoiceName;
       const defaultModel = getModelByScene(SCENE.INTELLIGENT_ASSISTANT) as AI_MODEL;
-      
+
       const newPersona: IPersona = {
         id: generatePersonaId(),
         name: personaData.name || '新人设',
@@ -184,9 +77,15 @@ export const usePersonaActions = () => {
     updatePersona: (personaId: string, personaData: Partial<IPersona>) => {
       setPersonaManager((prev) => {
         const newCustomPersonas = prev.customPersonas.map((p) =>
-          p.id === personaId ? { ...p, ...personaData, updatedAt: Date.now() } : p
+          p.id === personaId
+            ? {
+                ...p,
+                ...personaData,
+                updatedAt: Date.now(),
+              }
+            : p
         );
-        
+
         return {
           ...prev,
           customPersonas: newCustomPersonas,
@@ -197,10 +96,7 @@ export const usePersonaActions = () => {
     deletePersona: (personaId: string) => {
       setPersonaManager((prev) => {
         const newCustomPersonas = prev.customPersonas.filter((p) => p.id !== personaId);
-        const newActivePersonaId = 
-          prev.activePersonaId === personaId
-            ? PRESET_PERSONAS[0].id
-            : prev.activePersonaId;
+        const newActivePersonaId = prev.activePersonaId === personaId ? PRESET_PERSONAS[0].id : prev.activePersonaId;
 
         return {
           ...prev,
@@ -229,5 +125,26 @@ export const loadingAtom = atom(
   (get) => get(aiSettingsUIAtom).loading,
   (get, set, newLoading: boolean) => {
     set(aiSettingsUIAtom, { ...get(aiSettingsUIAtom), loading: newLoading });
+  }
+);
+
+export const voiceAtom = atom(
+  (get) => get(activePersonaAtom).voice,
+  (get, set, newVoice: VoiceName) => {
+    set(activePersonaAtom, { ...get(activePersonaAtom), voice: newVoice });
+  }
+);
+
+export const modelAtom = atom(
+  (get) => get(activePersonaAtom).model,
+  (get, set, newModel: AI_MODEL) => {
+    set(activePersonaAtom, { ...get(activePersonaAtom), model: newModel });
+  }
+);
+
+export const modelModeAtom = atom(
+  (get) => get(activePersonaAtom).modelMode,
+  (get, set, newModelMode: MODEL_MODE) => {
+    set(activePersonaAtom, { ...get(activePersonaAtom), modelMode: newModelMode });
   }
 );
