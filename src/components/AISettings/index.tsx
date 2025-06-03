@@ -370,14 +370,18 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
     }
   }, [data.voice]);
 
-  const getAllVoices = () => {
-    const allVoices = Object.values(VOICE_BY_SCENARIO).flat();
-    return allVoices.map((voice) => ({
-      key: voice.value,
-      label: voice.name,
-      description: `${voice.language} - ${voice.name}`,
-      icon: voice.icon || '', // 如果没有图标就使用空字符串
-    }));
+  const getVoiceCategoryData = () => {
+    const categoryData: Record<string, any[]> = {};
+    Object.keys(VOICE_BY_SCENARIO).forEach((category) => {
+      categoryData[category] = VOICE_BY_SCENARIO[category].map((voice) => ({
+        key: voice.value,
+        label: voice.name,
+        description: `${voice.language} - ${voice.name}`,
+        icon: voice.icon || '',
+        category,
+      }));
+    });
+    return categoryData;
   };
 
   const renderContent = () => (
@@ -500,7 +504,9 @@ function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
           <TitleCard title="音色">
             <CheckBoxSelector
               label="音色选择"
-              data={getAllVoices()}
+              categoryData={getVoiceCategoryData()}
+              categories={VOICE_CATEGORIES}
+              defaultCategory={DEFAULT_VOICE_CATEGORY}
               onChange={handleVoiceTypeChanged}
               value={data.voice}
               moreIcon={VoiceTypeChangeSVG}

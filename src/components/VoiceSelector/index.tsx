@@ -85,8 +85,8 @@ function VoiceSelector(props: IProps) {
 
   return (
     <>
-      <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-        <div className="flex-1 min-w-0">
+      <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+        <div className="flex-1 min-w-0 mr-4">
           {selectedVoice ? (
             <CheckBox
               icon={selectedVoice.icon}
@@ -98,14 +98,13 @@ function VoiceSelector(props: IProps) {
             <div className="text-gray-400">{placeHolder}</div>
           )}
         </div>
+
         <Button
           type="text"
-          className="ml-4 text-blue-600 hover:text-blue-800 flex items-center flex-shrink-0"
+          className="text-blue-600 hover:text-blue-800 flex items-center flex-shrink-0"
           onClick={handleSeeMore}
         >
-          {moreIcon && (
-            <img src={moreIcon} alt="moreIcon" className="w-4 h-4 mr-1" />
-          )}
+          {moreIcon && <img src={moreIcon} alt="moreIcon" className="w-4 h-4 mr-1" />}
           <span>{moreText || '查看更多'}</span>
         </Button>
       </div>
