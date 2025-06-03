@@ -1,5 +1,11 @@
 # 交互式AIGC场景 AIGC Demo
 
+## 核心参考
+
+- [方案集成（软件应用)--实时音视频-火山引擎](https://www.volcengine.com/docs/6348/1310560)
+- [火山引擎 RTC 实时对话式 AI 体验 Demo ——— 支持 DeepSeek 和 豆包视觉理解模型](https://demo.volcvideo.com/aigc/login?from=doc)
+
+
 ## 简介
 - 在 AIGC 对话场景下，火山引擎 AIGC-RTC Server 云端服务，通过整合 RTC 音视频流处理，ASR 语音识别，大模型接口调用集成，以及 TTS 语音生成等能力，提供基于流式语音的端到端AIGC能力链路。
 - 用户只需调用基于标准的 OpenAPI 接口即可配置所需的 ASR、LLM、TTS 类型和参数。火山引擎云端计算服务负责边缘用户接入、云端资源调度、音视频流压缩、文本与语音转换处理以及数据订阅传输等环节。简化开发流程，让开发者更专注在对大模型核心能力的训练及调试，从而快速推进AIGC产品应用创新。     
