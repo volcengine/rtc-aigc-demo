@@ -4,6 +4,8 @@
 
 - [方案集成（软件应用)--实时音视频-火山引擎](https://www.volcengine.com/docs/6348/1310560)
 - [火山引擎 RTC 实时对话式 AI 体验 Demo ——— 支持 DeepSeek 和 豆包视觉理解模型](https://demo.volcvideo.com/aigc/login?from=doc)
+-  [字节跳动Seed](https://seed.bytedance.com/zh/blog/%E8%80%B3%E6%9C%B5%E6%B2%A1%E9%94%99-%E6%98%AF%E5%A3%B0%E9%9F%B3%E5%A4%AA%E7%9C%9F%E4%BA%86-%E5%AD%97%E8%8A%82%E8%B1%86%E5%8C%85%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90%E6%88%90%E6%9E%9Cseed-tts%E6%8A%80%E6%9C%AF%E6%8F%AD%E7%A7%98)
+- [Seed-TTS](https://bytedancespeech.github.io/seedtts_tech_report/)
 
 
 ## 简介
