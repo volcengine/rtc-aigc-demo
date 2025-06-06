@@ -25,14 +25,14 @@ class TouchDesignerBridge {
 
   private reconnectAttempts = 0;
 
-  private maxReconnectAttempts = 5;
+  private maxReconnectAttempts = 0;
 
   private reconnectInterval = 3000;
 
   private isConnecting = false;
 
   constructor(private url: string = 'ws://localhost:50604') {
-    this.connect();
+    // this.connect();
   }
 
   private connect(): void {

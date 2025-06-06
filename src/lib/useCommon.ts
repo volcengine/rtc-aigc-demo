@@ -238,7 +238,9 @@ export const useJoin = (): [
       audio: true,
       video: shouldGetVideoPermission,
     });
+    console.log(' ------ mediaDevices\n', mediaDevices);
 
+    console.log('dispatch updateSelectedDevice');
     dispatch(
       localJoinRoom({
         roomId,
@@ -248,14 +250,20 @@ export const useJoin = (): [
         },
       })
     );
+
+
+    console.log('dispatch updateMediaInputs');
     dispatch(
       updateSelectedDevice({
         selectedMicrophone: mediaDevices.audioInputs[0]?.deviceId,
         selectedCamera: mediaDevices.videoInputs[0]?.deviceId,
       })
     );
-    dispatch(updateMediaInputs(mediaDevices));
 
+    console.log('dispatch updateMediaInputs');
+    dispatch(updateMediaInputs(mediaDevices));
+    
+    console.log('dispatch setJoining false');
     setJoining(false);
 
     if (devicePermissions.audio) {
