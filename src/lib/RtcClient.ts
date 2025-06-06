@@ -30,6 +30,7 @@ import openAPIs from '@/app/api';
 import Utils from '@/utils/utils';
 import { COMMAND, INTERRUPT_PRIORITY } from '@/utils/handler';
 import aigcConfig from '@/config/the-config';
+import logger from '@/utils/logger';
 
 export interface IEventListener {
   handleError: (e: { errorCode: any }) => void;
@@ -102,8 +103,9 @@ export class RTCClient {
       const AIAnsExtension = new RTCAIAnsExtension();
       await this.engine.registerExtension(AIAnsExtension);
       AIAnsExtension.enable();
+      logger.log('AI 降噪已启用');
     } catch (error) {
-      console.warn(
+      logger.warn(
         `当前环境不支持 AI 降噪, 此错误可忽略, 不影响实际使用, e: ${(error as any).message}`
       );
     }
