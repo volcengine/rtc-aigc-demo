@@ -16,6 +16,7 @@ import {
   localLeaveRoom,
   updateAIGCState,
   updateLocalUser,
+  setHistoryMsg,
 } from '@/store/slices/room';
 
 import useRtcListeners from '@/lib/listenerHooks';
@@ -27,7 +28,9 @@ import {
   setDevicePermissions,
 } from '@/store/slices/device';
 import logger from '@/utils/logger';
-import aigcConfig, { ScreenShareScene, isVisionMode } from '@/config';
+import { isVisionMode } from '@/config';
+import { getScreenShareScenes } from '@/config/personas';
+import aigcConfig from '@/config/the-config';
 
 export interface FormProps {
   username: string;
@@ -39,7 +42,7 @@ export const useVisionMode = () => {
   const room = useSelector((state: RootState) => state.room);
   return {
     isVisionMode: isVisionMode(room.aiConfig?.Config?.LLMConfig.ModelName),
-    isScreenMode: ScreenShareScene.includes(room.scene),
+    isScreenMode: getScreenShareScenes().includes(room.scene),
   };
 };
 
@@ -170,14 +173,29 @@ export const useJoin = (): [
   const listeners = useRtcListeners();
 
   const handleAIGCModeStart = async () => {
+    console.log(' [DEBUG] handleAIGCModeStart 开始');
     if (room.isAIGCEnable) {
+      console.log(' [DEBUG] AI已启用，停止并重启');
       await RtcClient.stopAudioBot();
       dispatch(clearCurrentMsg());
       await RtcClient.startAudioBot();
     } else {
+      console.log(' [DEBUG] AI未启用，首次启动');
       await RtcClient.startAudioBot();
     }
     dispatch(updateAIGCState({ isAIGCEnable: true }));
+
+    // 添加欢迎词到消息历史，让AI显示为已准备状态
+    console.log(' [DEBUG] 添加欢迎词到消息历史');
+    dispatch(
+      setHistoryMsg({
+        text: aigcConfig.WelcomeSpeech,
+        user: aigcConfig.BotName, 
+        definite: true,
+        paragraph: true,
+      })
+    );
+    console.log(' [DEBUG] handleAIGCModeStart 完成');
   };
 
   async function disPatchJoin(formValues: FormProps): Promise<boolean | undefined> {
@@ -197,7 +215,7 @@ export const useJoin = (): [
     setJoining(true);
     const { username, roomId } = formValues;
     const isVision = isVisionMode(aigcConfig.Model);
-    const shouldGetVideoPermission = isVision && !ScreenShareScene.includes(room.scene);
+    const shouldGetVideoPermission = isVision && !getScreenShareScenes().includes(room.scene);
 
     const token = aigcConfig.BaseConfig.Token;
 
@@ -220,7 +238,9 @@ export const useJoin = (): [
       audio: true,
       video: shouldGetVideoPermission,
     });
+    console.log(' ------ mediaDevices\n', mediaDevices);
 
+    console.log('dispatch updateSelectedDevice');
     dispatch(
       localJoinRoom({
         roomId,
@@ -230,14 +250,20 @@ export const useJoin = (): [
         },
       })
     );
+
+
+    console.log('dispatch updateMediaInputs');
     dispatch(
       updateSelectedDevice({
         selectedMicrophone: mediaDevices.audioInputs[0]?.deviceId,
         selectedCamera: mediaDevices.videoInputs[0]?.deviceId,
       })
     );
-    dispatch(updateMediaInputs(mediaDevices));
 
+    console.log('dispatch updateMediaInputs');
+    dispatch(updateMediaInputs(mediaDevices));
+    
+    console.log('dispatch setJoining false');
     setJoining(false);
 
     if (devicePermissions.audio) {

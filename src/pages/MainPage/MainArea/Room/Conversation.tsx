@@ -8,8 +8,8 @@ import { useSelector } from 'react-redux';
 import { Tag, Spin } from '@arco-design/web-react';
 import { RootState } from '@/store';
 import Loading from '@/components/Loading/HorizonLoading';
-import Config from '@/config';
 import styles from './index.module.less';
+import Config from '@/config/the-config';
 
 const lines: (string | React.ReactNode)[] = [];
 

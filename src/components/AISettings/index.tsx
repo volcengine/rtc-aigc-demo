@@ -3,245 +3,107 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { Button, Drawer, Input, Message, Radio, Tooltip } from '@arco-design/web-react';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { Button, Drawer, Input, Radio, Tooltip, Select, Slider, Switch } from '@arco-design/web-react';
+
+import { useAtom } from 'jotai';
+
 import { IconExclamationCircle } from '@arco-design/web-react/icon';
-import { StreamIndex } from '@volcengine/rtc';
-import CheckIcon from '../CheckIcon';
-import Config, {
-  Icon,
-  Name,
-  SCENE,
-  Prompt,
-  Welcome,
-  Voice,
-  Model,
-  AI_MODEL,
-  MODEL_MODE,
-  VOICE_INFO_MAP,
-  VOICE_TYPE,
-  isVisionMode,
-} from '@/config';
+
+import PersonaSelector from '../PersonaSelector';
+
+import { AI_MODEL, MODEL_MODE, VOICE_CATEGORIES, VOICE_BY_SCENARIO, DEFAULT_VOICE_CATEGORY, loadPromptFromFile, VoiceName } from '@/config';
+
 import TitleCard from '../TitleCard';
+
 import CheckBoxSelector from '@/components/CheckBoxSelector';
-import RtcClient from '@/lib/RtcClient';
-import { clearHistoryMsg, updateAIConfig, updateModelMode, updateScene } from '@/store/slices/room';
-import { RootState } from '@/store';
+
 import utils from '@/utils/utils';
-import { useDeviceState } from '@/lib/useCommon';
+
+import { activePersonaAtom, modelModeAtom, loadingAtom, promptAtom } from '@/store/atoms';
 
 import VoiceTypeChangeSVG from '@/assets/img/VoiceTypeChange.svg';
-import DoubaoModelSVG from '@/assets/img/DoubaoModel.svg';
+
 import ModelChangeSVG from '@/assets/img/ModelChange.svg';
-import styles from './index.module.less';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface IAISettingsProps {
-  open: boolean;
+  open?: boolean;
   onOk?: () => void;
   onCancel?: () => void;
+  embedded?: boolean;
 }
 
 const RadioGroup = Radio.Group;
 
-const SCENES = [
-  SCENE.INTELLIGENT_ASSISTANT,
-  SCENE.SCREEN_READER,
-  SCENE.VIRTUAL_GIRL_FRIEND,
-  SCENE.TRANSLATE,
-  SCENE.CHILDREN_ENCYCLOPEDIA,
-  SCENE.CUSTOMER_SERVICE,
-  SCENE.TEACHING_ASSISTANT,
-  SCENE.CUSTOM,
-];
+/**
+ * AI 设置面板
+ */
+function AISettings({ open, onCancel, onOk, embedded }: IAISettingsProps) {
+  const [modelMode, setModelMode] = useAtom(modelModeAtom);
+  const [loading, setLoading] = useAtom(loadingAtom);
+  const [activePersona, setActivePersona] = useAtom(activePersonaAtom);
 
-function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
-  const dispatch = useDispatch();
-  const { isVideoPublished, isScreenPublished, switchScreenCapture, switchCamera } =
-    useDeviceState();
-  const room = useSelector((state: RootState) => state.room);
-  const [loading, setLoading] = useState(false);
-  const [modelMode, setModelMode] = useState<MODEL_MODE>(room.modelMode);
-  const [scene, setScene] = useState(room.scene);
-  const [data, setData] = useState({
-    prompt: Config.Prompt || Prompt[scene],
-    welcome: Config.WelcomeSpeech || Welcome[scene],
-    voice: Config.VoiceType || Voice[scene],
-    model: Config.Model || Model[scene],
+  // 使用 useState 来处理异步 prompt 加载
+  const [prompt, setPrompt] = useState(activePersona.prompt);
 
-    Url: Config.Url || '',
-    APIKey: Config.APIKey || '',
-    customModelName: (Config.Model || '') as string,
-
-    BotID: Config.BotID || '',
-  });
-
-  const handleVoiceTypeChanged = (key: string) => {
-    setData((prev) => ({
-      ...prev,
-      voice: key as VOICE_TYPE,
-    }));
-  };
-
-  const handleChecked = (checkedScene: SCENE) => {
-    setScene(checkedScene);
-    setData((prev) => ({
-      ...prev,
-      prompt: Prompt[checkedScene],
-      welcome: Welcome[checkedScene],
-      voice: Voice[checkedScene],
-      model: Model[checkedScene],
-    }));
-  };
-
-  const handleUseThirdPart = (val: MODEL_MODE) => {
-    setModelMode(val);
-    Config.ModeSourceType = val;
-  };
-
-  const handleUpdateConfig = async () => {
-    dispatch(updateScene({ scene }));
-    Config.ModeSourceType = modelMode;
-    switch (modelMode) {
-      case MODEL_MODE.ORIGINAL:
-        Config.Url = undefined;
-        Config.APIKey = undefined;
-        break;
-      case MODEL_MODE.COZE:
-        if (!data.APIKey) {
-          Message.error('访问令牌必填');
-          return;
-        }
-        if (!data.BotID) {
-          Message.error('智能体 ID 必填');
-          return;
-        }
-        Config.APIKey = data.APIKey;
-        Config.BotID = data.BotID;
-        break;
-      case MODEL_MODE.VENDOR:
-        if (!data.Url) {
-          Message.error('请输入正确的第三方模型地址');
-          return;
-        }
-        if (!data.Url.startsWith('http://') && !data.Url.startsWith('https://')) {
-          Message.error('第三方模型请求地址格式不正确, 请以 http:// 或 https:// 为开头');
-          return;
-        }
-        Config.Url = data.Url;
-        Config.APIKey = data.APIKey;
-        break;
-      default:
-        break;
-    }
-    setLoading(true);
-    Config.Model =
-      modelMode === MODEL_MODE.VENDOR
-        ? (data.customModelName as AI_MODEL)
-        : (data.model as AI_MODEL);
-    Config.Prompt = data.prompt;
-    Config.VoiceType = data.voice;
-    Config.WelcomeSpeech = data.welcome;
-    dispatch(updateModelMode(modelMode));
-    dispatch(updateAIConfig(Config.aigcConfig));
-
-    if (isVisionMode(data.model)) {
-      switch (scene) {
-        case SCENE.SCREEN_READER:
-          /** 关摄像头，打开屏幕采集 */
-          room.isJoined && isVideoPublished && switchCamera();
-          Config.VisionSourceType = StreamIndex.STREAM_INDEX_SCREEN;
-          break;
-        default:
-          /** 关屏幕采集，打开摄像头 */
-          room.isJoined && !isVideoPublished && switchCamera();
-          room.isJoined && isScreenPublished && switchScreenCapture();
-          Config.VisionSourceType = StreamIndex.STREAM_INDEX_MAIN;
-          break;
-      }
-    } else {
-      /** 全关 */
-      room.isJoined && isVideoPublished && switchCamera();
-      room.isJoined && isScreenPublished && switchScreenCapture();
-    }
-
-    if (RtcClient.getAudioBotEnabled()) {
-      dispatch(clearHistoryMsg());
-      await RtcClient.updateAudioBot();
-    }
-
-    setLoading(false);
-    onOk?.();
-  };
-
+  // 监听 activePersona 变化，异步加载 prompt
   useEffect(() => {
-    if (open) {
-      setScene(room.scene);
-    }
-  }, [open]);
-
-  return (
-    <Drawer
-      width={utils.isMobile() ? '100%' : 940}
-      closable={false}
-      maskClosable={false}
-      title={null}
-      className={styles.container}
-      style={{
-        padding: utils.isMobile() ? '0px' : '16px 8px',
-      }}
-      footer={
-        <div className={styles.footer}>
-          <div className={styles.suffix}>AI 配置修改后，退出房间将不再保存该配置方案</div>
-          <Button loading={loading} className={styles.cancel} onClick={onCancel}>
-            取消
-          </Button>
-          <Button loading={loading} className={styles.confirm} onClick={handleUpdateConfig}>
-            确定
-          </Button>
-        </div>
+    const loadPrompt = async () => {
+      const originalPrompt = activePersona.prompt;
+      if (originalPrompt.startsWith('prompt://')) {
+        try {
+          const promptContent = await loadPromptFromFile(originalPrompt);
+          setPrompt(promptContent);
+        } catch (error) {
+          console.error('Failed to load prompt:', error);
+        }
+      } else {
+        setPrompt(activePersona.prompt);
       }
-      visible={open}
-      onCancel={onCancel}
-    >
-      <div className={styles.title}>
-        选择你所需要的
-        <span className={styles['special-text']}> AI 人设</span>
-      </div>
-      <div className={styles['sub-title']}>
-        我们已为您配置好对应人设的基本参数，您也可以根据自己的需求进行自定义设置
-      </div>
-      <div className={utils.isMobile() ? styles['scenes-mobile'] : styles.scenes}>
-        {[...SCENES, null].map((key) =>
-          key ? (
-            <CheckIcon
-              key={key}
-              tag={
-                [SCENE.TEACHING_ASSISTANT, SCENE.SCREEN_READER].includes(key) ? '视觉理解模型' : ''
-              }
-              icon={Icon[key as keyof typeof Icon]}
-              title={Name[key as keyof typeof Name]}
-              checked={key === scene}
-              blur={key !== scene && key === SCENE.CUSTOM}
-              onClick={() => handleChecked(key as SCENE)}
-            />
-          ) : utils.isMobile() ? (
-            <div style={{ width: '100px', height: '100px' }} />
-          ) : null
-        )}
-      </div>
-      <div className={styles.configuration}>
-        {utils.isMobile() ? null : (
-          <div
-            className={styles.anchor}
-            style={{
-              /**
-               * @note 单个场景卡片 100px, 间距 14px;
-               */
-              left: `${SCENES.indexOf(scene) * 100 + 50 + SCENES.indexOf(scene) * 14}px`,
-            }}
-          />
-        )}
+    }
+
+    loadPrompt();
+  }, [activePersona.prompt]);
+
+  // 更新人设数据的通用函数
+  const updatePersona = (updates: Partial<typeof activePersona>) => {
+    setActivePersona({
+      ...activePersona,
+      ...updates,
+      updatedAt: Date.now(),
+    });
+  };
+
+  // 更新 extra 字段的通用函数
+  const updatePersonaExtra = (extraUpdates: Partial<NonNullable<typeof activePersona.extra>>) => {
+    updatePersona({
+      extra: {
+        ...activePersona.extra,
+        ...extraUpdates,
+      },
+    });
+  };
+
+  const getVoiceCategoryData = () => {
+    const categoryData: Record<string, any[]> = {};
+    Object.keys(VOICE_BY_SCENARIO).forEach((category) => {
+      categoryData[category] = VOICE_BY_SCENARIO[category].map((voice) => ({
+        key: voice.value,
+        label: voice.name,
+        description: `${voice.language} - ${voice.name}`,
+        icon: voice.icon || '',
+        category,
+      }));
+    });
+    return categoryData;
+  };
+
+  const renderContent = () => (
+    <div className={embedded ? 'p-0 bg-transparent' : ''}>
+      {/* 人设选择器 */}
+      <PersonaSelector className="mb-6" />
+
+      <div className="mt-4">
         <RadioGroup
           options={[
             {
@@ -251,29 +113,19 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             {
               value: MODEL_MODE.COZE,
               label: (
-                <div className={styles['radio-text']}>
+                <div className="flex items-center">
                   <span style={{ marginRight: '4px' }}>Coze</span>
                   <Tooltip
                     content={
                       <div>
                         访问令牌可参考{' '}
-                        <a
-                          href="https://www.coze.cn/open/docs/developer_guides/pat"
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: 'gray' }}
-                        >
+                        <a href="https://www.coze.cn/open/docs/developer_guides/pat" target="_blank" rel="noreferrer" style={{ color: 'gray' }}>
                           添加个人访问令牌
                         </a>{' '}
                         获取。
                         <br />
                         智能体 ID 可参考{' '}
-                        <a
-                          href="https://www.coze.cn/open/docs/developer_guides/coze_api_overview#c5ac4993"
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: 'gray' }}
-                        >
+                        <a href="https://www.coze.cn/open/docs/developer_guides/coze_api_overview#c5ac4993" target="_blank" rel="noreferrer" style={{ color: 'gray' }}>
                           发送请求
                         </a>{' '}
                         获取。
@@ -290,18 +142,13 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             {
               value: MODEL_MODE.VENDOR,
               label: (
-                <div className={styles['radio-text']}>
+                <div className="flex items-center">
                   <span style={{ marginRight: '4px' }}>第三方模型</span>
                   <Tooltip
                     content={
                       <div>
                         如第三方模型使用失败, 可前往{' '}
-                        <a
-                          href="https://www.volcengine.com/docs/6348/1399966"
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: 'gray' }}
-                        >
+                        <a href="https://www.volcengine.com/docs/6348/1399966" target="_blank" rel="noreferrer" style={{ color: 'gray' }}>
                           第三方模型接口验证工具
                         </a>{' '}
                         下载工具定位原因。
@@ -318,70 +165,63 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
           size="mini"
           type="button"
           defaultValue="Beijing"
-          className={styles['ai-settings-radio']}
-          onChange={handleUseThirdPart}
+          className="mt-4"
+          onChange={(value) => {
+            setModelMode(value);
+          }}
         />
+
         <div
-          className={styles['ai-settings']}
+          className="my-4"
           style={{
             flexWrap: utils.isMobile() ? 'wrap' : 'nowrap',
           }}
         >
           <TitleCard title="音色">
-            <div className={styles['ai-settings-wrapper']}>
-              <CheckBoxSelector
-                label="音色选择"
-                data={Object.keys(VOICE_TYPE).map((type) => {
-                  const info = VOICE_INFO_MAP[VOICE_TYPE[type as keyof typeof VOICE_TYPE]];
-                  return {
-                    key: VOICE_TYPE[type as keyof typeof VOICE_TYPE],
-                    label: type,
-                    icon: info.icon,
-                    description: info.description,
-                  };
-                })}
-                onChange={handleVoiceTypeChanged}
-                value={data.voice}
-                moreIcon={VoiceTypeChangeSVG}
-                moreText="更换音色"
-                placeHolder="请选择你需要的音色"
-              />
-            </div>
+            <CheckBoxSelector
+              label="音色选择"
+              categoryData={getVoiceCategoryData()}
+              categories={VOICE_CATEGORIES}
+              defaultCategory={DEFAULT_VOICE_CATEGORY}
+              onChange={(voiceKey) => {
+                updatePersona({ voice: voiceKey as VoiceName });
+              }}
+              value={activePersona.voice}
+              moreIcon={VoiceTypeChangeSVG}
+              moreText="更换音色"
+              placeHolder="请选择你需要的音色"
+            />
           </TitleCard>
-          <div className={styles['ai-settings-model']}>
+
+          <div className="mt-4">
             {modelMode === MODEL_MODE.ORIGINAL && (
               <TitleCard title="官方模型">
                 <CheckBoxSelector
                   label="模型选择"
                   data={Object.keys(AI_MODEL).map((type) => ({
                     key: AI_MODEL[type as keyof typeof AI_MODEL],
-                    label: type.replaceAll('_', ' '),
-                    icon: DoubaoModelSVG,
+                    label: type,
+                    icon: '',
                   }))}
                   moreIcon={ModelChangeSVG}
                   moreText="更换模型"
-                  placeHolder="请选择你需要的模型"
-                  onChange={(key) => {
-                    setData((prev) => ({
-                      ...prev,
-                      model: key as AI_MODEL,
-                    }));
+                  placeHolder="请选择模型"
+                  onChange={(modelKey) => {
+                    updatePersona({ model: modelKey as AI_MODEL });
                   }}
-                  value={data.model}
+                  value={activePersona.model}
                 />
               </TitleCard>
             )}
+
             {modelMode === MODEL_MODE.VENDOR && (
               <>
                 <TitleCard required title="第三方模型地址">
                   <Input.TextArea
                     autoSize
-                    value={data.Url}
+                    value={activePersona.extra?.url}
                     onChange={(val) => {
-                      setData((prev) => ({
-                        ...prev,
-                        Url: val,
-                      }));
+                      updatePersonaExtra({ url: val });
                     }}
                     placeholder="请输入第三方模型地址"
                   />
@@ -389,12 +229,9 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
                 <TitleCard title="请求密钥">
                   <Input.TextArea
                     autoSize
-                    value={data.APIKey}
+                    value={activePersona.extra?.apiKey}
                     onChange={(val) => {
-                      setData((prev) => ({
-                        ...prev,
-                        APIKey: val,
-                      }));
+                      updatePersonaExtra({ apiKey: val });
                     }}
                     placeholder="请输入请求密钥"
                   />
@@ -402,12 +239,9 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
                 <TitleCard title="模型名称">
                   <Input.TextArea
                     autoSize
-                    value={data.customModelName}
+                    value={activePersona.extra?.modelName}
                     onChange={(val) => {
-                      setData((prev) => ({
-                        ...prev,
-                        customModelName: val,
-                      }));
+                      updatePersonaExtra({ modelName: val });
                     }}
                     placeholder="请输入模型名称"
                   />
@@ -422,12 +256,9 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
                 <TitleCard required title="访问令牌">
                   <Input.TextArea
                     autoSize
-                    value={data.APIKey}
+                    value={activePersona.extra?.apiKey}
                     onChange={(val) => {
-                      setData((prev) => ({
-                        ...prev,
-                        APIKey: val,
-                      }));
+                      updatePersonaExtra({ apiKey: val });
                     }}
                     placeholder="请输入访问令牌"
                   />
@@ -435,12 +266,9 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
                 <TitleCard required title="智能体 ID">
                   <Input.TextArea
                     autoSize
-                    value={data.BotID}
+                    value={activePersona.extra?.botId}
                     onChange={(val) => {
-                      setData((prev) => ({
-                        ...prev,
-                        BotID: val,
-                      }));
+                      updatePersonaExtra({ botId: val });
                     }}
                     placeholder="请输入智能体 ID"
                   />
@@ -449,15 +277,16 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
             )}
           </div>
         </div>
+
         <TitleCard title="系统 Prompt">
           <Input.TextArea
             autoSize
-            value={data.prompt}
+            value={prompt}
             onChange={(val) => {
-              setData((prev) => ({
-                ...prev,
-                prompt: val,
-              }));
+              // 更新本地状态
+              setPrompt(val);
+              // 更新人设的 prompt 字段
+              updatePersona({ prompt: val });
             }}
             placeholder="请输入你需要的 Prompt 设定"
           />
@@ -465,17 +294,337 @@ function AISettings({ open, onCancel, onOk }: IAISettingsProps) {
         <TitleCard title="欢迎语">
           <Input.TextArea
             autoSize
-            value={data.welcome}
+            value={activePersona.welcome}
             onChange={(val) => {
-              setData((prev) => ({
-                ...prev,
-                welcome: val,
-              }));
+              updatePersona({ welcome: val });
             }}
             placeholder="请输入欢迎语"
           />
         </TitleCard>
+
+        {/* 新增语音合成配置区域 */}
+        <div className="mt-4">
+          <div className="text-lg font-semibold leading-7 text-gray-900" style={{ marginTop: '24px', marginBottom: '16px' }}>
+            语音合成参数配置
+          </div>
+
+          <div className="flex flex-row flex-wrap justify-start items-start gap-2">
+            <TitleCard title="音频编码格式">
+              <Select
+                value={activePersona.extra?.encoding}
+                onChange={(val) => {
+                  updatePersonaExtra({ encoding: val });
+                }}
+                options={[
+                  { label: 'MP3', value: 'mp3' },
+                  { label: 'WAV', value: 'wav' },
+                  {
+                    label: 'PCM',
+                    value: 'pcm',
+                  },
+                  { label: 'OGG Opus', value: 'ogg_opus' },
+                ]}
+                placeholder="选择音频编码格式"
+                style={{ width: '100%' }}
+              />
+            </TitleCard>
+
+            <TitleCard title="音频采样率">
+              <Select
+                value={activePersona.extra?.rate?.toString()}
+                onChange={(val) => {
+                  updatePersonaExtra({ rate: Number(val) });
+                }}
+                options={[
+                  { label: '8000 Hz', value: 8000 },
+                  { label: '16000 Hz', value: 16000 },
+                  {
+                    label: '24000 Hz',
+                    value: 24000,
+                  },
+                ]}
+                placeholder="选择采样率"
+                style={{ width: '100%' }}
+              />
+            </TitleCard>
+          </div>
+
+          <div className="flex flex-row flex-wrap justify-start items-start gap-2">
+            <TitleCard title="比特率 (kb/s)">
+              <Input
+                type="number"
+                value={activePersona.extra?.bitRate?.toString()}
+                min={64}
+                max={320}
+                onChange={(val) => {
+                  updatePersonaExtra({ bitRate: Number(val) });
+                }}
+                placeholder="比特率"
+              />
+            </TitleCard>
+
+            <TitleCard title="语速调节">
+              <div>
+                <Slider
+                  value={activePersona.extra?.speedRatio}
+                  min={0.8}
+                  max={2.0}
+                  step={0.1}
+                  onChange={(val) => {
+                    updatePersonaExtra({ speedRatio: Array.isArray(val) ? val[0] : val });
+                  }}
+                  marks={{
+                    0.8: '0.8x',
+                    1.0: '1.0x',
+                    1.2: '1.2x',
+                    1.5: '1.5x',
+                    2.0: '2.0x',
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>当前: {activePersona.extra?.speedRatio}x</div>
+              </div>
+            </TitleCard>
+          </div>
+
+          <div className="flex flex-row flex-wrap justify-start items-start gap-2">
+            <TitleCard title="音量调节">
+              <div>
+                <Slider
+                  value={activePersona.extra?.loudnessRatio}
+                  min={0.5}
+                  max={2.0}
+                  step={0.1}
+                  onChange={(val) => {
+                    updatePersonaExtra({ loudnessRatio: Array.isArray(val) ? val[0] : val });
+                  }}
+                  marks={{
+                    0.5: '0.5x',
+                    1.0: '1.0x',
+                    1.5: '1.5x',
+                    2.0: '2.0x',
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>当前: {activePersona.extra?.loudnessRatio}x</div>
+              </div>
+            </TitleCard>
+
+            <TitleCard title="句尾静音 (ms)">
+              <Input
+                type="number"
+                value={activePersona.extra?.silenceDuration?.toString()}
+                min={0}
+                max={30000}
+                onChange={(val) => {
+                  updatePersonaExtra({ silenceDuration: Number(val) });
+                }}
+                placeholder="句尾静音时长"
+              />
+            </TitleCard>
+          </div>
+
+          <div className="flex flex-row flex-wrap justify-start items-start gap-2">
+            <TitleCard title="语种设置">
+              <Select
+                value={activePersona.extra?.explicitLanguage}
+                onChange={(val) => {
+                  updatePersonaExtra({ explicitLanguage: val });
+                }}
+                options={[
+                  { label: '自动识别', value: '' },
+                  {
+                    label: '中文为主（支持中英混）',
+                    value: 'zh',
+                  },
+                  { label: '仅英文', value: 'en' },
+                  { label: '仅日文', value: 'ja' },
+                  {
+                    label: '仅墨西哥语',
+                    value: 'es-mx',
+                  },
+                  { label: '仅印尼语', value: 'id' },
+                  {
+                    label: '仅巴西葡萄牙语',
+                    value: 'pt-br',
+                  },
+                  { label: '多语种前端', value: 'crosslingual' },
+                ]}
+                placeholder="选择语种"
+                style={{ width: '100%' }}
+              />
+            </TitleCard>
+
+            <TitleCard title="参考语种">
+              <Select
+                value={activePersona.extra?.contextLanguage}
+                onChange={(val) => {
+                  updatePersonaExtra({ contextLanguage: val });
+                }}
+                options={[
+                  { label: '默认', value: '' },
+                  { label: '印尼语', value: 'id' },
+                  {
+                    label: '墨西哥语',
+                    value: 'es',
+                  },
+                  { label: '巴西葡萄牙语', value: 'pt' },
+                ]}
+                placeholder="选择参考语种"
+                style={{ width: '100%' }}
+              />
+            </TitleCard>
+          </div>
+
+          <TitleCard title="情感设置">
+            <div className="mt-2">
+              <div className="flex items-center">
+                <Switch
+                  checked={activePersona.extra?.enableEmotion}
+                  onChange={(checked) => {
+                    updatePersonaExtra({ enableEmotion: checked });
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用音色情感</span>
+              </div>
+
+              {activePersona.extra?.enableEmotion && (
+                <>
+                  <div style={{ marginTop: '12px' }}>
+                    <Input
+                      value={activePersona.extra.emotion}
+                      onChange={(val) => {
+                        updatePersonaExtra({ emotion: val });
+                      }}
+                      placeholder="输入情感类型，如: happy, sad, angry, excited"
+                    />
+                  </div>
+
+                  <div style={{ marginTop: '16px' }}>
+                    <div style={{ marginBottom: '8px' }}>情绪强度 (1-5): {activePersona.extra.emotionScale}</div>
+                    <Slider
+                      value={activePersona.extra?.emotionScale}
+                      min={1}
+                      max={5}
+                      step={1}
+                      onChange={(val) => {
+                        updatePersonaExtra({ emotionScale: Array.isArray(val) ? val[0] : val });
+                      }}
+                      marks={{
+                        1: '1',
+                        2: '2',
+                        3: '3',
+                        4: '4',
+                        5: '5',
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </TitleCard>
+
+          <TitleCard title="高级选项">
+            <div className="mt-2">
+              <div className="flex items-center">
+                <Switch
+                  checked={activePersona.extra?.advanced?.withTimestamp}
+                  onChange={(checked) => {
+                    updatePersonaExtra({
+                      advanced: {
+                        ...activePersona.extra?.advanced,
+                        withTimestamp: checked
+                      }
+                    });
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用时间戳</span>
+              </div>
+
+              <div className="flex items-center">
+                <Switch
+                  checked={activePersona.extra?.advanced?.disableMarkdownFilter}
+                  onChange={(checked) => {
+                    updatePersonaExtra({
+                      advanced: {
+                        ...activePersona.extra?.advanced,
+                        disableMarkdownFilter: checked
+                      }
+                    });
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用 Markdown 解析过滤</span>
+              </div>
+
+              <div className="flex items-center">
+                <Switch
+                  checked={activePersona.extra?.advanced?.enableLatexTn}
+                  onChange={(checked) => {
+                    updatePersonaExtra({
+                      advanced: {
+                        ...activePersona.extra?.advanced,
+                        enableLatexTn: checked
+                      }
+                    });
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用 LaTeX 公式播报</span>
+              </div>
+
+              <div className="flex items-center">
+                <Switch
+                  checked={activePersona.extra?.advanced?.enableCache}
+                  onChange={(checked) => {
+                    updatePersonaExtra({
+                      advanced: {
+                        ...activePersona.extra?.advanced,
+                        enableCache: checked
+                      }
+                    });
+                  }}
+                />
+                <span style={{ marginLeft: '8px' }}>启用缓存加速</span>
+              </div>
+            </div>
+          </TitleCard>
+        </div>
       </div>
+    </div>
+  );
+
+  if (embedded) {
+    return renderContent();
+  }
+
+  return (
+    <Drawer
+      width={utils.isMobile() ? '100%' : 940}
+      closable={false}
+      maskClosable={false}
+      title={null}
+      className="p-4"
+      style={{
+        padding: utils.isMobile() ? '0px' : '16px 8px',
+      }}
+      footer={
+        <div className="flex flex-row justify-end items-center gap-2">
+          <div className="text-xs font-normal leading-5 text-gray-500">AI 配置修改后，退出房间将不再保存该配置方案</div>
+          <Button loading={loading} className="bg-gray-200 hover:bg-gray-300" onClick={onCancel}>
+            取消
+          </Button>
+          <Button
+            loading={loading}
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => {
+              // todo: implement handler
+            }}
+          >
+            确定
+          </Button>
+        </div>
+      }
+      visible={open}
+      onCancel={onCancel}
+    >
+      {renderContent()}
     </Drawer>
   );
 }

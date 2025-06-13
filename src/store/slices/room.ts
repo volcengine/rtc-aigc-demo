@@ -10,7 +10,9 @@ import {
   NetworkQuality,
   RemoteAudioStats,
 } from '@volcengine/rtc';
-import config, { MODEL_MODE, SCENE } from '@/config';
+import { MODEL_MODE, SCENE } from '@/config';
+import theConfig from '@/config/the-config';
+import { touchDesignerBridge } from '@/lib/TouchDesignerBridge';
 
 export interface IUser {
   username?: string;
@@ -119,7 +121,7 @@ const initialState: RoomState = {
   isUserTalking: false,
   networkQuality: NetworkQuality.UNKNOWN,
 
-  aiConfig: config.aigcConfig,
+  aiConfig: theConfig.aigcConfig,
   modelMode: MODEL_MODE.ORIGINAL,
 
   msgHistory: [],
@@ -222,10 +224,26 @@ export const roomSlice = createSlice({
       state.isAIThinking = false;
       state.isUserTalking = false;
       state.isAITalking = payload.isAITalking;
+
+      // TouchDesigner 状态回调
+      try {
+        const status = payload.isAITalking ? 'speaking' : 'listening';
+        touchDesignerBridge.sendStatusUpdate(status);
+      } catch (error) {
+        console.warn('TouchDesigner 状态更新失败:', error);
+      }
     },
     updateAIThinkState: (state, { payload }) => {
       state.isAIThinking = payload.isAIThinking;
       state.isUserTalking = false;
+
+      // TouchDesigner 状态回调
+      try {
+        const status = payload.isAIThinking ? 'thinking' : 'idle';
+        touchDesignerBridge.sendStatusUpdate(status);
+      } catch (error) {
+        console.warn('TouchDesigner 状态更新失败:', error);
+      }
     },
     updateAIConfig: (state, { payload }) => {
       state.aiConfig = Object.assign(state.aiConfig, payload);
@@ -240,7 +258,7 @@ export const roomSlice = createSlice({
       const { paragraph, definite } = payload;
       const lastMsg = state.msgHistory.at(-1)! || {};
       /** 是否需要再创建新句子 */
-      const fromBot = payload.user === config.BotName;
+      const fromBot = payload.user === theConfig.BotName;
       /**
        * Bot 的语句以 definite 判断是否需要追加新内容
        * User 的语句以 paragraph 判断是否需要追加新内容
@@ -273,6 +291,26 @@ export const roomSlice = createSlice({
           user: payload.user,
           paragraph,
         });
+      }
+
+      // TouchDesigner 回调：发送消息到 TouchDesigner
+      try {
+        if (fromBot) {
+          // AI 消息
+          touchDesignerBridge.sendAIMessage(payload.text, payload.user, {
+            definite,
+            paragraph,
+            isInterrupted: payload.isInterrupted || false
+          });
+        } else {
+          // 用户消息
+          touchDesignerBridge.sendUserMessage(payload.text, payload.user, {
+            definite,
+            paragraph
+          });
+        }
+      } catch (error) {
+        console.warn('TouchDesigner 消息发送失败:', error);
       }
     },
     setInterruptMsg: (state) => {

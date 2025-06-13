@@ -4,48 +4,32 @@
  */
 
 import { StreamIndex } from '@volcengine/rtc';
-import {
-  TTS_CLUSTER,
-  ARK_V3_MODEL_ID,
-  MODEL_MODE,
-  SCENE,
-  Prompt,
-  Welcome,
-  Model,
-  Voice,
-  AI_MODEL,
-  AI_MODE_MAP,
-  AI_MODEL_MODE,
-  LLM_BOT_ID,
-  isVisionMode,
-} from '.';
+import { TTS_CLUSTER, ARK_V3_MODEL_ID, MODEL_MODE, SCENE, AI_MODEL, AI_MODEL_MODE, LLM_BOT_ID, VoiceName, isVisionMode, AI_MODE_MAP } from './common';
+import { getWelcomeByScene, getModelByScene, getVoiceByScene } from './personas';
 
 export const CONVERSATION_SIGNATURE = 'conversation';
 
 /**
  * @brief RTC & AIGC 配置。
  * @notes 更多参数请参考
- *        https://www.volcengine.com/docs/6348/1404673?s=g
+ *        https://www.volcengine.com/docs/6348/1404671?s=g
  */
 export class ConfigFactory {
   BaseConfig = {
     /**
      * @note 必填, RTC AppId 可于 https://console.volcengine.com/rtc/listRTC?s=g 中获取。
      */
-    AppId: 'Your RTC AppId',
+    AppId: process.env.REACT_APP_DOUBAO_RTC_APP_ID!,
     /**
      * @brief 非必填, 按需填充。
-     */
-    BusinessId: undefined,
+     */ BusinessId: undefined,
     /**
      * @brief 必填, 房间 ID, 自定义即可，例如 "Room123"。
      * @note 建议使用有特定规则、不重复的房间号名称。
-     */
-    RoomId: 'Room123',
+     */ RoomId: process.env.REACT_APP_DOUBAO_RTC_ROOM_ID!,
     /**
      * @brief 必填, 当前和 AI 对话的用户的 ID, 自定义即可，例如 "User123"。
-     */
-    UserId: 'User123',
+     */ UserId: process.env.REACT_APP_DOUBAO_RTC_USER_ID!,
     /**
      * @brief 必填, RTC Token, 由 AppId、RoomId、UserId、时间戳等等信息计算得出。
      *        测试跑通时，可于 https://console.volcengine.com/rtc/listRTC?s=g 列表中，
@@ -53,53 +37,48 @@ export class ConfigFactory {
      *        正式使用时可参考 https://www.volcengine.com/docs/6348/70121?s=g 通过代码生成 Token。
      *        建议先使用临时 Token 尝试跑通。
      * @note 生成临时 Token 时, 页面上的 RoomId / UserId 填的与此处的 RoomId / UserId 保持一致。
-     */
-    Token: 'Your RTC Token',
+     */ Token: process.env.REACT_APP_DOUBAO_RTC_TOKEN!,
     /**
      * @brief 必填, TTS(语音合成) AppId, 可于 https://console.volcengine.com/speech/app?s=g 中获取, 若无可先创建应用。
      * @note 创建应用时, 需要选择 "语音合成" 服务, 并选择对应的 App 进行绑定。
-     */
-    TTSAppId: 'Your TTS AppId',
+     */ TTSAppId: process.env.REACT_APP_DOUBAO_TTS_APP_ID!,
     /**
      * @brief 已开通需要的语音合成服务的token。
      *        使用火山引擎双向流式语音合成服务时 必填。
-     * 
+     *
      * @note  注意! 如您使用的是双向流式语音合成服务, 务必修改 `src/config/common.ts` 中的 VOICE_TYPE enum，将默认的 通用女声、通用男声 替换为您已开通的大模型音色。
      *        否则可能出现无法使用的情况。
-     */
-    TTSToken: undefined,
+     */ TTSToken: process.env.REACT_APP_DOUBAO_TTS_APP_ACCESS_TOKEN!,
     /**
      * @brief 必填, ASR(语音识别) AppId, 可于 https://console.volcengine.com/speech/app?s=g 中获取, 若无可先创建应用。
      * @note 创建应用时, 需要按需根据语言选择 "流式语音识别" 服务, 并选择对应的 App 进行绑定。
-     */
-    ASRAppId: 'Your ASR AppId',
+     */ ASRAppId: process.env.REACT_APP_DOUBAO_ASR_APP_ID!,
     /**
      * @brief 已开通流式语音识别大模型服务 AppId 对应的 Access Token。
      * @note 使用流式语音识别 **大模型** 服务时必填, 可于 https://console.volcengine.com/speech/service/10011?AppID=6482372612&s=g 中查看。
      * 注意, 如果填写了 ASRToken, Demo 会默认使用大模型模式，请留意相关资源是否已经开通。
      * 默认为使用小模型，无需配置 ASRToken。
-     */
-    ASRToken: undefined,
+     */ ASRToken: process.env.REACT_APP_DOUBAO_ASR_APP_ACCESS_TOKEN!,
   };
 
-  Model: AI_MODEL = Model[SCENE.INTELLIGENT_ASSISTANT];
+  Model: AI_MODEL = getModelByScene(SCENE.INTELLIGENT_ASSISTANT);
 
   /**
    * @note 必填, 音色 ID, 可具体看定义。
    *       音色 ID 获取方式可查看 VOICE_TYPE 定义
    *       此处已有默认值, 不影响跑通, 可按需修改。
    */
-  VoiceType = Voice[SCENE.INTELLIGENT_ASSISTANT];
+  VoiceType: VoiceName = getVoiceByScene(SCENE.INTELLIGENT_ASSISTANT);
 
   /**
    * @note 大模型 System 角色预设指令, 可用于控制模型输出, 类似 Prompt 的概念。
    */
-  Prompt = Prompt[SCENE.INTELLIGENT_ASSISTANT];
+  Prompt = '';
 
   /**
    * @note 智能体启动后的欢迎词。
    */
-  WelcomeSpeech = Welcome[SCENE.INTELLIGENT_ASSISTANT];
+  WelcomeSpeech = getWelcomeByScene(SCENE.INTELLIGENT_ASSISTANT);
 
   /**
    * @note 当前使用的模型来源, 具体可参考 MODEL_MODE 定义。
@@ -127,6 +106,27 @@ export class ConfigFactory {
    * @note Coze 智能体 ID，可通过 UI 配置，也可以在此直接定义。
    */
   BotID = '';
+
+  /**
+   * @brief 语音合成高级配置参数
+   */
+  VoiceSynthesisConfig = {
+    encoding: 'mp3',
+    speedRatio: 1.0,
+    rate: 24000,
+    bitrate: 160,
+    loudnessRatio: 1.0,
+    emotion: '',
+    enableEmotion: false,
+    emotionScale: 4,
+    explicitLanguage: '',
+    contextLanguage: '',
+    withTimestamp: false,
+    disableMarkdownFilter: false,
+    enableLatexTn: false,
+    silenceDuration: 0,
+    enableCache: false,
+  };
 
   /**
    * @brief 是否为打断模式
@@ -162,7 +162,7 @@ export class ConfigFactory {
     if (LLM_BOT_ID[this.Model]) {
       /**
        * @note 如果您配置了方舟智能体, 并且开启了 Function Call 能力, 需要传入 Tools 字段, 描述函数相关信息。
-       *       相关配置可查看 https://www.volcengine.com/docs/6348/1404673?s=g#llmconfig%EF%BC%88%E7%81%AB%E5%B1%B1%E6%96%B9%E8%88%9F%E5%B9%B3%E5%8F%B0%EF%BC%89
+       *       相关配置可查看 https://www.volcengine.com/docs/6348/1404673#llmconfig%EF%BC%88%E7%81%AB%E5%B1%B1%E6%96%B9%E8%88%9F%E5%B9%B3%E5%8F%B0%EF%BC%89
        *       对应的调用定义于 src/utils/handler.ts 文件中, 可参考对应逻辑。
        */
       params.Tools = [
@@ -202,7 +202,7 @@ export class ConfigFactory {
     }
     if (this.ModeSourceType === MODEL_MODE.COZE) {
       /**
-       * @note Coze 智能体配置的相关参数, 可参考: https://www.volcengine.com/docs/6348/1404673?s=g#llmconfig%EF%BC%88coze%E5%B9%B3%E5%8F%B0%EF%BC%89
+       * @note Coze 智能体配置的相关参数, 可参考: https://www.volcengine.com/docs/6348/1404673#llmconfig%EF%BC%88coze%E5%B9%B3%E5%8F%B0%EF%BC%89
        */
       return {
         Mode: 'CozeBot',
@@ -220,6 +220,71 @@ export class ConfigFactory {
     return params;
   }
 
+  get TTSConfig() {
+    const params: Record<string, any> = {
+      Provider: 'volcano',
+      ProviderParams: {
+        app: {
+          AppId: this.BaseConfig.TTSAppId,
+          Cluster: TTS_CLUSTER.TTS,
+        },
+        audio: {
+          voice_type: this.VoiceType,
+          speed_ratio: this.VoiceSynthesisConfig.speedRatio,
+          encoding: this.VoiceSynthesisConfig.encoding,
+          rate: this.VoiceSynthesisConfig.rate,
+          bitrate: this.VoiceSynthesisConfig.bitrate,
+          loudness_ratio: this.VoiceSynthesisConfig.loudnessRatio,
+          explicit_language: this.VoiceSynthesisConfig.explicitLanguage,
+          context_language: this.VoiceSynthesisConfig.contextLanguage,
+        },
+        request: {
+          operation: 'submit',
+        },
+      },
+      IgnoreBracketText: [1, 2, 3, 4, 5],
+    };
+
+    // 添加情感配置
+    if (this.VoiceSynthesisConfig.enableEmotion && this.VoiceSynthesisConfig.emotion) {
+      params.ProviderParams.audio.emotion = this.VoiceSynthesisConfig.emotion;
+      params.ProviderParams.audio.emotion_scale = this.VoiceSynthesisConfig.emotionScale;
+    }
+
+    // 添加高级配置参数
+    const extraParam: Record<string, any> = {};
+
+    if (this.VoiceSynthesisConfig.withTimestamp) {
+      extraParam.with_timestamp = this.VoiceSynthesisConfig.withTimestamp;
+    }
+
+    if (this.VoiceSynthesisConfig.disableMarkdownFilter) {
+      extraParam.disable_markdown_filter = this.VoiceSynthesisConfig.disableMarkdownFilter;
+    }
+
+    if (this.VoiceSynthesisConfig.enableLatexTn) {
+      extraParam.enable_latex_tn = this.VoiceSynthesisConfig.enableLatexTn;
+    }
+
+    if (this.VoiceSynthesisConfig.silenceDuration > 0) {
+      extraParam.silence_duration = this.VoiceSynthesisConfig.silenceDuration;
+    }
+
+    if (this.VoiceSynthesisConfig.enableCache) {
+      extraParam.enable_cache = this.VoiceSynthesisConfig.enableCache;
+    }
+
+    // 如果有高级参数，添加到 extra_param 字段
+    if (Object.keys(extraParam).length > 0) {
+      params.ProviderParams.extra_param = JSON.stringify(extraParam);
+    }
+
+    if (this.BaseConfig.TTSToken) {
+      params.ProviderParams.app.Token = this.BaseConfig.TTSToken;
+    }
+    return params;
+  }
+
   get ASRConfig() {
     /**
      * @brief SmallModelASRConfigs 为小模型的配置
@@ -233,13 +298,11 @@ export class ConfigFactory {
         /**
          * @note 具体流式语音识别服务对应的 Cluster ID，可在流式语音服务控制台开通对应服务后查询。
          *       具体链接为: https://console.volcengine.com/speech/service/16?s=g
-         */
-        Cluster: 'volcengine_streaming_common',
+         */ Cluster: 'volcengine_streaming_common',
       },
       /**
        * @note 小模型情况下, 建议使用 VAD 及音量采集设置, 以优化识别效果。
-       */
-      VADConfig: {
+       */ VADConfig: {
         SilenceTime: 600,
         SilenceThreshold: 200,
       },
@@ -259,27 +322,6 @@ export class ConfigFactory {
       },
     };
     return this.BaseConfig.ASRToken ? BigModelASRConfigs : SmallModelASRConfigs;
-  }
-
-  get TTSConfig() {
-    const params: Record<string, any> = {
-      Provider: 'volcano',
-      ProviderParams: {
-        app: {
-          AppId: this.BaseConfig.TTSAppId,
-          Cluster: TTS_CLUSTER.TTS,
-        },
-        audio: {
-          voice_type: this.VoiceType,
-          speed_ratio: 1.0,
-        },
-      },
-      IgnoreBracketText: [1, 2, 3, 4, 5],
-    };
-    if (this.BaseConfig.TTSToken) {
-      params.ProviderParams.app.Token = this.BaseConfig.TTSToken;
-    }
-    return params;
   }
 
   get aigcConfig() {

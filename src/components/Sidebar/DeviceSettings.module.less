@@ -1,0 +1,57 @@
+/**
+ * Copyright 2025 Beijing Volcano Engine Technology Co., Ltd. All Rights Reserved.
+ * SPDX-license-identifier: BSD-3-Clause
+ */
+
+.deviceSettings {
+  .deviceGroup {
+    margin-bottom: 16px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .deviceTitle {
+      font-size: 13px;
+      color: #1d2129;
+      font-weight: 500;
+      margin-bottom: 12px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e5e6eb;
+    }
+
+    .deviceItem {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .label {
+        font-size: 12px;
+        color: #4e5969;
+        margin-bottom: 4px;
+      }
+
+      :global(.arco-switch) {
+        align-self: flex-start;
+      }
+
+      :global(.arco-select) {
+        font-size: 12px;
+      }
+
+      :global(.arco-select-view) {
+        border-radius: 4px;
+        border-color: #e5e6eb;
+      }
+
+      :global(.arco-select-option) {
+        font-size: 12px;
+      }
+    }
+  }
+}

@@ -16,7 +16,7 @@ function Room() {
   return (
     <div className={`${style.wrapper} ${utils.isMobile() ? style.mobile : ''}`}>
       <AvatarCard avatar={DoubaoAvatar} className={style.avatar} />
-      {utils.isMobile() ? null : <CameraArea />}
+      {/* {utils.isMobile() ? null : <CameraArea />} */}
       <Conversation className={style.conversation} />
       <ToolBar className={style.toolBar} />
       <AudioController className={style.controller} />

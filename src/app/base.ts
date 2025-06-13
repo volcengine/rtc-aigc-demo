@@ -4,7 +4,8 @@
  */
 
 import { Modal } from '@arco-design/web-react';
-import { AIGC_PROXY_HOST } from '@/config';
+
+import { AIGC_PROXY_HOST } from '@/config/const';
 
 type Headers = Record<string, string>;
 

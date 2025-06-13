@@ -244,6 +244,7 @@ const useRtcListeners = (): IEventListener => {
   };
 
   const handleRoomBinaryMessageReceived = (event: { userId: string; message: ArrayBuffer }) => {
+    console.log('📡 [DEBUG] 收到二进制消息:', event.userId, event.message.byteLength, 'bytes');
     const { message } = event;
     parser(message);
   };

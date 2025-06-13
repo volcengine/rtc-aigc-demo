@@ -31,24 +31,13 @@
     "afterEach": false,
     "beforeEach": false
   },
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "@typescript-eslint/no-unused-vars": [2, { "args": "none" }],
-        "@typescript-eslint/no-use-before-define": [2, { "functions": false, "classes": false }]
-      }
-    }
-  ],
   "rules": {
-    "prettier/prettier": ["warn", { "trailingComma": "es5", "printWidth": 100 }],
     "linebreak-style": "off",
     "no-console": ["warn", { "allow": ["warn", "error", "log"] }],
     "no-case-declarations": 0,
     "no-param-reassign": 0,
     "no-underscore-dangle": 0,
     "no-useless-constructor": 0,
-    "no-unused-vars": [2, { "vars": "all", "args": "none" }],
     "no-restricted-syntax": 0,
     "no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true }],
     "no-plusplus": 0,
@@ -127,6 +116,17 @@
     "prefer-spread": 0,
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "no-undef": 0
+    "no-undef": 0,
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "react/jsx-curly-brace-presence": "off",
+    "react/function-component-definition": "off",
+    "react/no-unescaped-entities": "off",
+    "react/jsx-boolean-value": "off",
+    "no-unsafe-optional-chaining": "off",
+    "import/order": "warn",
+    "no-sparse-arrays": 0,
+    "prettier/prettier": 0,
+    "react/self-closing-comp": 0
   }
 }

@@ -27,9 +27,10 @@ import VERTC, {
 import RTCAIAnsExtension from '@volcengine/rtc/extension-ainr';
 import { Message } from '@arco-design/web-react';
 import openAPIs from '@/app/api';
-import aigcConfig from '@/config';
 import Utils from '@/utils/utils';
 import { COMMAND, INTERRUPT_PRIORITY } from '@/utils/handler';
+import aigcConfig from '@/config/the-config';
+import logger from '@/utils/logger';
 
 export interface IEventListener {
   handleError: (e: { errorCode: any }) => void;
@@ -102,8 +103,9 @@ export class RTCClient {
       const AIAnsExtension = new RTCAIAnsExtension();
       await this.engine.registerExtension(AIAnsExtension);
       AIAnsExtension.enable();
+      logger.log('AI 降噪已启用');
     } catch (error) {
-      console.warn(
+      logger.warn(
         `当前环境不支持 AI 降噪, 此错误可忽略, 不影响实际使用, e: ${(error as any).message}`
       );
     }
@@ -260,7 +262,14 @@ export class RTCClient {
   };
 
   startAudioCapture = async (mic?: string) => {
-    await this.engine.startAudioCapture(mic || this._audioCaptureDevice);
+    console.log('🎤 [DEBUG] startAudioCapture 开始, mic:', mic);
+    try {
+      await this.engine.startAudioCapture(mic || this._audioCaptureDevice);
+      console.log('🎤 [DEBUG] startAudioCapture 成功');
+    } catch (error) {
+      console.error('🎤 [ERROR] startAudioCapture 失败:', error);
+      throw error;
+    }
   };
 
   stopAudioCapture = async () => {
@@ -350,12 +359,21 @@ export class RTCClient {
    * @brief 启用 AIGC
    */
   startAudioBot = async () => {
+    console.log('🤖 [DEBUG] startAudioBot 开始');
     const roomId = this.basicInfo.room_id;
     const userId = this.basicInfo.user_id;
     if (this.audioBotEnabled) {
+      console.log('🤖 [DEBUG] 音频机器人已启用，先停止');
       await this.stopAudioBot();
     }
     const agentConfig = aigcConfig.aigcConfig.AgentConfig;
+
+    // 🔍 添加调试日志，查看当前的配置
+    console.log('🔍 [DEBUG] 当前 aigcConfig:', aigcConfig);
+    
+    // 特别检查 TTS 配置
+    const ttsConfig = aigcConfig.aigcConfig.Config.TTSConfig;
+    console.log('🔍 [DEBUG] 当前 TTSConfig:', ttsConfig);
 
     const options = {
       AppId: aigcConfig.BaseConfig.AppId,
@@ -368,10 +386,18 @@ export class RTCClient {
       },
       Config: aigcConfig.aigcConfig.Config,
     };
-    await openAPIs.StartVoiceChat(options);
-    this.audioBotEnabled = true;
-    this.audioBotStartTime = Date.now();
-    Utils.setSessionInfo({ audioBotEnabled: 'enable' });
+    console.log('🤖 [DEBUG] 发送StartVoiceChat请求:', options);
+    try {
+      const result = await openAPIs.StartVoiceChat(options);
+      console.log('🤖 [DEBUG] StartVoiceChat响应:', result);
+      this.audioBotEnabled = true;
+      this.audioBotStartTime = Date.now();
+      Utils.setSessionInfo({ audioBotEnabled: 'enable' });
+      console.log('🤖 [DEBUG] startAudioBot 完成');
+    } catch (error) {
+      console.error('🤖 [ERROR] StartVoiceChat失败:', error);
+      throw error;
+    }
   };
 
   /**

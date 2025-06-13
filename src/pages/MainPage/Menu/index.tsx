@@ -11,7 +11,7 @@ import { useVisionMode } from '@/lib/useCommon';
 import { RootState } from '@/store';
 import RtcClient from '@/lib/RtcClient';
 import Operation from './components/Operation';
-import { Questions } from '@/config';
+import { getQuestionsByScene } from '@/config/personas';
 import { COMMAND, INTERRUPT_PRIORITY } from '@/utils/handler';
 import CameraArea from '../MainArea/Room/CameraArea';
 import { setHistoryMsg, setInterruptMsg } from '@/store/slices/room';
@@ -45,7 +45,7 @@ function Menu() {
       );
       setQuestion('');
     }
-  }, [question, room.isAITalking]);
+  }, [question, room.isAITalking, dispatch]);
 
   return (
     <div className={styles.wrapper}>
@@ -79,7 +79,7 @@ function Menu() {
       {isJoined ? (
         <div className={`${styles.box} ${styles.questions}`}>
           <div className={styles.title}>点击下述问题进行提问:</div>
-          {Questions[scene].map((question) => (
+          {getQuestionsByScene(scene).map((question: string) => (
             <div onClick={() => handleQuestion(question)} className={styles.line} key={question}>
               {question}
             </div>

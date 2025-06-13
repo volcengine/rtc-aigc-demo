@@ -5,10 +5,10 @@
 
 import AvatarCard from '@/components/AvatarCard';
 import Utils from '@/utils/utils';
-import aigcConfig from '@/config';
 import InvokeButton from '@/pages/MainPage/MainArea/Antechamber/InvokeButton';
 import { useJoin } from '@/lib/useCommon';
 import style from './index.module.less';
+import aigcConfig from '@/config/the-config';
 
 function Antechamber() {
   const [joining, dispatchJoin] = useJoin();

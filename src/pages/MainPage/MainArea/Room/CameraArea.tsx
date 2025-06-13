@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { RootState } from '@/store';
 import { useDeviceState, useVisionMode } from '@/lib/useCommon';
 import RtcClient from '@/lib/RtcClient';
-import { ScreenShareScene } from '@/config';
+import { getScreenShareScenes } from '@/config/personas';
 
 import styles from './index.module.less';
 import CameraCloseNoteSVG from '@/assets/img/CameraCloseNote.svg';
@@ -21,7 +21,7 @@ function CameraArea(props: React.HTMLAttributes<HTMLDivElement>) {
   const { className, ...rest } = props;
   const room = useSelector((state: RootState) => state.room);
   const { isVisionMode } = useVisionMode();
-  const isScreenMode = ScreenShareScene.includes(room.scene);
+  const isScreenMode = getScreenShareScenes().includes(room.scene);
   const { isVideoPublished, isScreenPublished, switchCamera, switchScreenCapture } =
     useDeviceState();
 
