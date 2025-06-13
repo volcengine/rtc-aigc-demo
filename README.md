@@ -3,7 +3,7 @@
 > 基于火山引擎官方 RTC-AIGC Demo 的深度工程优化版本，专注架构重构、稳定性与开发体验全面提升
 
 [![Fork from](https://img.shields.io/badge/Fork%20from-volcengine%2Frtc--aigc--demo-blue.svg)](https://github.com/volcengine/rtc-aigc-demo)
-[![Version](https://img.shields.io/badge/Version-1.6.1-green.svg)](package.json)
+[![Version](https://img.shields.io/badge/Version-1.6.2-green.svg)](package.json)
 
 ## 🚀 核心优化成果
 
@@ -111,7 +111,8 @@ export const ARK_V3_MODEL_ID = 'ep-20250602151409-vg5w4';
 
 ## 【必看】环境准备
 - **Node 版本: 16.0+**
-1. 需要准备两个 Terminal，分别启动服务端、前端页面。
+- **包管理器**: 推荐使用 pnpm，也支持 npm 或 yarn
+1. 推荐使用并发启动（`pnpm dev`），也可以分别启动服务端、前端页面。
 2. 开通 ASR、TTS、LLM、RTC 等服务，可参考 [开通服务](https://www.volcengine.com/docs/6348/1315561?s=g) 进行相关服务的授权与开通。
 3. **根据你自定义的 
 RoomId、UserId 以及申请的 AppID、BusinessID(如有)、Token、ASR AppID、TTS AppID，修改 `src/config/config.ts` 文件中 `ConfigFactory` 中 `BaseConfig` 的配置信息**。
@@ -124,32 +125,40 @@ RoomId、UserId 以及申请的 AppID、BusinessID(如有)、Token、ASR AppID�
 
 ### 🔥 一键启动脚本 (推荐)
 ```bash
-# 在项目根目录执行
-npm run start:all
+# 使用 npm
+npm run dev
+
+# 使用 pnpm (推荐)
+pnpm dev
+
+# 或使用 yarn
+yarn dev
 ```
 
 ### 手动启动
-#### 服务端
-进到项目根目录
-**安装依赖**
-```shell
+#### 方式一：分别启动
+
+**1. 启动服务端**
+```bash
 cd Server
-yarn
-```
-**运行项目**
-```shell
+# 安装依赖
+pnpm install  # 或 npm install / yarn
+# 启动服务
 node app.js
 ```
 
-#### 前端页面
-进到项目根目录
-**安装依赖**
-```shell
-yarn
+**2. 启动前端 (新开终端)**
+```bash
+# 回到项目根目录，安装依赖
+pnpm install  # 或 npm install / yarn
+# 启动前端
+pnpm dev      # 或 npm run dev / yarn dev
 ```
-**运行项目**
-```shell
-yarn dev
+
+#### 方式二：并发启动
+```bash
+# 同时启动前端和后端
+pnpm dev      # 或 npm run dev / yarn dev
 ```
 
 ## 🔍 配置验证
@@ -194,6 +203,12 @@ yarn dev
 参考 [OpenAPI 更新](https://www.volcengine.com/docs/6348/116363?s=g) 中与 实时对话式 AI 相关的更新内容。
 
 ### Demo 更新
+
+#### [1.6.2]
+- 2025-06-13
+    - 优化 README 文档，突出工程优化成果
+    - 更新包管理器支持，推荐使用 pnpm
+    - 改进启动脚本说明和配置指南
 
 #### [1.6.0]
 - 2025-05-28
