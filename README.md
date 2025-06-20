@@ -62,7 +62,7 @@ yarn dev
 ## 更新日志
 
 ### OpenAPI 更新
-参考 [OpenAPI 更新](https://www.volcengine.com/docs/6348/116363?s=g) 中与 实时对话式 AI 相关的更新内容。
+参考 [OpenAPI 更新](https://www.volcengine.com/docs/6348/1544162) 中与 实时对话式 AI 相关的更新内容。
 
 ### Demo 更新
 
