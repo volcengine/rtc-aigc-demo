@@ -4,15 +4,15 @@
     "name": "自定义助手"
   },
   "AccountConfig": {
-    "accessKeyId": "",
-    "secretKey": ""
+    "accessKeyId": "AKLTZjIxMjFiODNlNGQ1NDY0YTgxN2IwMTUzZjVhNGEwODE",
+    "secretKey": "T1dabE5UTmhOakk0WmpabU5HWTJNV0k1WW1NME5qVmpZVFkwTkRoaFpXWQ=="
   },
   "RTCConfig": {
-    "AppId": "",
+    "AppId": "686e1667b72a6f01d5fa9497",
     "AppKey": "",
-    "RoomId": "",
-    "UserId": "",
-    "Token": ""
+    "RoomId": "ChatRoom01",
+    "UserId": "Huoshan01",
+    "Token": "001686e1667b72a6f01d5fa9497SQATEJUB1mxzaFanfGgKAENoYXRSb29tMDEJAEh1b3NoYW4wMQYAAABWp3xoAQBWp3xoAgBWp3xoAwBWp3xoBABWp3xoBQBWp3xoIABhKVIdXcNcnpfLM9+7gOoUiNyyWECigpnp6wt3wY6Cnw=="
   },
   "VoiceChat": {
     "AppId": "",
