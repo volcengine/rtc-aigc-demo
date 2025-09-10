@@ -115,7 +115,7 @@ app.use(async ctx => {
         SceneConfig.botName = VoiceChat?.AgentConfig?.UserId;
         SceneConfig.isInterruptMode = VoiceChat?.Config?.InterruptMode === 0;
         SceneConfig.isVision = VoiceChat?.Config?.LLMConfig?.VisionConfig?.Enable;
-        SceneConfig.isScreenMode = VoiceChat?.Config?.LLMConfig?.VisionConfig?.SnapshoutConfig?.StreamType === 1;
+        SceneConfig.isScreenMode = VoiceChat?.Config?.LLMConfig?.VisionConfig?.SnapshotConfig?.StreamType === 1;
         delete RTCConfig.AppKey;
         return {
           scene: SceneConfig || {},
