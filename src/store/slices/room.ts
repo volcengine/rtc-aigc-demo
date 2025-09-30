@@ -45,6 +45,8 @@ export interface SceneConfig {
   isVision: boolean;
   isScreenMode: boolean;
   isInterruptMode: boolean;
+  isAvatarScene: boolean;
+  avatarBgUrl: string;
 }
 
 export interface RTCConfig {
@@ -283,12 +285,18 @@ export const roomSlice = createSlice({
       const { paragraph, definite } = payload;
       const lastMsg = state.msgHistory.at(-1)! || {};
       /** 是否需要再创建新句子 */
-      const fromBot = payload.user === state.sceneConfigMap[state.scene].botName;
+      const fromBot =
+        payload.user === state.sceneConfigMap[state.scene].botName ||
+        payload.user.includes('voiceChat_');
       /**
-       * Bot 的语句以 definite 判断是否需要追加新内容
+       * Bot 的语句：
+       * 1. 在 SubtitleMode=0 时（未启用数字人时默认值），以 definite 判断是否需要追加新内容
+       * 2. 在 SubtitleMode=1 时（启用数字人时强制设定为 1），以 paragraph 判断是否需要追加新内容
        * User 的语句以 paragraph 判断是否需要追加新内容
        */
-      const lastMsgCompleted = fromBot ? lastMsg.definite : lastMsg.paragraph;
+      const currentSubtitleMode = state.sceneConfigMap[state.scene].isAvatarScene ? 1 : 0;
+      const lastMsgCompleted =
+        !fromBot || currentSubtitleMode ? lastMsg.paragraph : lastMsg.definite;
 
       if (state.msgHistory.length) {
         /** 如果上一句话是完整的则新增语句 */
@@ -302,7 +310,11 @@ export const roomSlice = createSlice({
           });
         } else {
           /** 话未说完, 更新文字内容 */
-          lastMsg.value = payload.text;
+          if (fromBot && currentSubtitleMode) {
+            lastMsg.value += payload.text;
+          } else {
+            lastMsg.value = payload.text;
+          }
           lastMsg.time = new Date().toString();
           lastMsg.paragraph = paragraph;
           lastMsg.definite = definite;

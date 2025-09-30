@@ -33,7 +33,6 @@ Demo 中以 `Custom` 场景为例，您可以自行新增场景。
 - `VoiceChat`: 场景下的 AIGC 配置。
     - 可参考 https://www.volcengine.com/docs/6348/1558163 中参数描述，完整填写参数内容。
     - 可通过 [快速跑通 Demo](https://console.volcengine.com/rtc/aigc/run?s=g) 快速获取参数, 跑通后点击右上角 `接入 API` 按钮复制相关代码贴到 JSON 配置文件中即可。
-
 ## 快速开始
 请注意，服务端和 Web 端都需要启动, 启动步骤如下:
 ### 服务端
@@ -87,6 +86,8 @@ yarn dev
 ### Demo 更新
 
 #### [1.6.0]
+- 2025-09-30
+    - 更新数字人场景相关配置
 - 2025-07-08
     - 更新 RTC Web SDK 版本至 4.66.20
 - 2025-06-26

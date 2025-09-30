@@ -17,27 +17,36 @@ import AiAvatarCard from '@/components/AiAvatarCard';
 import UserAvatar from '@/assets/img/userAvatar.png';
 import CameraCloseNoteSVG from '@/assets/img/CameraCloseNote.svg';
 import ScreenCloseNoteSVG from '@/assets/img/ScreenCloseNote.svg';
+import { LocalFullID, RemoteFullID } from '@/components/FullScreenCard';
 
 const LocalVideoID = 'local-video-player';
 const LocalScreenID = 'local-screen-player';
+const RemoteVideoID = 'remote-video-player';
 
 function CameraArea(props: React.HTMLAttributes<HTMLDivElement>) {
   const { className, ...rest } = props;
   const room = useSelector((state: RootState) => state.room);
   const { isFullScreen, scene } = room;
-  const { isVision, isScreenMode } = useScene();
+  const { isVision, isScreenMode, botName } = useScene();
   const { isVideoPublished, isScreenPublished, switchCamera, switchScreenCapture } =
     useDeviceState();
+  const isRemoteVideoPublished = room.remoteUsers.find(user => user.username === botName)?.publishVideo ?? false
 
   const setVideoPlayer = () => {
-    RtcClient.removeVideoPlayer(room.localUser.username!);
+    RtcClient.removeLocalVideoPlayer(room.localUser.username!);
     if (isVideoPublished || isScreenPublished) {
       RtcClient.setLocalVideoPlayer(
         room.localUser.username!,
-        isFullScreen ? 'local-full-player' : isScreenMode ? LocalScreenID : LocalVideoID,
+        isFullScreen ? LocalFullID : isScreenMode ? LocalScreenID : LocalVideoID,
         isScreenPublished,
         isScreenMode ? VideoRenderMode.RENDER_MODE_FILL : VideoRenderMode.RENDER_MODE_HIDDEN
       );
+      if(isRemoteVideoPublished) {
+        RtcClient.setRemoteVideoPlayer(
+          botName,
+          isFullScreen ? RemoteVideoID : RemoteFullID,
+        );
+      }
     }
   };
 
@@ -71,6 +80,13 @@ function CameraArea(props: React.HTMLAttributes<HTMLDivElement>) {
         className={`${styles['camera-player']} ${
           isScreenPublished && isScreenMode ? '' : styles['camera-player-hidden']
         }`}
+      />
+      <div
+        id={RemoteVideoID}
+        className={`${styles['camera-player']} ${
+          isFullScreen && isRemoteVideoPublished ? '' : styles['camera-player-hidden']
+        }`}
+        style={{ position: 'absolute' }}
       />
       <div
         className={`${styles['camera-placeholder']} ${

@@ -60,6 +60,15 @@
           "Enable": false
         }
       },
+      "AvatarConfig": {
+        "Enabled": false,
+        "AvatarType": "3min",
+        "AvatarRole": "250623-zhibo-linyunzhi",
+        "BackgroundUrl": "",
+        "VideoBitrate": 2000,
+        "AvatarAppID": "",
+        "AvatarToken": ""
+      },
       "InterruptMode": 0
     }
   }

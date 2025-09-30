@@ -15,10 +15,12 @@ import { RootState } from '@/store';
 import UserTag from '@/components/UserTag';
 import FullScreenCard from '@/components/FullScreenCard';
 import MobileToolBar from '@/pages/Mobile/MobileToolBar';
+import { useScene } from '@/lib/useCommon';
 
 function Room() {
   const room = useSelector((state: RootState) => state.room);
   const { isShowSubtitle, scene, isFullScreen } = room;
+  const { isAvatarScene } = useScene();
   return (
     <div className={`${style.wrapper} ${isMobile() ? style.mobile : ''}`}>
       {isMobile() ? <div className={style.mobilePlayer} id="mobile-local-player" /> : null}
@@ -26,7 +28,7 @@ function Room() {
       {isShowSubtitle && !isMobile() ? (
         <UserTag name={scene} className={style.subTitleUserTag} />
       ) : null}
-      {isFullScreen && !isMobile() ? (
+      {(isFullScreen || isAvatarScene) && !isMobile() ? (
         <FullScreenCard />
       ) : isMobile() && isShowSubtitle ? null : (
         <AiAvatarCard
@@ -36,7 +38,7 @@ function Room() {
         />
       )}
       {isMobile() ? null : <CameraArea />}
-      {isShowSubtitle && <Conversation className={style.conversation} />}
+      <Conversation className={style.conversation} showSubtitle={isShowSubtitle} />
       <ToolBar className={style.toolBar} />
       <AudioController className={style.controller} />
       <div className={style.declare}>AI生成内容由大模型生成，不能完全保障真实</div>

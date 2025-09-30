@@ -58,7 +58,7 @@ function ToolBar(props: React.HTMLAttributes<HTMLDivElement>) {
       {isScreenMode && (
         <img
           src={isScreenPublished ? ScreenOnSVG : ScreenOffSVG}
-          onClick={() => switchScreenCapture()}
+          onClick={() => switchScreenCapture(true)}
           className={style.btn}
           alt="screenShare"
         />

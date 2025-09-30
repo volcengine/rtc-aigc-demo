@@ -8,15 +8,18 @@ import { isMobile } from '@/utils/utils';
 import InvokeButton from '@/pages/MainPage/MainArea/Antechamber/InvokeButton';
 import { useJoin, useScene } from '@/lib/useCommon';
 import AIChangeCard from '@/components/AiChangeCard';
-import { updateFullScreen } from '@/store/slices/room';
+import { updateFullScreen, updateShowSubtitle } from '@/store/slices/room';
 import style from './index.module.less';
 
 function Antechamber() {
   const dispatch = useDispatch();
   const [joining, dispatchJoin] = useJoin();
-  const { isScreenMode } = useScene();
+  const { isScreenMode, isAvatarScene } = useScene();
+
   const handleJoinRoom = () => {
-    dispatch(updateFullScreen({ isFullScreen: !isMobile() && !isScreenMode })); // 初始化
+    dispatch(updateFullScreen({ isFullScreen: !isMobile() && !isScreenMode && !isAvatarScene })); // 初始化
+    dispatch(updateShowSubtitle({ isShowSubtitle: !isAvatarScene }));
+
     if (!joining) {
       dispatchJoin();
     }

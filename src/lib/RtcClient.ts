@@ -325,10 +325,21 @@ export class RTCClient {
     );
   };
 
+  setRemoteVideoPlayer = (userId: string, renderDom?: string | HTMLElement, renderMode = VideoRenderMode.RENDER_MODE_HIDDEN) => {
+    return this.engine.setRemoteVideoPlayer(
+      StreamIndex.STREAM_INDEX_MAIN,
+      {
+        renderDom,
+        userId,
+        renderMode,
+      }
+    );
+  }
+
   /**
    * @brief 移除播放器
    */
-  removeVideoPlayer = (userId: string, scope: StreamIndex | 'Both' = 'Both') => {
+  removeLocalVideoPlayer = (userId: string, scope: StreamIndex | 'Both' = 'Both') => {
     let removeScreen = scope === StreamIndex.STREAM_INDEX_SCREEN;
     let removeCamera = scope === StreamIndex.STREAM_INDEX_MAIN;
     if (scope === 'Both') {
