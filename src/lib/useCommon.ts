@@ -3,7 +3,7 @@
  * SPDX-license-identifier: BSD-3-Clause
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import VERTC, { MediaType } from '@volcengine/rtc';
 import { Modal } from '@arco-design/web-react';
@@ -253,6 +253,8 @@ export const useJoin = (): [
 export const useLeave = () => {
   const dispatch = useDispatch();
   const { id } = useScene();
+  const idRef = useRef(id);
+  idRef.current = id;
 
   return async function () {
     await Promise.all([
@@ -260,7 +262,7 @@ export const useLeave = () => {
       RtcClient.stopScreenCapture,
       RtcClient.stopVideoCapture,
     ]);
-    await RtcClient.stopAgent(id);
+    await RtcClient.stopAgent(idRef.current);
     await RtcClient.leaveRoom();
     dispatch(clearHistoryMsg());
     dispatch(clearCurrentMsg());
