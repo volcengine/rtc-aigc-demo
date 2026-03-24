@@ -8,6 +8,7 @@ import UserTag from '../UserTag';
 import { RootState } from '@/store';
 import style from './index.module.less';
 import { useScene } from '@/lib/useCommon';
+import { isMobile } from '@/utils/utils';
 
 export const LocalFullID = 'local-full-player';
 export const RemoteFullID = 'remote-full-player';
@@ -29,7 +30,7 @@ function FullScreenCard() {
         style={{ background: 'unset' }}
       >
         <div id={RemoteFullID} style={{ width: '60%', height: '100%' }} />
-        <UserTag name="AI" className={style.tag} />
+        {!isMobile() ? <UserTag name="AI" className={style.tag} /> : null}
       </div>
     </>
   );
