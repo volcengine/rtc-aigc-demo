@@ -12,25 +12,26 @@ import { isMobile } from '@/utils/utils';
 import { useScene } from '@/lib/useCommon';
 import USER_AVATAR from '@/assets/img/userAvatar.png';
 import styles from './index.module.less';
+import AIAvatarReadying from '@/components/AIAvatarLoading';
 
 const lines: (string | React.ReactNode)[] = [];
 
-function Conversation(props: React.HTMLAttributes<HTMLDivElement>) {
-  const { className, ...rest } = props;
+function Conversation(props: React.HTMLAttributes<HTMLDivElement> & { showSubtitle: boolean }) {
+  const { className, showSubtitle, ...rest } = props;
   const room = useSelector((state: RootState) => state.room);
   const { msgHistory, isFullScreen } = room;
   const { userId } = useSelector((state: RootState) => state.room.localUser);
   const { isAITalking, isUserTalking, scene } = useSelector((state: RootState) => state.room);
   const isAIReady = msgHistory.length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
-  const { botName, icon } = useScene();
+  const { botName, icon, isAvatarScene } = useScene();
 
   const isUserTextLoading = (owner: string) => {
     return owner === userId && isUserTalking;
   };
 
   const isAITextLoading = (owner: string) => {
-    return owner === botName && isAITalking;
+    return (owner === botName || owner.includes('voiceChat_')) && isAITalking;
   };
 
   useEffect(() => {
@@ -46,20 +47,27 @@ function Conversation(props: React.HTMLAttributes<HTMLDivElement>) {
       className={`${styles.conversation} ${className} ${isFullScreen ? styles.fullScreen : ''} ${
         isMobile() ? styles.mobileConversation : ''
       }`}
+      style={isAvatarScene && !isAIReady ? { justifyContent: 'center' } : {}}
       {...rest}
     >
       {lines.map((line) => line)}
       {!isAIReady ? (
         <div className={styles.aiReadying}>
-          <Spin size={16} className={styles['aiReading-spin']} />
-          AI 准备中, 请稍侯
+          {isAvatarScene ? (
+            <AIAvatarReadying />
+          ) : (
+            <>
+              <Spin size={16} className={styles['aiReading-spin']} />
+              AI 准备中, 请稍侯
+            </>
+          )}
         </div>
       ) : (
         ''
       )}
-      {msgHistory?.map(({ value, user, isInterrupted }, index) => {
+      {(showSubtitle ? msgHistory : [])?.map(({ value, user, isInterrupted }, index) => {
         const isUserMsg = user === userId;
-        const isRobotMsg = user === botName;
+        const isRobotMsg = user === botName || user.includes('voiceChat_');
         if (!isUserMsg && !isRobotMsg) {
           return '';
         }
