@@ -79,6 +79,11 @@ yarn dev
 - [Demo 体验](https://www.volcengine.com/docs/6348/1310559?s=g)
 - [场景搭建方案](https://www.volcengine.com/docs/6348/1310560?s=g)
 
+## Security and privacy
+
+This project takes security seriously.
+For vulnerability reporting and supported versions, see [SECURITY.md](SECURITY.md)
+
 ## 更新日志
 
 ### OpenAPI 更新
