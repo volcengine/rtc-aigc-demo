@@ -116,8 +116,6 @@ app.use(async ctx => {
         SceneConfig.isInterruptMode = VoiceChat?.Config?.InterruptMode === 0;
         SceneConfig.isVision = VoiceChat?.Config?.LLMConfig?.VisionConfig?.Enable;
         SceneConfig.isScreenMode = VoiceChat?.Config?.LLMConfig?.VisionConfig?.SnapshotConfig?.StreamType === 1;
-        SceneConfig.isAvatarScene = VoiceChat?.Config?.AvatarConfig?.Enabled;
-        SceneConfig.avatarBgUrl = VoiceChat?.Config?.AvatarConfig?.BackgroundUrl;
         delete RTCConfig.AppKey;
         return {
           scene: SceneConfig || {},
