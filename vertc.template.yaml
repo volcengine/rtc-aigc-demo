@@ -1,0 +1,12 @@
+version: 1
+scene: voice-agent
+platform: web
+agent_config: server/scenes/default.json
+required_files:
+  - package.json
+  - web/package.json
+  - web/src/App.tsx
+  - server/package.json
+  - server/app.js
+  - server/scenes/default.json
+  - vertc.taskfile.yaml

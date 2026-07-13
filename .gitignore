@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/web/node_modules
+/server/node_modules
 /.pnp
 .pnp.js
 .vscode
@@ -10,6 +12,7 @@
 
 # production
 /build
+/web/build
 
 # misc
 .DS_Store
@@ -23,10 +26,8 @@ yarn-debug.log*
 yarn-error.log*
 .eslintcache
 
-/Server/node_modules
-/Server/log
+/server/log
 /log
-yarn.lock
 .eslintcache
 pnpm-lock.yaml
 dist/

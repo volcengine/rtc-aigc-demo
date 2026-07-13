@@ -1,0 +1,83 @@
+{
+  "SceneConfig": {
+    "icon": "https://lf3-rtc-demo.volccdn.com/obj/rtc-aigc-assets/DoubaoAvatar.png",
+    "name": "默认智能体"
+  },
+  "VoiceChat": {
+    "AgentConfig": {
+      "WelcomeMessage": "你好，我是小宁，有什么需要帮忙的吗？",
+      "UserId": "voice_agent",
+      "EnableConversationStateCallback": true
+    },
+    "Config": {
+      "ASRConfig": {
+        "Provider": "volcano",
+        "ProviderParams": {
+          "Mode": "bigmodel",
+          "ApiResourceId": "volc.bigasr.sauc.duration",
+          "StreamMode": 2,
+          "enable_nonstream": true,
+          "context_history_length": 3
+        },
+        "VADConfig": {
+          "SilenceTime": 600,
+          "AIVAD": false,
+          "ForceBeginThreshold": 0,
+          "ForceEnd": false,
+          "VolumeGain": 1.0
+        },
+        "InterruptConfig": {
+          "InterruptSpeechDuration": 0,
+          "InterruptKeywords": []
+        },
+        "TurnDetectionMode": 0
+      },
+      "TTSConfig": {
+        "AutoActive": true,
+        "Provider": "volcano_bidirection",
+        "ProviderParams": {
+          "ResourceId": "volc.service_type.10029",
+          "audio": {
+            "voice_type": "zh_female_linjianvhai_moon_bigtts",
+            "speech_rate": 0
+          },
+          "Additions": {
+            "enable_latex_tn": false
+          }
+        },
+        "IgnoreBracketText": [],
+        "Context": {
+          "TagParse": false,
+          "QuoteUserQuestion": true
+        },
+        "Prefill": true,
+        "InterruptMode": 0
+      },
+      "LLMConfig": {
+        "AutoActive": true,
+        "Mode": "ArkV3",
+        "ModelName": "doubao-seed-2-0-lite-260428",
+        "SystemMessages": ["你是一个简洁、友好的语音助手。"],
+        "UserPrompts": [],
+        "HistoryLength": 3,
+        "Temperature": 0.1,
+        "MaxTokens": 1024,
+        "TopP": 0.3,
+        "Prefill": false,
+        "ThinkingType": "disabled",
+        "VisionConfig": {
+          "Enable": true,
+          "SnapshotConfig": {
+            "StreamType": 0,
+            "ImageDetail": "auto",
+            "Height": 640,
+            "Interval": 2000,
+            "ImagesLimit": 1,
+            "AutoSelect": false
+          }
+        }
+      },
+      "InterruptMode": 0
+    }
+  }
+}

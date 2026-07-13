@@ -1,71 +1,11 @@
 {
-  "name": "aigc",
-  "version": "1.6.0",
-  "license": "BSD-3-Clause",
+  "name": "rtc-aigc-demo",
   "private": true,
-  "dependencies": {
-    "@reduxjs/toolkit": "^1.8.3",
-    "@volcengine/rtc": "~4.66.20",
-    "@arco-design/web-react": "^2.65.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-redux": "^8.0.2",
-    "react-router": "^6.3.0",
-    "react-router-dom": "^6.3.0",
-    "redux": "^4.2.0",
-    "uuid": "^8.3.2"
-  },
   "scripts": {
-    "dev": "npm run echo && npm run start",
-    "start": "cross-env REACT_APP_LOCAL=cn  craco start",
-    "server:start": "node Server/app.js",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "react-scripts eject",
-    "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
-    "eslint": "eslint  src/ --fix --cache --quiet --ext .js,.jsx,.ts,.tsx",
-    "stylelint": "stylelint 'src/**/*.less' --fix",
-    "pre-commit": "npm run eslint && npm run stylelint",
-    "echo": "node message.js"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "concurrently -k -n server,web \"yarn --cwd server dev\" \"yarn --cwd web start\""
   },
   "devDependencies": {
-    "@craco/craco": "^6.4.5",
-    "@types/lodash": "^4.17.4",
-    "@types/node": "^16.11.45",
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6",
-    "@types/react-helmet": "^6.1.11",
-    "@types/uuid": "^8.3.4",
-    "craco-less": "^2.0.0",
-    "cross-env": "^7.0.3",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-babel": "^5.3.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "postcss-less": "^6.0.0",
-    "prettier": "^2.7.1",
-    "react-scripts": "5.0.1",
-    "stylelint": "^14.9.1",
-    "stylelint-config-prettier": "^9.0.3",
-    "stylelint-config-standard": "^26.0.0",
-    "typescript": "^4.7.4"
-  }
+    "concurrently": "^9.2.1"
+  },
+  "packageManager": "yarn@1.22.22"
 }

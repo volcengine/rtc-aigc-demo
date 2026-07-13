@@ -1,0 +1,19 @@
+version: 2
+scene: voice-agent
+platform: web
+sdk:
+  name: "@volcengine/rtc"
+  version: "4.68.1"
+runtime:
+  topology: web-server
+  agent_control: server
+tasks:
+  post_create:
+    - "cp -n .env.example .env.local || true"
+    - "cp -n web/.env.example web/.env.local || true"
+  install:
+    - "yarn install --frozen-lockfile"
+    - "yarn --cwd web install --frozen-lockfile"
+    - "yarn --cwd server install --frozen-lockfile"
+  dev:
+    - "yarn dev"

@@ -1,0 +1,70 @@
+{
+  "name": "rtc-aigc-demo-web",
+  "version": "1.6.0",
+  "license": "BSD-3-Clause",
+  "private": true,
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.8.3",
+    "@volcengine/rtc": "4.68.1",
+    "@arco-design/web-react": "^2.65.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.2",
+    "react-router": "^6.3.0",
+    "react-router-dom": "^6.3.0",
+    "redux": "^4.2.0",
+    "uuid": "^8.3.2"
+  },
+  "scripts": {
+    "start": "cross-env REACT_APP_LOCAL=cn  craco start",
+    "build": "craco build",
+    "test": "craco test --watchAll=false",
+    "eject": "react-scripts eject",
+    "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
+    "eslint": "eslint  src/ --fix --cache --quiet --ext .js,.jsx,.ts,.tsx",
+    "stylelint": "stylelint 'src/**/*.less' --fix",
+    "pre-commit": "npm run eslint && npm run stylelint",
+    "echo": "node message.js"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@craco/craco": "^6.4.5",
+    "@types/lodash": "^4.17.4",
+    "@types/node": "^16.11.45",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "@types/react-helmet": "^6.1.11",
+    "@types/uuid": "^8.3.4",
+    "craco-less": "^2.0.0",
+    "cross-env": "^7.0.3",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "postcss-less": "^6.0.0",
+    "prettier": "^2.7.1",
+    "react-scripts": "5.0.1",
+    "stylelint": "^14.9.1",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-standard": "^26.0.0",
+    "typescript": "^4.7.4"
+  },
+  "packageManager": "yarn@1.22.22"
+}
