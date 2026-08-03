@@ -42,6 +42,7 @@ function loadRuntimeConfig(env = process.env) {
   const config = {
     appId: required(env.RTC_APP_ID, "RTC_APP_ID"),
     appKey: required(env.RTC_APP_KEY, "RTC_APP_KEY"),
+    businessId: env.VERTC_BUSINESS_ID?.trim() || undefined,
     host: env.HOST?.trim() || "127.0.0.1",
     port: Number(env.PORT || 3001),
     endpoint: env.VOLCENGINE_RTC_ENDPOINT?.trim() || DEFAULT_ENDPOINT,
@@ -130,6 +131,7 @@ function createRuntimeScenes(sceneDefinitions, config) {
           scene,
           rtc: {
             AppId: config.appId,
+            BusinessId: config.businessId,
             RoomId: roomId,
             UserId: userId,
             Token: createRtcToken(config, roomId, userId),
@@ -179,6 +181,7 @@ function buildStartRequest(runtimeScene, config) {
   return {
     ...voiceChat,
     AppId: config.appId,
+    BusinessId: config.businessId,
     RoomId: runtimeScene.roomId,
     TaskId: runtimeScene.taskId,
     AgentConfig: {

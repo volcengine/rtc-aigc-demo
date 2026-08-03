@@ -89,6 +89,40 @@ test("loadRuntimeConfig selects direct or CLI mode and rejects partial AK/SK", (
   );
 });
 
+test("loadRuntimeConfig reads the optional BusinessId", () => {
+  const env = {
+    RTC_APP_ID: appId,
+    RTC_APP_KEY: appKey,
+    VERTC_CLI_PATH: "/tmp/vertc",
+    VERTC_PROJECT_DIR: "/tmp/project",
+  };
+
+  assert.equal(
+    loadRuntimeConfig({ ...env, VERTC_BUSINESS_ID: "vertc_cli" }).businessId,
+    "vertc_cli"
+  );
+  assert.equal(loadRuntimeConfig(env).businessId, undefined);
+});
+
+test("runtime propagates the optional BusinessId", () => {
+  const config = cliConfig({ businessId: "vertc_cli" });
+  const scenes = createRuntimeScenes(sceneDefinitions(), config);
+
+  assert.equal(scenes.default.rtc.BusinessId, "vertc_cli");
+  assert.equal(buildStartRequest(scenes.default, config).BusinessId, "vertc_cli");
+
+  const configWithoutBusinessId = cliConfig();
+  const scenesWithoutBusinessId = createRuntimeScenes(
+    sceneDefinitions(),
+    configWithoutBusinessId
+  );
+  assert.equal(
+    buildStartRequest(scenesWithoutBusinessId.default, configWithoutBusinessId)
+      .BusinessId,
+    undefined
+  );
+});
+
 test("scene runtime injects session identities without mutating the scene file", () => {
   const definitions = sceneDefinitions();
   const scenes = createRuntimeScenes(definitions, cliConfig());

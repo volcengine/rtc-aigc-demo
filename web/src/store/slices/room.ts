@@ -49,6 +49,7 @@ export interface SceneConfig {
 
 export interface RTCConfig {
   AppId: string;
+  BusinessId?: string;
   RoomId: string;
   UserId: string;
   Token: string;

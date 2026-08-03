@@ -213,6 +213,9 @@ export const useJoin = (): [boolean, () => Promise<void | boolean>] => {
 
       /** 1. Create RTC Engine */
       await RtcClient.createEngine();
+      if (rtc.BusinessId) {
+        RtcClient.setBusinessId(rtc.BusinessId);
+      }
 
       /** 2.1 Set events callbacks */
       RtcClient.addEventListeners(listeners);
