@@ -104,6 +104,24 @@ test("loadRuntimeConfig reads the optional BusinessId", () => {
   assert.equal(loadRuntimeConfig(env).businessId, undefined);
 });
 
+test("loadRuntimeConfig reads the optional OpenAPI User-Agent", () => {
+  const env = {
+    RTC_APP_ID: appId,
+    RTC_APP_KEY: appKey,
+    VERTC_CLI_PATH: "/tmp/vertc",
+    VERTC_PROJECT_DIR: "/tmp/project",
+  };
+
+  assert.equal(
+    loadRuntimeConfig({
+      ...env,
+      VERTC_OPENAPI_USER_AGENT: "vertc-cli/0.1.0",
+    }).openApiUserAgent,
+    "vertc-cli/0.1.0"
+  );
+  assert.equal(loadRuntimeConfig(env).openApiUserAgent, undefined);
+});
+
 test("runtime propagates the optional BusinessId", () => {
   const config = cliConfig({ businessId: "vertc_cli" });
   const scenes = createRuntimeScenes(sceneDefinitions(), config);
@@ -194,6 +212,7 @@ test("direct mode signs only the allowlisted VoiceChat request", async () => {
   const config = cliConfig({
     mode: "openapi",
     credential: { accessKeyId: "ak", secretKey: "sk" },
+    openApiUserAgent: "vertc-cli/0.1.0",
   });
   const invoke = createVoiceChatInvoker(config, {
     fetchImpl: async (url, options) => {
@@ -205,6 +224,24 @@ test("direct mode signs only the allowlisted VoiceChat request", async () => {
 
   assert.match(request.url, /Action=StartVoiceChat/);
   assert.match(request.options.headers.Authorization, /^HMAC-SHA256 /);
+  assert.equal(request.options.headers["User-Agent"], "vertc-cli/0.1.0");
+});
+
+test("direct mode omits User-Agent when it is not configured", async () => {
+  let headers;
+  const config = cliConfig({
+    mode: "openapi",
+    credential: { accessKeyId: "ak", secretKey: "sk" },
+  });
+  const invoke = createVoiceChatInvoker(config, {
+    fetchImpl: async (_url, options) => {
+      headers = options.headers;
+      return { json: async () => ({ ResponseMetadata: {}, Result: "ok" }) };
+    },
+  });
+
+  await invoke(START_ACTION, { AppId: appId, RoomId: "room", TaskId: "task" });
+  assert.equal(headers["User-Agent"], undefined);
 });
 
 test("HTTP surface isolates sessions and allows concurrent pages", async (t) => {
