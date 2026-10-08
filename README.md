@@ -38,7 +38,9 @@
 - `SceneConfig`：场景的信息，例如名称、头像等。
 - `VoiceChat`: 场景下的 AIGC 配置。
   - 可参考 [VoiceChat 参数说明](https://docs.volcengine.com/docs/6348/2123348)，填写与接口版本一致的参数。
-  - 可通过 [快速跑通 Demo](https://console.volcengine.com/rtc/aigc/run?s=g) 快速获取参数, 跑通后点击右上角 `接入 API` 按钮复制相关代码贴到 JSON 配置文件中即可。
+  - 可在 [我的智能体](https://console.volcengine.com/conversational-ai/agentManage) 中创建、配置并保存智能体，再从管理页的 `代码示例` 获取 `StartVoiceChat` 配置。
+    将请求体中的 `Config`、`AgentConfig` 分别填入场景 JSON 的 `VoiceChat.Config`、`VoiceChat.AgentConfig`；
+    AppId、RoomId、TaskId、TargetUserId 由本 Demo 服务端设置，密钥改用环境变量引用。
 
 ## 快速开始
 

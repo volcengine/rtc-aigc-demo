@@ -41,7 +41,7 @@
             "voice_type": "zh_female_linjianvhai_moon_bigtts",
             "speech_rate": 0
           },
-          "Additions": {
+          "additions": {
             "enable_latex_tn": false
           }
         },

@@ -43,7 +43,9 @@ Node 服务启动时会自动读取 `server/scenes` 下的 `.json` 文件作为�
   - 可选 `RTC_BUSINESS_ID` 同时传给 RTC SDK 和 VoiceChat。
 - VoiceChat
   - 参考 [VoiceChat 参数说明](https://docs.volcengine.com/docs/6348/2123348)。
-  - 可通过 [快速跑通 Demo](https://console.volcengine.com/rtc/aigc/run?s=g) 快速获取参数, 跑通后点击右上角 `接入 API` 按钮复制相关代码贴到 JSON 配置文件中即可。
+  - 可在 [我的智能体](https://console.volcengine.com/conversational-ai/agentManage) 中创建、配置并保存智能体，再从管理页的 `代码示例` 获取 `StartVoiceChat` 配置。
+    将请求体中的 `Config`、`AgentConfig` 分别填入场景 JSON 的 `VoiceChat.Config`、`VoiceChat.AgentConfig`；
+    AppId、RoomId、TaskId、TargetUserId 由本 Demo 服务端设置，密钥改用环境变量引用。
 
 ## 注意
 
