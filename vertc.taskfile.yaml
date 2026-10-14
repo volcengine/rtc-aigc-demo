@@ -3,7 +3,7 @@ scene: voice-agent
 platform: web
 sdk:
   name: "@volcengine/rtc"
-  version: "4.68.1"
+  version: "4.69.3"
 runtime:
   topology: web-server
   agent_control: server

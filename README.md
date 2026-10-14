@@ -119,6 +119,9 @@ For vulnerability reporting and supported versions, see [SECURITY.md](SECURITY.m
 
 #### [1.6.0]
 
+- 2026-10-14
+  - 更新 RTC Web SDK 至 `4.69.3`。
+
 - 2025-07-08
   - 更新 RTC Web SDK 版本至 4.66.20
 - 2025-06-26
