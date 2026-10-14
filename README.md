@@ -152,6 +152,9 @@ For vulnerability reporting and supported versions, see [SECURITY.md](SECURITY.m
 
 #### [1.6.0]
 
+- 2026-10-14
+  - 更新 RTC Web SDK 至 `4.69.3`。
+
 - 2026-09-11
   - 更新 VoiceChat OpenAPI 至 `2025-06-01`，RTC Web SDK 至 `4.68.1`。
   - 拆分 `web/` 与 `server/`，支持根目录 `yarn dev` 同时启动。

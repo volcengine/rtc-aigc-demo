@@ -2335,10 +2335,10 @@
   resolved "https://registry.npmjs.org/@ungap/structured-clone/-/structured-clone-1.3.3.tgz#094041e1a4cb1987f038335421281ac8be390bcc"
   integrity sha512-60YRaenCQcVjYEKOcG824+DRGGIQ3VKErcBoAEDJZz5bKIs2ZG+X/H9Nk+Q6EVkwJk5QNApxbrc5QtBSwtrXAg==
 
-"@volcengine/rtc@4.68.1":
-  version "4.68.1"
-  resolved "https://registry.npmjs.org/@volcengine/rtc/-/rtc-4.68.1.tgz#35601cba9cc4ac9a02713b832901e259e03cd903"
-  integrity sha512-+S08IaTuouwG5B+aWAnC2PYvQcKimMIIFngtMrYTLgghHW5vCa96Tiq1vdkXK6QRKCB04W1ec8qrPM2ESSU96A==
+"@volcengine/rtc@4.69.3":
+  version "4.69.3"
+  resolved "https://registry.npmjs.org/@volcengine/rtc/-/rtc-4.69.3.tgz#945df21ef38ec6da7d1183a409f85dd75a30add1"
+  integrity sha512-FaQ+GiBESW0+o4Hd80rEdEW8CPzYp3X1kSiN6caxnsl+4rBt8E8qVoiDHFDIsD6AT8U4qrE7i1rCJXKQ7wHjaw==
   dependencies:
     eventemitter3 "^4.0.7"
 
